@@ -1,0 +1,356 @@
+/* GachaPanel Component Styles */
+.gacha-panel-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.gacha-panel {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 800px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  color: #fff;
+}
+
+.gacha-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #2c3e50;
+}
+
+.gacha-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.currency-display {
+  display: flex;
+  gap: 16px;
+}
+
+.currency-display span {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.currency-display .gold {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.currency-display .diamond {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+.pool-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.pool-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 2px solid transparent;
+}
+
+.pool-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pool-card.selected {
+  border-color: #3498db;
+  background: rgba(52, 152, 219, 0.1);
+}
+
+.pool-icon {
+  font-size: 32px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.pool-info {
+  flex: 1;
+}
+
+.pool-info h3 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.pool-info p {
+  margin: 0;
+  font-size: 13px;
+  color: #7f8c8d;
+}
+
+.guaranteed-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 8px;
+  background: #e74c3c;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.pool-cost span {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.pool-cost .gold {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.pool-cost .diamond {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+.draw-section {
+  text-align: center;
+}
+
+.probability-info {
+  margin-bottom: 20px;
+}
+
+.probability-info h4 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #7f8c8d;
+}
+
+.probability-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prob-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.prob-label {
+  width: 50px;
+  font-size: 12px;
+}
+
+.prob-bar {
+  flex: 1;
+  height: 12px;
+  background: #2c3e50;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.prob-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s;
+}
+
+.prob-fill.purple {
+  background: linear-gradient(90deg, #9b59b6, #8e44ad);
+}
+
+.prob-fill.orange {
+  background: linear-gradient(90deg, #e67e22, #d35400);
+}
+
+.prob-fill.red {
+  background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+.prob-value {
+  width: 40px;
+  text-align: right;
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+.draw-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.draw-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+}
+
+.draw-btn:disabled {
+  background: #7f8c8d;
+  cursor: not-allowed;
+}
+
+.draw-btn.drawing {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Draw Result Styles */
+.draw-result {
+  text-align: center;
+}
+
+.result-header {
+  margin-bottom: 24px;
+}
+
+.result-header h3 {
+  font-size: 28px;
+  margin: 0 0 8px;
+}
+
+.guaranteed-tag {
+  display: inline-block;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  border-radius: 8px;
+  font-weight: bold;
+  animation: bounce 0.5s;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.heroes-showcase {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.result-hero-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 16px;
+  width: 150px;
+  border: 3px solid;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-hero-card .hero-image {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 12px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.result-hero-card .hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.result-hero-card .hero-quality-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.result-hero-card h4 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.result-hero-card .hero-stars {
+  color: #f39c12;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.result-hero-card .faction-tag {
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.continue-btn, .close-result-btn {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.continue-btn {
+  background: #27ae60;
+  color: #fff;
+}
+
+.close-result-btn {
+  background: #7f8c8d;
+  color: #fff;
+}
+
+.continue-btn:hover, .close-result-btn:hover {
+  transform: translateY(-2px);
+}

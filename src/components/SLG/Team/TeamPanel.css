@@ -1,0 +1,393 @@
+/* TeamPanel Component Styles */
+.team-panel-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.team-panel {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 800px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  color: #fff;
+}
+
+.team-header {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #2c3e50;
+}
+
+.team-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.tab-navigation {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 8px;
+  color: #7f8c8d;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.tab-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.tab-btn.active {
+  background: #3498db;
+  color: #fff;
+}
+
+.team-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.team-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 2px solid transparent;
+}
+
+.team-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.team-card.selected {
+  border-color: #3498db;
+  background: rgba(52, 152, 219, 0.1);
+}
+
+.team-info {
+  flex: 1;
+}
+
+.team-info h3 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.team-faction {
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+.team-power {
+  text-align: center;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.power-label {
+  display: block;
+  font-size: 11px;
+  color: #7f8c8d;
+}
+
+.power-value {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  color: #f39c12;
+}
+
+.team-members {
+  display: flex;
+  gap: 8px;
+}
+
+.member-slot {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.member-slot.filled {
+  border: 2px solid #27ae60;
+}
+
+.member-slot.empty {
+  border: 2px dashed #7f8c8d;
+}
+
+.member-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.position-badge {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  color: #fff;
+}
+
+.slot-placeholder {
+  font-size: 10px;
+  color: #7f8c8d;
+  text-align: center;
+}
+
+.add-hero-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 16px;
+  background: #27ae60;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.add-hero-btn:hover {
+  background: #2ecc71;
+}
+
+.add-hero-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #2c3e50;
+  border-radius: 12px;
+  padding: 20px;
+  width: 80%;
+  max-height: 60vh;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.add-hero-modal h4 {
+  margin: 0 0 16px;
+}
+
+.hero-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.selectable-hero {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.selectable-hero:hover {
+  background: rgba(52, 152, 219, 0.2);
+  transform: translateY(-2px);
+}
+
+.selectable-hero img {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.selectable-hero .hero-name {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.selectable-hero .hero-quality {
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.cancel-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 16px;
+  background: #7f8c8d;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.heroes-tab h3, .formations-tab h3 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+.available-heroes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.available-hero-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.available-hero-card img {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+}
+
+.available-hero-card .hero-info h4 {
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+
+.available-hero-card .hero-quality {
+  font-size: 11px;
+  margin-right: 8px;
+}
+
+.available-hero-card .hero-faction {
+  font-size: 11px;
+  color: #7f8c8d;
+}
+
+.no-heroes {
+  text-align: center;
+  color: #7f8c8d;
+  padding: 40px;
+}
+
+.formations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formation-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.formation-header h4 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.formation-desc {
+  margin: 0;
+  font-size: 13px;
+  color: #7f8c8d;
+}
+
+.formation-bonuses {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+.bonus-tag {
+  padding: 4px 12px;
+  background: rgba(52, 152, 219, 0.2);
+  border-radius: 4px;
+  font-size: 12px;
+  color: #3498db;
+}
+
+.formation-heroes {
+  display: flex;
+  gap: 16px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.main-hero, .sub-heroes {
+  flex: 1;
+}
+
+.main-hero .label, .sub-heroes .label {
+  display: block;
+  font-size: 11px;
+  color: #7f8c8d;
+  margin-bottom: 4px;
+}
+
+.main-hero .hero-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #e74c3c;
+}
+
+.sub-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sub-list span {
+  font-size: 12px;
+  color: #3498db;
+}
+
+.formation-strengths {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.formation-strengths .strength {
+  font-size: 12px;
+  color: #27ae60;
+}
+
+.formation-strengths .weakness {
+  font-size: 12px;
+  color: #e74c3c;
+}
