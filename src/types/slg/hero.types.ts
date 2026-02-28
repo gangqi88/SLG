@@ -13,7 +13,7 @@ export type HeroStatus = 'idle' | 'deployed' | 'injured' | 'training';
 export type SkillType = 'active' | 'passive' | 'talent';
 
 // 效果类型
-export type EffectType = 'damage' | 'heal' | 'buff' | 'debuff' | 'special';
+export type EffectType = 'damage' | 'heal' | 'buff' | 'debuff' | 'special' | 'shield' | 'defense' | 'attack' | 'movement' | 'morale' | 'resource' | 'training' | 'plunder' | 'stealth' | 'skill' | 'crit' | 'critDamage' | 'dodge' | 'healBoost' | 'wounded' | 'casualty' | 'trap' | 'building' | 'trade' | 'gold' | 'fire' | 'burn' | 'control' | 'aoe';
 
 // 目标类型
 export type TargetType = 'self' | 'ally' | 'enemy' | 'all';
