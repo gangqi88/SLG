@@ -7,6 +7,9 @@ import {
   ResourceProduction,
   ResourceCost,
   SiegeResult,
+  GovernmentHero,
+  GovernmentPosition,
+  GOVERNMENT_POSITIONS,
   CITY_CONSTANTS,
   getFactionStyle
 } from '../types/slg/city.types';
@@ -35,6 +38,7 @@ export class CitySystem {
       buildings: this.createInitialBuildings(faction),
       defense: this.createInitialDefense(faction),
       resources: this.createInitialResources(),
+      governmentHeroes: [],
       position: { x, y },
       ownerId,
       status: 'peace',
@@ -415,6 +419,110 @@ export class CitySystem {
     if (resources.wood) city.resources.wood = Math.min(city.resources.wood + resources.wood, city.resources.maxCapacity);
     if (resources.steel) city.resources.steel = Math.min(city.resources.steel + resources.steel, city.resources.maxCapacity);
     if (resources.gold) city.resources.gold += resources.gold;
+  }
+
+  assignGovernmentHero(cityId: string, heroId: string, position: GovernmentPosition): { success: boolean; error?: string } {
+    const city = this.cities.get(cityId);
+    if (!city) {
+      return { success: false, error: '城市不存在' };
+    }
+
+    const existingHero = city.governmentHeroes.find(h => h.heroId === heroId);
+    if (existingHero) {
+      return { success: false, error: '该英雄已在城中任职' };
+    }
+
+    const existingPosition = city.governmentHeroes.find(h => h.position === position);
+    if (existingPosition) {
+      return { success: false, error: '该职位已有英雄担任' };
+    }
+
+    const governmentHero: GovernmentHero = {
+      heroId,
+      position,
+      assignedAt: Date.now(),
+      bonusLevel: 1,
+    };
+
+    city.governmentHeroes.push(governmentHero);
+    console.log(`英雄 ${heroId} 任命为 ${GOVERNMENT_POSITIONS[position].name}`);
+    return { success: true };
+  }
+
+  removeGovernmentHero(cityId: string, heroId: string): { success: boolean; error?: string } {
+    const city = this.cities.get(cityId);
+    if (!city) {
+      return { success: false, error: '城市不存在' };
+    }
+
+    const index = city.governmentHeroes.findIndex(h => h.heroId === heroId);
+    if (index === -1) {
+      return { success: false, error: '该英雄未在城中任职' };
+    }
+
+    city.governmentHeroes.splice(index, 1);
+    console.log(`英雄 ${heroId} 解除职位`);
+    return { success: true };
+  }
+
+  calculateGovernmentBonus(city: City): ResourceProduction & { defense: number; training: number; research: number } {
+    const baseBonus: ResourceProduction & { defense: number; training: number; research: number } = {
+      food: 0,
+      wood: 0,
+      steel: 0,
+      gold: 0,
+      defense: 0,
+      training: 0,
+      research: 0,
+    };
+
+    city.governmentHeroes.forEach(hero => {
+      const positionInfo = GOVERNMENT_POSITIONS[hero.position];
+      const bonusValue = positionInfo.primaryBonus.value * hero.bonusLevel;
+      const bonusType = positionInfo.primaryBonus.type;
+
+      if (bonusType === 'all') {
+        baseBonus.food += bonusValue;
+        baseBonus.wood += bonusValue;
+        baseBonus.steel += bonusValue;
+        baseBonus.gold += bonusValue;
+      } else if (bonusType === 'food') {
+        baseBonus.food += bonusValue;
+      } else if (bonusType === 'wood') {
+        baseBonus.wood += bonusValue;
+      } else if (bonusType === 'steel') {
+        baseBonus.steel += bonusValue;
+      } else if (bonusType === 'gold') {
+        baseBonus.gold += bonusValue;
+      } else if (bonusType === 'defense') {
+        baseBonus.defense += bonusValue;
+      } else if (bonusType === 'training') {
+        baseBonus.training += bonusValue;
+      } else if (bonusType === 'research') {
+        baseBonus.research += bonusValue;
+      }
+    });
+
+    return baseBonus;
+  }
+
+  getGovernmentHeroes(cityId: string): GovernmentHero[] {
+    const city = this.cities.get(cityId);
+    return city?.governmentHeroes || [];
+  }
+
+  getAvailablePositions(cityId: string): GovernmentPosition[] {
+    const city = this.cities.get(cityId);
+    if (!city) return [];
+
+    const allPositions: GovernmentPosition[] = [
+      'governor', 'farm_minister', 'mining_minister', 
+      'lumber_minister', 'trade_minister', 
+      'defense_commander', 'training_commander', 'researcher'
+    ];
+
+    const occupiedPositions = city.governmentHeroes.map(h => h.position);
+    return allPositions.filter(p => !occupiedPositions.includes(p));
   }
 }
 

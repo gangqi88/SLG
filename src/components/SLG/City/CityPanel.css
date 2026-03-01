@@ -370,3 +370,146 @@
     grid-template-columns: 1fr;
   }
 }
+
+.government-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.government-bonus {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.government-bonus h4,
+.current-officials h4,
+.assign-hero h4 {
+  color: #fff;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.bonus-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bonus-item {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+}
+
+.current-officials {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.no-officials {
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  padding: 20px;
+}
+
+.official-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.official-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.official-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.official-name {
+  color: #fff;
+  font-weight: 600;
+}
+
+.official-position {
+  background: rgba(255, 215, 0, 0.2);
+  color: #ffd700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.official-desc {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  margin: 0;
+}
+
+.remove-btn {
+  align-self: flex-end;
+  padding: 4px 12px;
+  background: rgba(244, 67, 54, 0.2);
+  border: 1px solid rgba(244, 67, 54, 0.5);
+  border-radius: 4px;
+  color: #f44336;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.remove-btn:hover {
+  background: rgba(244, 67, 54, 0.3);
+}
+
+.assign-hero {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.position-select {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.position-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: left;
+}
+
+.position-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 215, 0, 0.5);
+}
+
+.position-name {
+  color: #ffd700;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.position-desc {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+}

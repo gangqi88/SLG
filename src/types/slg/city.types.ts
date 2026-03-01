@@ -1,5 +1,82 @@
 import { FactionType } from './hero.types';
 
+export type GovernmentPosition = 
+  | 'governor'      // 总督：全城加成
+  | 'farm_minister' // 农业官：食物产量
+  | 'mining_minister' // 矿务官：钢铁产量
+  | 'lumber_minister' // 林务官：木材产量
+  | 'trade_minister'  // 商务官：金币产量
+  | 'defense_commander' // 防御官：城防加成
+  | 'training_commander' // 训练官：练兵效率
+  | 'researcher';      // 研究院：科技研究
+
+export interface GovernmentHero {
+  heroId: string;
+  position: GovernmentPosition;
+  assignedAt: number;
+  bonusLevel: number;
+}
+
+export interface GovernmentBonus {
+  position: GovernmentPosition;
+  bonus: {
+    food?: number;
+    wood?: number;
+    steel?: number;
+    gold?: number;
+    defense?: number;
+    training?: number;
+    research?: number;
+  };
+}
+
+export const GOVERNMENT_POSITIONS: Record<GovernmentPosition, { 
+  name: string; 
+  description: string;
+  primaryBonus: { type: string; value: number };
+}> = {
+  governor: {
+    name: '总督',
+    description: '统领全城，各项资源产量+10%',
+    primaryBonus: { type: 'all', value: 10 },
+  },
+  farm_minister: {
+    name: '农业官',
+    description: '主管农业，食物产量+25%',
+    primaryBonus: { type: 'food', value: 25 },
+  },
+  mining_minister: {
+    name: '矿务官',
+    description: '主管矿产，钢铁产量+25%',
+    primaryBonus: { type: 'steel', value: 25 },
+  },
+  lumber_minister: {
+    name: '林务官',
+    description: '主管林业，木材产量+25%',
+    primaryBonus: { type: 'wood', value: 25 },
+  },
+  trade_minister: {
+    name: '商务官',
+    description: '主管商业，金币产量+25%',
+    primaryBonus: { type: 'gold', value: 25 },
+  },
+  defense_commander: {
+    name: '防御官',
+    description: '主管城防，防御力+20%',
+    primaryBonus: { type: 'defense', value: 20 },
+  },
+  training_commander: {
+    name: '训练官',
+    description: '主管训练，士兵训练速度+20%',
+    primaryBonus: { type: 'training', value: 20 },
+  },
+  researcher: {
+    name: '研究员',
+    description: '主管科研，科技研究速度+20%',
+    primaryBonus: { type: 'research', value: 20 },
+  },
+};
+
 export interface CityBuilding {
   id: string;
   name: string;
@@ -70,6 +147,7 @@ export interface City {
   buildings: CityBuilding[];
   defense: CityDefense;
   resources: CityResources;
+  governmentHeroes: GovernmentHero[];
   position: { x: number; y: number };
   ownerId: string;
   status: 'peace' | 'under_attack' | 'besieged';
