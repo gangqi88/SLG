@@ -467,4 +467,203 @@ export class HeroSystem {
       deployedHeroes
     };
   }
+
+  // 技能升级
+  upgradeSkill(heroId: string, skillType: 'activeSkill' | 'passiveSkill' | 'talent'): { success: boolean; newLevel?: number; error?: string } {
+    const hero = this.heroes.get(heroId);
+    if (!hero) {
+      return { success: false, error: '英雄不存在' };
+    }
+
+    const skill = hero[skillType];
+    if (!skill) {
+      return { success: false, error: '技能不存在' };
+    }
+
+    const currentLevel = skill.levels?.length || 1;
+    const maxLevel = 10;
+
+    if (currentLevel >= maxLevel) {
+      return { success: false, error: '技能已达满级' };
+    }
+
+    // 检查升级材料（可扩展为实际资源检查）
+    this.calculateSkillUpgradeCost(currentLevel);
+    // 这里可以添加资源检查逻辑
+
+    // 升级技能
+    if (skill.levels && currentLevel < skill.levels.length) {
+      skill.cooldown = skill.levels[currentLevel]?.cooldown ?? skill.cooldown;
+      skill.manaCost = skill.levels[currentLevel]?.manaCost ?? skill.manaCost;
+    }
+
+    this.savePlayerHeroes();
+    console.log(`技能升级成功: ${hero.name} - ${skill.name} (等级 ${currentLevel + 1})`);
+
+    return { success: true, newLevel: currentLevel + 1 };
+  }
+
+  // 计算技能升级消耗
+  private calculateSkillUpgradeCost(currentLevel: number): { gold: number; materials: Record<string, number> } {
+    const baseGold = 1000;
+    const gold = Math.floor(baseGold * Math.pow(1.5, currentLevel));
+    
+    return {
+      gold,
+      materials: {
+        'skill_book': 1 + Math.floor(currentLevel / 3)
+      }
+    };
+  }
+
+  // 获取技能升级信息
+  getSkillUpgradeInfo(heroId: string, skillType: 'activeSkill' | 'passiveSkill' | 'talent'): { currentLevel: number; maxLevel: number; cost: { gold: number; materials: Record<string, number> }; nextEffect?: string } | null {
+    const hero = this.heroes.get(heroId);
+    if (!hero) return null;
+
+    const skill = hero[skillType];
+    if (!skill) return null;
+
+    const currentLevel = skill.levels?.length || 1;
+    const maxLevel = 10;
+
+    if (currentLevel >= maxLevel) {
+      return { currentLevel, maxLevel, cost: { gold: 0, materials: {} } };
+    }
+
+    const cost = this.calculateSkillUpgradeCost(currentLevel);
+    const nextEffect = skill.levels[currentLevel]?.description || '';
+
+    return { currentLevel, maxLevel, cost, nextEffect };
+  }
+
+  // 装备强化
+  enhanceEquipment(heroId: string, equipmentSlot: 'weapon' | 'armor' | 'accessory'): { success: boolean; newLevel?: number; error?: string } {
+    const hero = this.heroes.get(heroId);
+    if (!hero) {
+      return { success: false, error: '英雄不存在' };
+    }
+
+    const equipment = hero.equipment?.[equipmentSlot];
+    if (!equipment) {
+      return { success: false, error: '装备不存在' };
+    }
+
+    if (equipment.level >= equipment.maxLevel) {
+      return { success: false, error: '装备已达满级' };
+    }
+
+    // 检查强化材料（可扩展为实际资源检查）
+    this.calculateEquipmentEnhanceCost(equipment.level);
+    // 这里可以添加资源检查逻辑
+
+    // 强化装备
+    equipment.level++;
+    
+    // 应用强化属性
+    const enhanceBonus = this.getEquipmentEnhanceBonus(equipment.type, equipment.level);
+    Object.keys(enhanceBonus).forEach(attr => {
+      if (equipment.enhancements[attr as keyof typeof equipment.enhancements] !== undefined) {
+        (equipment.enhancements as any)[attr] += enhanceBonus[attr as keyof typeof enhanceBonus];
+      }
+    });
+
+    this.savePlayerHeroes();
+    console.log(`装备强化成功: ${hero.name} - ${equipment.name} (等级 ${equipment.level})`);
+
+    return { success: true, newLevel: equipment.level };
+  }
+
+  // 计算装备强化消耗
+  private calculateEquipmentEnhanceCost(level: number): { gold: number; materials: Record<string, number> } {
+    const baseGold = 500;
+    const gold = Math.floor(baseGold * Math.pow(1.8, level));
+    
+    return {
+      gold,
+      materials: {
+        'enhance_stone': 2 + Math.floor(level / 2)
+      }
+    };
+  }
+
+  // 获取装备强化属性加成
+  private getEquipmentEnhanceBonus(type: string, level: number): Record<string, number> {
+    const baseBonus: Record<string, Record<string, number>> = {
+      weapon: { strength: 2, defense: 1 },
+      armor: { defense: 3, command: 1 },
+      accessory: { command: 2, strategy: 2 }
+    };
+
+    const bonus = baseBonus[type] || { command: 1 };
+    const multiplier = 1 + (level - 1) * 0.1;
+
+    const result: Record<string, number> = {};
+    Object.keys(bonus).forEach(attr => {
+      result[attr] = Math.floor(bonus[attr] * multiplier);
+    });
+
+    return result;
+  }
+
+  // 获取装备强化信息
+  getEquipmentEnhanceInfo(heroId: string, equipmentSlot: 'weapon' | 'armor' | 'accessory'): { currentLevel: number; maxLevel: number; cost: { gold: number; materials: Record<string, number> }; bonus: Record<string, number> } | null {
+    const hero = this.heroes.get(heroId);
+    if (!hero) return null;
+
+    const equipment = hero.equipment?.[equipmentSlot];
+    if (!equipment) return null;
+
+    const cost = this.calculateEquipmentEnhanceCost(equipment.level);
+    const nextBonus = this.getEquipmentEnhanceBonus(equipment.type, equipment.level + 1);
+
+    return {
+      currentLevel: equipment.level,
+      maxLevel: equipment.maxLevel,
+      cost,
+      bonus: nextBonus
+    };
+  }
+
+  // 升星（突破）
+  promoteStar(heroId: string): { success: boolean; newStars?: number; error?: string } {
+    const hero = this.heroes.get(heroId);
+    if (!hero) {
+      return { success: false, error: '英雄不存在' };
+    }
+
+    if (hero.stars >= HERO_CONSTANTS.MAX_STARS) {
+      return { success: false, error: '已达最高星级' };
+    }
+
+    // 检查升星材料（可扩展为实际资源检查）
+    this.calculateStarPromoteCost(hero.stars);
+    // 这里可以添加资源检查逻辑
+
+    hero.stars++;
+    
+    // 重新计算属性
+    this.updateHeroAttributes(hero, hero.level);
+    this.recalculateHeroPower(hero);
+
+    this.savePlayerHeroes();
+    console.log(`英雄升星成功: ${hero.name} (${hero.stars}星)`);
+
+    return { success: true, newStars: hero.stars };
+  }
+
+  // 计算升星消耗
+  private calculateStarPromoteCost(currentStars: number): { heroSouls: number; gold: number } {
+    const baseSouls = 800;
+    const heroSouls = Math.floor(baseSouls * Math.pow(2, currentStars));
+    const gold = heroSouls * 100;
+
+    return { heroSouls, gold };
+  }
+
+  // 重新计算英雄战斗力
+  private recalculateHeroPower(hero: Hero): void {
+    const power = this.calculateHeroPower(hero);
+    console.log(`英雄战斗力更新: ${hero.name} -> ${power}`);
+  }
 }
