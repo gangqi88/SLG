@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Hero, HeroQuality, FactionType, Bond, SkillEffect } from '../../../types/slg/hero.types';
+import { Hero, HeroQuality, FactionType } from '../../../types/slg/hero.types';
 import './HeroDetail.css';
 
 interface HeroDetailProps {

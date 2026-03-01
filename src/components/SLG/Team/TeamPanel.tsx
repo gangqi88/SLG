@@ -23,7 +23,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   onSelectTeam,
   onAddHero,
   onRemoveHero,
-  onCreateTeam,
+  onCreateTeam: _onCreateTeam,
   onClose
 }) => {
   const [activeTab, setActiveTab] = useState<'teams' | 'heroes' | 'formations'>('teams');
@@ -50,7 +50,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
     }
   };
 
-  const getTeamHero = (team: Team, heroId: string): Hero | undefined => {
+  const getTeamHero = (_team: Team, heroId: string): Hero | undefined => {
     return heroes.find(h => h.id === heroId);
   };
 
@@ -160,7 +160,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                       <div 
                         key={hero.id}
                         className="selectable-hero"
-                        onClick={() => handleAddHero(hero.id, selectedTeam.members.length === 0 ? 'main' : 'sub1')}
+                        onClick={() => handleAddHero(hero.id, (selectedTeam?.members.length ?? 0) === 0 ? 'main' : 'sub1')}
                       >
                         <img src={hero.avatar} alt={hero.name} />
                         <span className="hero-name">{hero.name}</span>

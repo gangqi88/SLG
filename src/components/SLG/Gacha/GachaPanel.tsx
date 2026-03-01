@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GachaPool, GachaResult } from '../../../systems/GachaSystem';
-import { Hero, HeroQuality } from '../../../types/slg/hero.types';
+import { HeroQuality } from '../../../types/slg/hero.types';
 import './GachaPanel.css';
 
 interface GachaPanelProps {
