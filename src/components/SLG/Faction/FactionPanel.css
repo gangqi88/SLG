@@ -1,0 +1,414 @@
+.faction-panel-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.faction-panel {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 1200px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.faction-panel .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+  line-height: 1;
+}
+
+.faction-panel .close-btn:hover {
+  opacity: 1;
+}
+
+.faction-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.faction-header h2 {
+  color: #fff;
+  font-size: 32px;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.faction-header p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 16px;
+}
+
+.faction-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.faction-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 24px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.faction-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.faction-card.selected {
+  border-color: #ffd700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.faction-card.faction-human {
+  background: linear-gradient(135deg, rgba(100, 149, 237, 0.1) 0%, rgba(70, 130, 180, 0.1) 100%);
+  border-color: rgba(100, 149, 237, 0.3);
+}
+
+.faction-card.faction-human:hover,
+.faction-card.faction-human.hovered {
+  border-color: #6495ed;
+  box-shadow: 0 0 20px rgba(100, 149, 237, 0.4);
+}
+
+.faction-card.faction-angel {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(135, 206, 250, 0.1) 100%);
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+.faction-card.faction-angel:hover,
+.faction-card.faction-angel.hovered {
+  border-color: #ffd700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+.faction-card.faction-demon {
+  background: linear-gradient(135deg, rgba(220, 20, 60, 0.1) 0%, rgba(139, 0, 0, 0.1) 100%);
+  border-color: rgba(220, 20, 60, 0.3);
+}
+
+.faction-card.faction-demon:hover,
+.faction-card.faction-demon.hovered {
+  border-color: #dc143c;
+  box-shadow: 0 0 20px rgba(220, 20, 60, 0.4);
+}
+
+.faction-icon {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.faction-emoji {
+  font-size: 64px;
+  display: block;
+}
+
+.faction-name {
+  color: #fff;
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.faction-desc {
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  font-size: 14px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.faction-attributes {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.attr-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+}
+
+.attr-row:last-child {
+  margin-bottom: 0;
+}
+
+.attr-label {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.attr-value {
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+.attr-bonus {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.faction-relations {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.relation-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.relation-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.relation-faction {
+  font-size: 14px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.relation-row.advantage .relation-faction {
+  color: #4caf50;
+}
+
+.relation-row.disadvantage .relation-faction {
+  color: #f44336;
+}
+
+.faction-strengths,
+.faction-weaknesses {
+  margin-bottom: 16px;
+}
+
+.faction-strengths h4,
+.faction-weaknesses h4 {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.faction-strengths ul,
+.faction-weaknesses ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.faction-strengths li {
+  color: #4caf50;
+  font-size: 13px;
+  margin-bottom: 4px;
+  padding-left: 16px;
+  position: relative;
+}
+
+.faction-strengths li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #4caf50;
+}
+
+.faction-weaknesses li {
+  color: #f44336;
+  font-size: 13px;
+  margin-bottom: 4px;
+  padding-left: 16px;
+  position: relative;
+}
+
+.faction-weaknesses li::before {
+  content: '✗';
+  position: absolute;
+  left: 0;
+  color: #f44336;
+}
+
+.faction-roles h4 {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.role-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.role-tag {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+}
+
+.select-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.select-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.select-btn.selected {
+  background: #4caf50;
+  border-color: #4caf50;
+}
+
+.counter-chart {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.counter-chart h3 {
+  color: #fff;
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.counter-flow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.counter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.counter-icon {
+  font-size: 24px;
+}
+
+.counter-name {
+  color: #fff;
+  font-weight: 600;
+}
+
+.counter-bonus {
+  color: #4caf50;
+  font-weight: 700;
+}
+
+.counter-arrow {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 20px;
+}
+
+.counter-target {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.faction-confirm {
+  text-align: center;
+  padding: 20px;
+  background: rgba(76, 175, 80, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.faction-confirm p {
+  color: #fff;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.faction-confirm strong {
+  color: #4caf50;
+}
+
+.confirm-btn {
+  padding: 12px 40px;
+  background: #4caf50;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.confirm-btn:hover {
+  background: #45a049;
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .faction-panel {
+    padding: 20px;
+  }
+
+  .faction-cards-container {
+    grid-template-columns: 1fr;
+  }
+
+  .counter-flow {
+    flex-direction: column;
+  }
+
+  .counter-item {
+    width: 100%;
+    justify-content: center;
+  }
+}
