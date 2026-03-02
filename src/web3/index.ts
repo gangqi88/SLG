@@ -10,6 +10,7 @@ export { useUniSatInscribe } from './hooks/useUniSatInscribe';
 export { useWeb3Game } from './hooks/useWeb3Game';
 export { useNFTHero } from './hooks/useNFTHero';
 export { useHeroMint } from './hooks/useHeroMint';
+export { useNFTMarket } from './hooks/useNFTMarket';
 
 // Components
 export { UniSatConnectButton } from './components/UniSatConnectButton';

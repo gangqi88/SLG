@@ -1,0 +1,275 @@
+.equipment-panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.equipment-panel {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.equipment-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.equipment-panel-header h2 {
+    margin: 0;
+    color: #ffd700;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: #fff;
+}
+
+.hero-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.hero-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.hero-quality {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.equipment-slots {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.equipment-slot {
+    flex: 1;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.equipment-slot:hover {
+    border-color: rgba(255, 215, 0, 0.5);
+}
+
+.equipment-slot.selected {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.equipment-slot.has-equipment {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.slot-icon {
+    font-size: 32px;
+}
+
+.slot-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.slot-equipment {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.equipment-name {
+    font-size: 12px;
+    color: #fff;
+}
+
+.equipment-quality {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.equipment-details {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.equipment-details h3 {
+    margin: 0 0 12px 0;
+    color: #ffd700;
+    font-size: 16px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 14px;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.attribute-bonus {
+    margin-top: 12px;
+}
+
+.attribute-bonus h4 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.bonus-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.bonus-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.bonus-item span:last-child {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+.enhance-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.enhance-section h3 {
+    margin: 0 0 12px 0;
+    color: #ffd700;
+    font-size: 16px;
+}
+
+.enhance-result {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.enhance-result.success {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.enhance-result.failed {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
+
+.enhance-cost {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cost-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.cost-item .affordable {
+    color: #4caf50;
+}
+
+.cost-item .insufficient {
+    color: #f44336;
+}
+
+.enhance-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: all 0.3s ease;
+}
+
+.enhance-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
+.enhance-btn:disabled {
+    background: #555;
+    color: #888;
+    cursor: not-allowed;
+}
+
+.no-selection {
+    text-align: center;
+    padding: 40px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 600px) {
+    .equipment-slots {
+        flex-direction: column;
+    }
+}

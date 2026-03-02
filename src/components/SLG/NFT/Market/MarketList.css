@@ -1,0 +1,94 @@
+.market-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+.market-list-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.market-list-item:hover {
+    border-color: rgba(255, 215, 0, 0.5);
+    transform: translateY(-2px);
+}
+
+.market-list-item.selected {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.listing-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.listing-price {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.price-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.price-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+.price-token {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.listing-time {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+}
+
+.time-label {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.time-value {
+    color: #4caf50;
+}
+
+.purchase-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #4caf50, #45a049);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.purchase-btn:hover {
+    background: linear-gradient(135deg, #45a049, #3d8b40);
+    transform: translateY(-1px);
+}
+
+.market-list-loading,
+.market-list-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.6);
+}
