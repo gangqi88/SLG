@@ -357,7 +357,7 @@ export class SurvivalSystem {
     }
 
     private checkHealthConditions(survivor: Survivor): Survivor {
-        let updatedSurvivor = { ...survivor };
+        const updatedSurvivor = { ...survivor };
 
         // 检查是否需要生病
         if (!survivor.isSick) {

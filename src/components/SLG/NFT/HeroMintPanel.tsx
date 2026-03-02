@@ -3,6 +3,7 @@ import type { Hero } from '../../../types/slg/hero.types';
 import { useHeroMint, GameMintCosts } from '../../../web3/hooks/useHeroMint';
 import { useUniSatWallet } from '../../../web3/hooks/useUniSatWallet';
 import { NFT_HERO_CONSTANTS } from '../../../types/slg/nft-hero.types';
+import type { UniSatWallet } from '../../../web3/types/unisat.d';
 import './HeroMintPanel.css';
 
 interface HeroMintPanelProps {
@@ -26,7 +27,7 @@ export const HeroMintPanel: React.FC<HeroMintPanelProps> = ({
     const handleMint = useCallback(async () => {
         if (!selectedHero || !address) return;
 
-        const wallet = (window as any).unisat;
+        const wallet = (window as Window & { unisat?: UniSatWallet }).unisat;
         if (!wallet) {
             alert('请先安装 UniSat 钱包');
             return;

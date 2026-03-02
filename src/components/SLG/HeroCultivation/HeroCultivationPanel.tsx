@@ -220,7 +220,7 @@ export const HeroCultivationPanel: React.FC<HeroCultivationPanelProps> = ({
               <div className="skill-actions">
                 <button 
                   className="skill-upgrade-btn"
-                  onClick={() => handleSkillUpgrade(skillType as any)}
+                  onClick={() => handleSkillUpgrade(skillType)}
                 >
                   升级
                 </button>

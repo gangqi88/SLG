@@ -10,7 +10,7 @@ interface CreateListingPanelProps {
     sellerAddress: string;
     onListingCreated?: () => void;
     onCancel?: () => void;
-    onConfirm?: (price: number, paymentToken: PaymentToken, duration: number) => Promise<any>;
+    onConfirm?: (price: number, paymentToken: PaymentToken, duration: number) => Promise<void | string>;
 }
 
 export const CreateListingPanel: React.FC<CreateListingPanelProps> = ({
@@ -53,8 +53,9 @@ export const CreateListingPanel: React.FC<CreateListingPanelProps> = ({
             if (onConfirm) {
                 await onConfirm(price, paymentToken, duration * 24 * 60 * 60 * 1000);
             }
-        } catch (err: any) {
-            setError(err.message || '上架失败');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : '上架失败';
+            setError(message);
         } finally {
             setIsLoading(false);
         }

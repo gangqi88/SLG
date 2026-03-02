@@ -3,6 +3,7 @@ import { GameManager } from './game/GameManager';
 import ResourcePanel from './components/UI/ResourcePanel';
 import { PhaserGame } from './PhaserGame';
 import { IRefPhaserGame } from './PhaserGame';
+import type { ResourceType, BuildingType } from './types/game.types';
 
 // UniSat Web3 组件导入
 import { UniSatConnectButton } from './web3/components/UniSatConnectButton';
@@ -10,9 +11,87 @@ import { UniSatBRC20List } from './web3/components/UniSatBRC20List';
 import { UniSatInscribePanel } from './web3/components/UniSatInscribePanel';
 import { useUniSatWallet } from './web3/hooks/useUniSatWallet';
 
+interface ResourceAlert {
+    type: ResourceType;
+    severity: 'low' | 'critical';
+    message: string;
+}
+
+interface SurvivorAttention {
+    survivor: {
+        id: string;
+        name: string;
+        health: number;
+        hunger: number;
+        stamina: number;
+    };
+    issues: string[];
+}
+
+interface ResourceStats {
+    amount: number;
+    capacity: number;
+    production: number;
+    consumption: number;
+    netChange: number;
+}
+
+interface SurvivorStats {
+    total: number;
+    healthy: number;
+    sick: number;
+    injured: number;
+    working: number;
+    idle: number;
+    averageHealth: number;
+    averageHunger: number;
+}
+
+interface TimeInfo {
+    day: number;
+    hour: number;
+    minute: number;
+    season: string;
+    temperature: number;
+    isDay: boolean;
+    isNight: boolean;
+    seasonName: string;
+    temperatureWithUnit: string;
+}
+
+interface AvailableBuilding {
+    type: BuildingType;
+    name: string;
+    description: string;
+    category: string;
+    canBuild: boolean;
+    cost: Partial<Record<ResourceType, number>>;
+}
+
+interface GameInfo {
+    gameStats: {
+        daysSurvived: number;
+        totalSurvivorsRescued: number;
+        totalResourcesCollected: Record<ResourceType, number>;
+        buildingsConstructed: number;
+    };
+    difficulty: string;
+    survivorStats: SurvivorStats;
+    resourceStats: Record<ResourceType, ResourceStats>;
+    timeInfo: TimeInfo;
+    populationCapacity: number;
+    currentPopulation: number;
+    isOverPopulated: boolean;
+    resourceAlerts: ResourceAlert[];
+    survivorsNeedingAttention: SurvivorAttention[];
+    availableBuildings: AvailableBuilding[];
+    buildingCount: number;
+    constructingBuildings: number;
+}
+
 function App() {
     const [gameManager] = useState(() => new GameManager());
-    const [gameInfo, setGameInfo] = useState<any>(null);
+    const [gameInfo, setGameInfo] = useState<GameInfo | null>(null);
     const [isGameRunning, setIsGameRunning] = useState(false);
     const [showGameUI, setShowGameUI] = useState(true);
     const [activeTab, setActiveTab] = useState<'local' | 'unisat'>('local');
@@ -91,8 +170,8 @@ function App() {
         }
     };
 
-    const handleAddResource = (resourceType: string, amount: number) => {
-        gameManager.addResource(resourceType as any, amount);
+    const handleAddResource = (resourceType: ResourceType, amount: number) => {
+        gameManager.addResource(resourceType, amount);
         updateGameInfo();
     };
 
@@ -221,7 +300,7 @@ function App() {
                                 <h3>警报</h3>
                                 {gameInfo.resourceAlerts.length > 0 ? (
                                     <div className="alerts-list">
-                                        {gameInfo.resourceAlerts.map((alert: any, index: number) => (
+                                        {gameInfo.resourceAlerts.map((alert: ResourceAlert, index: number) => (
                                             <div key={index} className={`alert-item ${alert.severity}`}>
                                                 {alert.message}
                                             </div>
@@ -234,7 +313,7 @@ function App() {
                                 {gameInfo.survivorsNeedingAttention.length > 0 && (
                                     <div className="survivor-alerts">
                                         <h4>需要关注的幸存者</h4>
-                                        {gameInfo.survivorsNeedingAttention.slice(0, 3).map((item: any, index: number) => (
+                                        {gameInfo.survivorsNeedingAttention.slice(0, 3).map((item: SurvivorAttention, index: number) => (
                                             <div key={index} className="survivor-alert-item">
                                                 <span className="survivor-name">{item.survivor.name}</span>
                                                 <span className="survivor-issues">
@@ -249,7 +328,7 @@ function App() {
                             <div className="buildings-panel">
                                 <h3>可建造建筑</h3>
                                 <div className="buildings-list">
-                                    {gameInfo.availableBuildings.map((building: any, index: number) => (
+                                    {gameInfo.availableBuildings.map((building: AvailableBuilding, index: number) => (
                                         <div key={index} className={`building-item ${building.canBuild ? '' : 'disabled'}`}>
                                             <div className="building-name">{building.name}</div>
                                             <div className="building-description">{building.description}</div>

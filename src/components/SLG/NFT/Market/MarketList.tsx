@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { MarketListing } from '../../../../types/slg/market.types';
+import type { NFTHero } from '../../../../types/slg/nft-hero.types';
 import { PAYMENT_TOKEN_INFO } from '../../../../types/slg/market.types';
 import { NFTHeroCard } from '../NFTHeroCard';
 import './MarketList.css';
@@ -25,7 +26,7 @@ export const MarketList: React.FC<MarketListProps> = ({
         }
     };
 
-    const handleCardClick = (_hero: any) => {
+    const handleCardClick = (_hero: NFTHero) => {
         if (selectedListing && onViewDetails) {
             onViewDetails(selectedListing);
         }

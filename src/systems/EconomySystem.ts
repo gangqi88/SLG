@@ -233,7 +233,7 @@ export class EconomySystem {
         }
 
         let minPrice = Math.round(recommendedPrice * 0.8);
-        let maxPrice = Math.round(recommendedPrice * 1.3);
+        const maxPrice = Math.round(recommendedPrice * 1.3);
         
         if (marketData?.daysOnMarket && marketData.daysOnMarket > 7) {
             minPrice = Math.round(minPrice * 0.9);
