@@ -3,7 +3,9 @@ import {
     SurvivorSkills, 
     ProfessionalSkill, 
     ProfessionalSkillType, 
-    SkillSpecialization 
+    SkillSpecialization,
+    GameState,
+    Building 
 } from '../types/game.types';
 import { 
     PROFESSIONAL_SKILLS_CONFIG, 
@@ -11,9 +13,9 @@ import {
 } from '../utils/constants';
 
 export class SkillSystem {
-    private readonly gameState: any;
+    private readonly gameState: GameState;
 
-    constructor(gameState: any) {
+    constructor(gameState: GameState) {
         this.gameState = gameState;
     }
 
@@ -286,12 +288,12 @@ export class SkillSystem {
             case 'research':
                 return survivor.jobType === 'research';
             case 'medical':
-                return survivor.assignedBuildingId && 
-                       this.gameState.buildings.some((b: any) => 
+                return !!survivor.assignedBuildingId && 
+                       this.gameState.buildings.some((b: Building) => 
                            b.id === survivor.assignedBuildingId && b.type === 'hospital');
             case 'management':
-                return survivor.assignedBuildingId && 
-                       this.gameState.buildings.some((b: any) => 
+                return !!survivor.assignedBuildingId && 
+                       this.gameState.buildings.some((b: Building) => 
                            b.id === survivor.assignedBuildingId && 
                            (b.type === 'shelter' || b.type === 'warehouse'));
             default:

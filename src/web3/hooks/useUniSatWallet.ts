@@ -76,8 +76,9 @@ export const useUniSatWallet = () => {
             });
 
             return true;
-        } catch (err: any) {
-            setError(err.message || '连接钱包失败');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : '连接钱包失败';
+            setError(message);
             return false;
         } finally {
             setIsLoading(false);
@@ -110,8 +111,9 @@ export const useUniSatWallet = () => {
             setState((prev) => ({ ...prev, network }));
 
             return true;
-        } catch (err: any) {
-            setError('切换到 Fractal Bitcoin 失败: ' + err.message);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : '切换失败';
+            setError('切换到 Fractal Bitcoin 失败: ' + message);
             return false;
         }
     }, [getUniSat]);

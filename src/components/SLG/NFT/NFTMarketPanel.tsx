@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import type { NFTHero } from '../../../types/slg/nft-hero.types';
+import type { MarketFilter, MarketListing, PaymentToken } from '../../../types/slg/market.types';
 import type { FactionType, HeroQuality } from '../../../types/slg/hero.types';
-import type { MarketListing, MarketFilter, PaymentToken } from '../../../types/slg/market.types';
-import { useNFTMarket } from '../../../web3/hooks/useNFTMarket';
+import type { UniSatWallet } from '../../../web3/types/unisat.d';
 import { useUniSatWallet } from '../../../web3/hooks/useUniSatWallet';
+import { useNFTMarket } from '../../../web3/hooks/useNFTMarket';
 import { useNFTHero } from '../../../web3/hooks/useNFTHero';
 import { MarketList } from './Market/MarketList';
-import { MyListingsPanel } from './Market/MyListingsPanel';
 import { CreateListingPanel } from './Market/CreateListingPanel';
+import { MyListingsPanel } from './Market/MyListingsPanel';
 import './NFTMarketPanel.css';
 
 type TabType = 'market' | 'my-listings' | 'sell';
@@ -18,7 +19,7 @@ interface NFTMarketPanelProps {
 
 export const NFTMarketPanel: React.FC<NFTMarketPanelProps> = ({ onClose }) => {
     const { address, isConnected } = useUniSatWallet();
-    const wallet = (window as any).unisat;
+    const wallet = (window as Window & { unisat?: UniSatWallet }).unisat ?? null;
     
     const {
         listings,

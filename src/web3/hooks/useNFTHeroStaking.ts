@@ -52,8 +52,9 @@ export const useNFTHeroStaking = (): UseNFTHeroStakingState & UseNFTHeroStakingA
 
             const stakingStats = stakingService.getStats();
             setStats(stakingStats);
-        } catch (err: any) {
-            setError(err.message || '获取质押信息失败');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : '获取质押信息失败';
+            setError(message);
         } finally {
             setIsLoading(false);
         }
@@ -72,10 +73,10 @@ export const useNFTHeroStaking = (): UseNFTHeroStakingState & UseNFTHeroStakingA
                 }
 
                 return result;
-            } catch (err: any) {
+            } catch (err: unknown) {
                 return {
                     success: false,
-                    error: err.message || '质押失败',
+                    error: err instanceof Error ? err.message : '质押失败',
                 };
             } finally {
                 setIsLoading(false);
@@ -97,10 +98,10 @@ export const useNFTHeroStaking = (): UseNFTHeroStakingState & UseNFTHeroStakingA
                 }
 
                 return result;
-            } catch (err: any) {
+            } catch (err: unknown) {
                 return {
                     success: false,
-                    error: err.message || '解除质押失败',
+                    error: err instanceof Error ? err.message : '解除质押失败',
                 };
             } finally {
                 setIsLoading(false);
@@ -122,10 +123,10 @@ export const useNFTHeroStaking = (): UseNFTHeroStakingState & UseNFTHeroStakingA
                 }
 
                 return result;
-            } catch (err: any) {
+            } catch (err: unknown) {
                 return {
                     success: false,
-                    error: err.message || '完成解除质押失败',
+                    error: err instanceof Error ? err.message : '完成解除质押失败',
                 };
             } finally {
                 setIsLoading(false);
@@ -147,10 +148,10 @@ export const useNFTHeroStaking = (): UseNFTHeroStakingState & UseNFTHeroStakingA
                 }
 
                 return result;
-            } catch (err: any) {
+            } catch (err: unknown) {
                 return {
                     success: false,
-                    error: err.message || '领取奖励失败',
+                    error: err instanceof Error ? err.message : '领取奖励失败',
                 };
             } finally {
                 setIsLoading(false);

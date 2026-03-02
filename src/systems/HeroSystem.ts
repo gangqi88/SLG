@@ -4,6 +4,7 @@ import { Hero, HeroUpgradeResult, HeroEvolveResult,
 import { generateId } from '../utils/helpers';
 import { saveGame, loadGame } from '../utils/storage';
 import { humanHeroes, angelHeroes, demonHeroes } from '../config/heroes';
+import type { GameState } from '../types/game.types';
 
 // 英雄系统类
 export class HeroSystem {
@@ -64,9 +65,9 @@ export class HeroSystem {
       time: { day: 1, hour: 8, minute: 0, season: 'winter', temperature: -10 },
       gameStats: { daysSurvived: 1, totalSurvivorsRescued: 0, totalResourcesCollected: { food: 0, wood: 0, steel: 0, electricity: 0, fuel: 0 }, buildingsConstructed: 0 },
       difficulty: 'normal'
-    };
-    (gameData as any).playerHeroes = this.playerHeroes;
-    (gameData as any).heroes = heroesData;
+    } as GameState;
+    gameData.playerHeroes = this.playerHeroes;
+    gameData.heroes = heroesData;
     saveGame(gameData);
   }
 

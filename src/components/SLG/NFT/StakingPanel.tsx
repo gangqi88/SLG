@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { NFTHero } from '../../../types/slg/nft-hero.types';
+import type { UniSatWallet } from '../../../web3/types/unisat.d';
 import { useNFTHeroStaking } from '../../../web3/hooks/useNFTHeroStaking';
 import { useUniSatWallet } from '../../../web3/hooks/useUniSatWallet';
 import { useNFTHero } from '../../../web3/hooks/useNFTHero';
@@ -13,7 +14,7 @@ interface StakingPanelProps {
 
 export const StakingPanel: React.FC<StakingPanelProps> = ({ onClose }) => {
     const { address, isConnected } = useUniSatWallet();
-    const wallet = (window as any).unisat;
+    const wallet = (window as Window & { unisat?: UniSatWallet }).unisat ?? null;
     
     const {
         positions,

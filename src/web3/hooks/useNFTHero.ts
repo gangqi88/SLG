@@ -119,8 +119,9 @@ export const useNFTHero = (
 
             setHeroes(nftHeroes);
             setTotal(nftHeroes.length);
-        } catch (err: any) {
-            setError(err.message || '获取NFT英雄列表失败');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : '获取NFT英雄列表失败';
+            setError(message);
         } finally {
             setIsLoading(false);
         }

@@ -50,8 +50,9 @@ export const useNFTMarket = (): UseNFTMarketState & UseNFTMarketActions => {
         try {
             const result = nftMarketService.getListings(filter);
             setListings(result);
-        } catch (err: any) {
-            setError(err.message || '获取市场列表失败');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : '获取市场列表失败';
+            setError(message);
         } finally {
             setIsLoading(false);
         }
@@ -66,8 +67,9 @@ export const useNFTMarket = (): UseNFTMarketState & UseNFTMarketActions => {
         try {
             const result = nftMarketService.getMyListings(address);
             setMyListings(result);
-        } catch (err: any) {
-            setError(err.message || '获取我的上架失败');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : '获取我的上架失败';
+            setError(message);
         }
     }, []);
 
@@ -98,10 +100,11 @@ export const useNFTMarket = (): UseNFTMarketState & UseNFTMarketActions => {
                 }
 
                 return result;
-            } catch (err: any) {
+            } catch (err: unknown) {
+                const errorMessage = err instanceof Error ? err.message : '创建上架失败';
                 const errorResult: ListingResult = {
                     success: false,
-                    error: err.message || '创建上架失败',
+                    error: errorMessage,
                 };
                 return errorResult;
             } finally {
@@ -126,10 +129,11 @@ export const useNFTMarket = (): UseNFTMarketState & UseNFTMarketActions => {
                 }
 
                 return result;
-            } catch (err: any) {
+            } catch (err: unknown) {
+                const errorMessage = err instanceof Error ? err.message : '取消上架失败';
                 const errorResult: ListingResult = {
                     success: false,
-                    error: err.message || '取消上架失败',
+                    error: errorMessage,
                 };
                 return errorResult;
             } finally {
@@ -153,10 +157,11 @@ export const useNFTMarket = (): UseNFTMarketState & UseNFTMarketActions => {
                 }
 
                 return result;
-            } catch (err: any) {
+            } catch (err: unknown) {
+                const errorMessage = err instanceof Error ? err.message : '购买失败';
                 const errorResult: PurchaseResult = {
                     success: false,
-                    error: err.message || '购买失败',
+                    error: errorMessage,
                 };
                 return errorResult;
             } finally {

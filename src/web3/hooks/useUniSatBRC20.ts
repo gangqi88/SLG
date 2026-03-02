@@ -25,8 +25,9 @@ export const useUniSatBRC20 = (address: string | null) => {
         try {
             const data = await unisatAPI.getBRC20BalanceList(address);
             setTokens(data || []);
-        } catch (err: any) {
-            setError(err.message || '获取 BRC-20 余额失败');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : '获取 BRC-20 余额失败';
+            setError(message);
             console.error('获取 BRC-20 余额失败:', err);
         } finally {
             setIsLoading(false);

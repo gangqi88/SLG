@@ -101,10 +101,11 @@ export const useHeroMint = (): UseHeroMintState & UseHeroMintActions => {
             }
 
             return result;
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : '铸造失败';
             const errorResult: NFTHeroMintResult = {
                 success: false,
-                error: err.message || '铸造失败',
+                error: errorMessage,
             };
             setError(errorResult.error || '铸造失败');
             setLastResult(errorResult);
