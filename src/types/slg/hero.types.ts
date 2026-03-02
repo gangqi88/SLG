@@ -1,13 +1,23 @@
 // SLG英雄系统类型定义
 
+// ============================================
+// 基础类型定义
+// ============================================
+
 // 阵营类型
 export type FactionType = 'human' | 'angel' | 'demon';
 
-// 英雄品质
+// 英雄品质 (原系统)
 export type HeroQuality = 'purple' | 'orange' | 'red';
 
+// Web3稀有度 (新系统)
+export type NFTRarity = 'common' | 'rare' | 'epic' | 'legendary' | 'mythic';
+
+// 英雄稀有度数值 (1-100)
+export type RarityValue = number;
+
 // 英雄状态
-export type HeroStatus = 'idle' | 'deployed' | 'injured' | 'training';
+export type HeroStatus = 'idle' | 'deployed' | 'injured' | 'training' | 'captured';
 
 // 技能类型
 export type SkillType = 'active' | 'passive' | 'talent';
@@ -20,6 +30,35 @@ export type TargetType = 'self' | 'ally' | 'enemy' | 'all';
 
 // 队伍位置
 export type TeamPosition = 'main' | 'sub';
+
+// ============================================
+// Web3新增类型
+// ============================================
+
+// 英雄类型 (SLG专属)
+export type HeroType = 'commander' | 'strategist' | 'diplomat' | 'administrator';
+
+// NFT协议类型
+export type NFTProtocol = 'brc20' | 'runes' | 'rgb++';
+
+// 铸造类型
+export type MintType = 'inscription' | 'game_mint' | 'breeding' | 'event';
+
+// 装备类型
+export type EquipmentType = 'weapon' | 'armor' | 'accessory' | 'mount';
+
+// 符文类型
+export type RuneType = 'attack' | 'defense' | 'health' | 'crit' | 'dodge' | 'speed';
+
+// VIP等级
+export type VIPLevel = 0 | 1 | 2 | 3 | 4 | 5;
+
+// 市场类型
+export type MarketType = 'p2p' | 'auction' | 'bundle' | 'rental';
+
+// ============================================
+// 英雄属性接口
+// ============================================
 
 // 英雄属性接口
 export interface HeroAttributes {
@@ -35,6 +74,17 @@ export interface GrowthRates {
   strength: number;  // 武力成长率
   strategy: number;  // 谋略成长率
   defense: number;   // 防御成长率
+}
+
+// 战斗属性 (实时计算)
+export interface BattleAttributes {
+  attack: number;      // 攻击力
+  defense: number;     // 防御力
+  health: number;      // 生命值
+  speed: number;      // 速度
+  crit: number;       // 暴击率
+  critDamage: number;  // 暴击伤害
+  dodge: number;      // 闪避率
 }
 
 // 技能效果接口
@@ -333,7 +383,106 @@ export interface HeroSortOptions {
   order: 'asc' | 'desc';
 }
 
+// ============================================
+// Web3 游戏系统类型
+// ============================================
+
+// 忠诚度状态
+export interface LoyaltyStatus {
+  loyalty: number;      // 忠诚度 0-100
+  fatigue: number;     // 疲劳度 0-100
+  lastUpdate: number;   // 上次更新时间
+}
+
+// 俘虏状态
+export interface CapturedStatus {
+  isCaptured: boolean;
+  captor?: string;      // 俘虏者地址
+  captureTime?: number; // 俘虏时间
+  ransomAmount?: number;// 赎金
+}
+
+// 觉醒状态
+export interface AwakeningStatus {
+  level: number;        // 觉醒等级 0-3
+  materials: number[];  // 已消耗材料
+}
+
+// 繁育记录
+export interface BreedingRecord {
+  parent1: string;     // 父母英雄ID
+  parent2: string;     // 父母英雄ID
+  child?: string;      // 子代英雄ID
+  timestamp: number;   // 繁育时间
+  txHash?: string;    // 交易哈希
+}
+
+// 血统
+export interface Bloodline {
+  id: number;
+  name: string;
+  bonus: {
+    attribute: keyof HeroAttributes;
+    value: number;
+  }[];
+}
+
+// VIP等级配置
+export interface VIPConfig {
+  level: VIPLevel;
+  dailyFreeDraw: number;      // 每日免费抽
+  upgradeSpeedMultiplier: number; // 升级速度倍率
+  equipmentBonus: number;     // 装备强化成功率加成
+  bagCapacity: number;        // 背包容量
+  marketFee: number;          // 市场手续费
+  hasExclusiveSupport: boolean;
+  hasExclusiveAppearance: boolean;
+  hasEarlyAccess: boolean;
+}
+
+// 市场列表
+export interface MarketListing {
+  id: string;
+  assetType: 'hero' | 'equipment' | 'skill' | 'rune' | 'material';
+  assetId: string;
+  seller: string;
+  price: number;
+  paymentToken: 'BTC' | 'FB' | 'BRC20';
+  marketType: MarketType;
+  listedAt: number;
+  expiresAt: number;
+}
+
+// 战斗历史 (链上记录)
+export interface BattleRecord {
+  id: string;
+  heroId: string;
+  opponentId: string;
+  result: 'win' | 'lose';
+  timestamp: number;
+  txHash?: string;
+  experienceGained: number;
+  loot?: {
+    type: string;
+    itemId: string;
+  }[];
+}
+
+// 成就徽章 (链上NFT)
+export interface AchievementBadge {
+  id: string;
+  heroId: string;
+  type: string;
+  name: string;
+  description: string;
+  timestamp: number;
+  txHash: string;
+}
+
+// ============================================
 // 常量定义
+// ============================================
+
 export const HERO_CONSTANTS = {
   // 等级相关
   MAX_LEVEL: 80,
@@ -396,6 +545,144 @@ export const SKILL_COOLDOWNS = {
   purple: { min: 15, max: 20 },    // 紫将：15-20秒
   orange: { min: 12, max: 18 },    // 橙将：12-18秒
   red: { min: 8, max: 15 },        // 红将：8-15秒
+} as const;
+
+// ============================================
+// 商业化与经济常量
+// ============================================
+
+// VIP等级配置
+export const VIP_CONFIGS: Record<VIPLevel, VIPConfig> = {
+  0: {
+    level: 0,
+    dailyFreeDraw: 1,
+    upgradeSpeedMultiplier: 1,
+    equipmentBonus: 0,
+    bagCapacity: 50,
+    marketFee: 0.05,
+    hasExclusiveSupport: false,
+    hasExclusiveAppearance: false,
+    hasEarlyAccess: false,
+  },
+  1: {
+    level: 1,
+    dailyFreeDraw: 3,
+    upgradeSpeedMultiplier: 2,
+    equipmentBonus: 0.10,
+    bagCapacity: 100,
+    marketFee: 0.04,
+    hasExclusiveSupport: false,
+    hasExclusiveAppearance: false,
+    hasEarlyAccess: false,
+  },
+  2: {
+    level: 2,
+    dailyFreeDraw: 3,
+    upgradeSpeedMultiplier: 3,
+    equipmentBonus: 0.15,
+    bagCapacity: 150,
+    marketFee: 0.035,
+    hasExclusiveSupport: false,
+    hasExclusiveAppearance: false,
+    hasEarlyAccess: false,
+  },
+  3: {
+    level: 3,
+    dailyFreeDraw: 5,
+    upgradeSpeedMultiplier: 5,
+    equipmentBonus: 0.20,
+    bagCapacity: 200,
+    marketFee: 0.03,
+    hasExclusiveSupport: true,
+    hasExclusiveAppearance: true,
+    hasEarlyAccess: false,
+  },
+  4: {
+    level: 4,
+    dailyFreeDraw: 5,
+    upgradeSpeedMultiplier: 7,
+    equipmentBonus: 0.25,
+    bagCapacity: 350,
+    marketFee: 0.025,
+    hasExclusiveSupport: true,
+    hasExclusiveAppearance: true,
+    hasEarlyAccess: true,
+  },
+  5: {
+    level: 5,
+    dailyFreeDraw: 10,
+    upgradeSpeedMultiplier: 10,
+    equipmentBonus: 0.30,
+    bagCapacity: 500,
+    marketFee: 0.02,
+    hasExclusiveSupport: true,
+    hasExclusiveAppearance: true,
+    hasEarlyAccess: true,
+  },
+} as const;
+
+// 市场手续费
+export const MARKET_FEES = {
+  p2p: 0.05,
+  auction: 0.07,
+  bundle: 0.05,
+  rental: 0.10,
+} as const;
+
+// 版税比例
+export const ROYALTY_FEES = {
+  firstSale: 0.10,      // 首次销售
+  secondarySale: 0.05,  // 二次销售
+  ugc: 0.08,           // UGC创作
+  developer: 0.02,     // 开发者
+} as const;
+
+// 稀有度分布
+export const RARITY_DISTRIBUTION = {
+  common: 0.60,
+  rare: 0.30,
+  epic: 0.09,
+  legendary: 0.009,
+  mythic: 0.001,
+} as const;
+
+// 忠诚度变化
+export const LOYALTY_CHANGES = {
+  win: 5,
+  lose: -2,
+  captured: -10,
+  redeemed: 20,
+  dailyIdle: -3,
+} as const;
+
+// 忠诚度阈值
+export const LOYALTY_THRESHOLDS = {
+  defect: 30,        // 叛逃阈值
+  gracePeriod: 30,  // 赎回宽限期(天)
+} as const;
+
+// 繁育规则
+export const BREEDING_RULES = {
+  parentMinLevel: 80,
+  parentMinStars: 5,
+  cooldown: 7,       // 天
+  maxBreeds: 3,
+} as const;
+
+// 觉醒配置
+export const AWAKENING_CONFIG = {
+  maxLevel: 3,
+  attributeBonus: [0.10, 0.20, 0.30],
+} as const;
+
+// 对战收入等级
+export const BATTLE_REVENUE = {
+  none: 0,
+  low: 1,
+  medium: 2,
+  high: 3,
+  veryHigh: 4,
+  extreme: 5,
 } as const;
 
 export const __HERO_TYPES_MODULE__ = true as const;
