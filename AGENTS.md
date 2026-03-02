@@ -4,13 +4,18 @@
 > 
 > | 技能文件 | 职责 | 使用场景 |
 > |---------|------|----------|
-> | `.trae/skills/endless-winter-game-developer/SKILL.md` | **代码实现** | 编写组件、Hooks、游戏功能、Web3 集成 |
+> | `.trae/skills/slg-game-developer/SKILL.md` | **SLG开发** | 编写英雄系统、战斗系统、Web3 NFT |
+> | `.trae/skills/endless-winter-game-developer/SKILL.md` | **生存游戏开发** | 编写生存、建造、资源系统 |
 > | `.trae/skills/endless-winter-project-manager/SKILL.md` | **项目管理** | 任务规划、进度跟踪、风险管理 |
 > | `.trae/skills/endless-winter-code-reviewer/SKILL.md` | **代码审查** | 审查代码质量、提出改进建议 |
 > | `.trae/skills/endless-winter-architect/SKILL.md` | **架构设计** | 系统架构、技术选型、性能规划 |
 
 ## 项目概述
-基于 **React 19 + TypeScript 5.7 + Phaser 3.90** 的末日生存模拟经营游戏。Vite 构建，React 负责 UI，Phaser 3 负责游戏渲染。
+
+基于 **React 19 + TypeScript 5.7 + Phaser 3.90** 的末日生存SLG游戏。包含：
+- 生存模拟经营（资源、建造、幸存者）
+- SLG英雄系统（30名英雄、三族阵营、战斗）
+- Web3 NFT集成（UniSat钱包、Fractal Bitcoin）
 
 ## Build Commands
 
@@ -22,18 +27,57 @@
 | `npm run dev-nolog` | 启动开发服务器（无匿名日志） |
 | `npm run build-nolog` | 生产构建（无匿名日志） |
 
-### 代码检查
-- **检查**: `npx eslint src/`
-- **修复**: `npx eslint src/ --fix`
-- **TypeScript**: `npx tsc --noEmit`（项目未配置自动检查）
+### 代码检查（必须执行）
+- **ESLint**: `npx eslint src/` (ESLint v9 flat config)
+- **ESLint修复**: `npx eslint src/ --fix`
+- **单文件检查**: `npx eslint src/systems/HeroSystem.ts`
+- **TypeScript**: `npx tsc --noEmit`
 
 ### 测试
 - **状态**: 当前未配置测试框架
-- 如有测试: `npm test` 或 `npx vitest run`（如使用 vitest）
-- **单文件检查**: `npx eslint src/systems/ResourceSystem.ts`（指定单个文件）
-- **单文件修复**: `npx eslint src/systems/ResourceSystem.ts --fix`
 
 ## 代码风格指南
+
+### 项目结构
+```
+src/
+├── constants/              # 集中常量定义
+│   ├── game.constants.ts  # 游戏常量
+│   ├── hero.constants.ts  # 英雄常量
+│   ├── battle.constants.ts# 战斗常量
+│   └── index.ts          # 统一导出
+├── utils/                  # 工具函数
+│   ├── helpers.ts         # 通用工具
+│   ├── hero.utils.ts      # 英雄工具
+│   ├── battle.utils.ts    # 战斗工具
+│   └── index.ts          # 统一导出
+├── systems/               # 游戏系统（Facade模式 + 单一职责服务）
+│   ├── heroes/           # 英雄系统服务
+│   │   ├── HeroDataManager.ts
+│   │   ├── HeroUpgradeService.ts
+│   │   ├── HeroPowerCalculator.ts
+│   │   ├── HeroRepository.ts
+│   │   └── index.ts
+│   ├── cities/           # 城市系统服务
+│   ├── battle/           # 战斗系统服务
+│   ├── skills/           # 技能系统服务
+│   ├── teams/            # 队伍系统服务
+│   └── *.ts             # Facade层
+├── components/            # React组件
+├── types/                 # TypeScript类型
+├── hooks/                # 自定义Hooks
+├── config/               # 配置数据
+│   └── heroes/          # 英雄配置
+├── game/                # Phaser游戏引擎
+│   └── scenes/          # 游戏场景
+└── web3/                # Web3集成
+```
+
+### 单一职责原则
+- 每个系统文件专注单一功能
+- 工具函数集中管理在 `utils/`
+- 常量集中管理在 `constants/`
+- 避免在系统文件中定义常量
 
 ### TypeScript 配置 (tsconfig.json)
 - **Target**: ES2020
@@ -199,3 +243,12 @@ VITE_FB_NETWORK=mainnet  # 或 testnet
 
 ### 其他待办
 - 智能合约设计和部署（预留，未来可选）
+
+## 代码质量状态
+
+### ESLint v9 配置
+- 配置文件: `eslint.config.mjs` (flat config)
+- 状态: ✅ 0 errors, 11 warnings
+
+### TypeScript
+- 状态: ✅ 通过 (0 errors)

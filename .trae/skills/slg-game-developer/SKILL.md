@@ -82,49 +82,83 @@ src/
 │   │   │   ├── BattleUI.tsx
 │   │   │   ├── SkillEffect.tsx
 │   │   │   └── BattleReport.tsx
+│   │   ├── City/        # 城市相关组件
 │   │   ├── Faction/     # 阵营相关组件
-│   │   │   ├── FactionSelector.tsx
-│   │   │   └── FactionBonus.tsx
-│   │   └── Team/        # 队伍相关组件
-│   │       ├── TeamBuilder.tsx
-│   │       └── TeamDisplay.tsx
+│   │   ├── Team/        # 队伍相关组件
+│   │   ├── Gacha/       # 抽卡相关组件
+│   │   ├── NFT/         # NFT相关组件
+│   │   └── Multiplayer/ # 多人对战组件
 │   └── UI/              # 通用UI组件（复用）
-├── game/                # Phaser 游戏逻辑
-│   ├── slg/             # SLG游戏逻辑
-│   │   ├── BattleScene.tsx
-│   │   ├── HeroRenderer.tsx
-│   │   └── SkillEffect.tsx
-│   └── ...              # 现有游戏文件
-├── systems/             # 游戏系统
-│   ├── HeroSystem.ts    # 英雄系统
-│   ├── BattleSystem.ts  # 战斗系统
-│   ├── FactionSystem.ts # 阵营系统
-│   ├── NFTHeroSystem.ts  # NFT英雄系统
-│   └── ...              # 现有系统文件
-├── web3/                # Web3 集成
-│   ├── contracts/        # 智能合约
-│   │   ├── HeroNFT.sol
-│   │   └── HeroMarket.sol
-│   ├── hooks/            # NFT相关Hook
+├── constants/           # 集中常量定义
+│   ├── game.constants.ts
+│   ├── hero.constants.ts
+│   ├── battle.constants.ts
+│   └── index.ts         # 统一导出
+├── utils/              # 工具函数
+│   ├── helpers.ts       # 通用工具
+│   ├── hero.utils.ts   # 英雄工具
+│   ├── battle.utils.ts # 战斗工具
+│   └── index.ts        # 统一导出
+├── systems/            # 游戏系统（Facade模式 + 单一职责服务）
+│   ├── heroes/         # 英雄系统服务（已拆分）
+│   │   ├── HeroDataManager.ts      # 英雄数据管理
+│   │   ├── HeroUpgradeService.ts   # 升级服务
+│   │   ├── HeroPowerCalculator.ts  # 战力计算
+│   │   ├── HeroRepository.ts       # 仓库
+│   │   └── index.ts               # 导出
+│   ├── cities/         # 城市系统服务（已拆分）
+│   │   ├── CityDataManager.ts      # 城市数据
+│   │   ├── BuildingService.ts      # 建筑服务
+│   │   ├── CityDefenseService.ts   # 防御服务
+│   │   ├── CityGovernmentService.ts# 政府服务
+│   │   └── index.ts
+│   ├── battle/         # 战斗系统服务（已拆分）
+│   │   ├── BattleSimulationService.ts   # 战斗模拟
+│   │   ├── RealTimeBattleService.ts     # 实时战斗
+│   │   └── index.ts
+│   ├── skills/         # 技能系统服务（已拆分）
+│   │   ├── SkillEffectCalculator.ts     # 效果计算
+│   │   ├── SkillLearningService.ts     # 学习服务
+│   │   ├── SkillExperienceService.ts    # 经验服务
+│   │   └── index.ts
+│   ├── teams/          # 队伍系统服务（已拆分）
+│   │   ├── TeamDataManager.ts          # 队伍数据
+│   │   ├── TeamFormationService.ts     # 阵型服务
+│   │   └── index.ts
+│   ├── HeroSystem.ts   # 英雄系统Facade
+│   ├── CitySystem.ts   # 城市系统Facade
+│   ├── BattlePredictionSystem.ts # 战斗预测Facade
+│   ├── SkillSystem.ts # 技能系统Facade
+│   ├── TeamSystem.ts  # 队伍系统Facade
+│   └── ...            # 其他系统
+├── web3/              # Web3 集成
+│   ├── hooks/         # NFT相关Hook
 │   │   ├── useNFTHero.ts
-│   │   ├── useHeroMarket.ts
-│   │   └── useHeroMint.ts
-│   └── services/         # Web3服务
-│       ├── nftService.ts
-│       └── marketService.ts
-├── types/               # TypeScript 类型定义
-│   ├── slg/             # SLG类型定义
-│   │   ├── hero.types.ts
-│   │   ├── battle.types.ts
-│   │   ├── faction.types.ts
-│   │   └── nft.types.ts
-│   └── ...              # 现有类型文件
-└── utils/               # 工具函数和常量
-    ├── slg/              # SLG工具函数
-    │   ├── battleUtils.ts
-    │   ├── heroUtils.ts
-    │   └── nftUtils.ts
-    └── ...               # 现有工具文件
+│   │   ├── useHeroMint.ts
+│   │   └── useNFTMarket.ts
+│   ├── services/      # Web3服务
+│   │   └── nftHeroService.ts
+│   ├── components/    # Web3组件
+│   └── providers/      # Context
+├── types/              # TypeScript 类型定义
+│   ├── game.types.ts  # 游戏类型
+│   └── slg/          # SLG类型定义
+│       ├── hero.types.ts
+│       ├── battle.types.ts
+│       ├── city.types.ts
+│       └── ...
+├── config/            # 配置文件
+│   └── heroes/        # 英雄配置数据
+├── game/              # Phaser 游戏逻辑
+│   ├── scenes/        # 游戏场景
+│   │   ├── Boot.ts
+│   │   ├── Game.ts
+│   │   ├── MainMenu.ts
+│   │   └── ...
+│   ├── EventBus.ts    # 事件总线
+│   ├── GameManager.ts # 游戏管理器
+│   └── main.ts       # 游戏入口
+└── main.tsx          # React入口
 ```
 
 ## 英雄系统数据结构
@@ -430,29 +464,33 @@ import HeroCard from '../components/SLG/Hero/HeroCard';
 ### 开发
 ```bash
 npm run dev              # 启动开发服务器 localhost:8080
-npm run dev:nft          # 启动NFT开发模式
+npm run dev-nolog       # 启动开发服务器（无日志）
 ```
 
 ### 构建
 ```bash
-npm run build            # 生产构建
-npm run build:nft        # 构建NFT版本
+npm run build           # 生产构建
+npm run build-nolog    # 生产构建（无日志）
+```
+
+### 代码检查（必须运行）
+```bash
+# ESLint 检查（ESLint v9 使用 flat config）
+npx eslint src/                    # 全量检查
+npx eslint src/ --fix              # 自动修复
+npx eslint src/systems/HeroSystem.ts  # 单文件检查
+
+# TypeScript 检查
+npx tsc --noEmit
 ```
 
 ### 测试
 ```bash
-npm run test             # 运行所有测试
-npm run test:unit        # 单元测试
-npm run test:integration # 集成测试
-npm run test:e2e         # 端到端测试
-npm run test:slg         # SLG专项测试
-```
-
-### 代码检查
-```bash
-npx eslint src/slg/      # 检查SLG代码
-npx eslint src/web3/     # 检查Web3代码
-npm run lint:fix         # 自动修复
+# 当前项目未配置测试框架
+# 如有测试:
+npm test
+# 或
+npx vitest run
 ```
 
 ## Web3环境配置
@@ -502,11 +540,104 @@ VITE_WALLET_CONNECT_PROJECT_ID=your_wc_project_id
 
 ## 最佳实践
 
+### TypeScript 严格类型
+- 禁止使用 `any`，使用具体类型或 `unknown` + 类型守卫
+- Window 对象扩展使用类型接口，避免 `as any`
+- 接口类型必须完整定义，不使用Partial除非必要
+
+```typescript
+// ❌ 错误
+const data: any = getData();
+const wallet = (window as any).unisat;
+
+// ✅ 正确
+interface MyData { id: number; name: string; }
+const data: MyData = getData();
+
+// Window 类型扩展
+interface UniSatWindow extends Window {
+    unisat?: UniSatWallet;
+}
+const wallet = (window as UniSatWindow).unisat;
+```
+
+### 错误处理
+```typescript
+// ❌ 错误
+} catch (err: any) {
+    setError(err.message || '错误');
+}
+
+// ✅ 正确 - unknown + 类型守卫
+} catch (err: unknown) {
+    const message = err instanceof Error ? err.message : '未知错误';
+    setError(message);
+}
+```
+
 ### React
 - 使用函数组件和Hooks
 - 复杂状态使用Redux Toolkit
 - 使用React.memo优化重渲染
 - 事件处理器使用`handle`前缀
+
+### 单一职责原则
+- 常量必须放在 `src/constants/` 目录
+- 工具函数必须放在 `src/utils/` 目录
+- 每个系统文件只负责一个核心功能
+- 大于 300 行的文件需要考虑拆分
+
+### Facade + 服务类模式
+系统文件采用Facade模式，将大型系统拆分为多个服务类：
+
+```typescript
+// HeroSystem.ts (Facade层)
+import { HeroDataManager, HeroUpgradeService, HeroPowerCalculator } from './heroes';
+
+export class HeroSystem {
+    private dataManager: HeroDataManager;
+    private upgradeService: HeroUpgradeService;
+    private powerCalculator: HeroPowerCalculator;
+    
+    getHero(id: string) {
+        return this.dataManager.getHero(id);
+    }
+    
+    upgradeHero(heroId: string) {
+        return this.upgradeService.upgrade(heroId);
+    }
+}
+
+// heroes/HeroDataManager.ts (服务类 - 单一职责)
+export class HeroDataManager {
+    getHero(id: string): Hero | undefined { ... }
+    getAllHeroes(): Hero[] { ... }
+}
+```
+
+**已重构系统**:
+| 系统 | 拆分服务 | 重构后行数 |
+|------|---------|-----------|
+| HeroSystem | 4个服务类 | ~290 |
+| TeamSystem | 2个服务类 | ~260 |
+| CitySystem | 4个服务类 | ~150 |
+| BattlePredictionSystem | 2个服务类 | ~180 |
+| SkillSystem | 3个服务类 | ~80 |
+
+**服务类目录结构**:
+```
+systems/
+├── heroes/
+│   ├── HeroDataManager.ts
+│   ├── HeroUpgradeService.ts
+│   ├── HeroPowerCalculator.ts
+│   ├── HeroRepository.ts
+│   └── index.ts
+├── cities/
+├── battle/
+├── skills/
+└── teams/
+```
 
 ### SLG游戏逻辑
 - 战斗计算使用确定性算法
