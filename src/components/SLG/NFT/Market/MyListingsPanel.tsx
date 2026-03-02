@@ -95,12 +95,20 @@ export const MyListingsPanel: React.FC<MyListingsPanelProps> = ({
                             </div>
 
                             {listing.status === 'active' && (
-                                <button
-                                    className="cancel-listing-btn"
-                                    onClick={() => onCancel?.(listing.id)}
-                                >
-                                    取消上架
-                                </button>
+                                <>
+                                    <button
+                                        className="view-details-btn"
+                                        onClick={() => onViewDetails?.(listing)}
+                                    >
+                                        查看详情
+                                    </button>
+                                    <button
+                                        className="cancel-listing-btn"
+                                        onClick={() => onCancel?.(listing.id)}
+                                    >
+                                        取消上架
+                                    </button>
+                                </>
                             )}
                         </div>
                     </div>
