@@ -78,6 +78,8 @@ export interface Inscription {
     inscriptionNumber: number;
     contentType: string;
     contentLength: number;
+    address?: string;
+    timestamp?: number;
 }
 
 export interface InscriptionResult {
@@ -86,7 +88,51 @@ export interface InscriptionResult {
     error?: string;
 }
 
-declare global {
+export interface NFTHeroInscription {
+    inscriptionId: string;
+    inscriptionNumber: number;
+    address: string;
+    contentType: string;
+    contentLength: number;
+    timestamp: number;
+    genesisAddress?: string;
+    outputValue?: number;
+}
+
+export interface InscriptionContent {
+    protocol?: string;
+    p?: string;
+    tick?: string;
+    op?: string;
+    [key: string]: string | number | undefined;
+}
+
+export interface MintNFTResult {
+    success: boolean;
+    inscriptionId?: string;
+    txid?: string;
+    error?: string;
+    fee?: number;
+}
+
+export interface NFTTransferResult {
+    success: boolean;
+    txid?: string;
+    error?: string;
+}
+
+export interface InscriptionUTXO {
+    inscriptionId: string;
+    inscriptionNumber: number;
+    address: string;
+    outputValue: number;
+    satoshi: number;
+    contentType: string;
+    contentLength: number;
+    timestamp: number;
+}
+
+export declare global {
     interface Window {
         unisat?: UniSatWallet;
     }
