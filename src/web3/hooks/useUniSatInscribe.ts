@@ -52,8 +52,9 @@ export const useUniSatInscribe = (unisat: UniSatWallet | null) => {
 
                 setResult(successResult);
                 return successResult;
-            } catch (error: any) {
-                const errorResult = { error: error.message || '铭刻失败' };
+            } catch (error: unknown) {
+                const message = error instanceof Error ? error.message : '铭刻失败';
+                const errorResult = { error: message };
                 setResult(errorResult);
                 return errorResult;
             } finally {
@@ -86,8 +87,9 @@ export const useUniSatInscribe = (unisat: UniSatWallet | null) => {
 
                 setResult(successResult);
                 return successResult;
-            } catch (error: any) {
-                const errorResult = { error: error.message || '铭刻失败' };
+            } catch (error: unknown) {
+                const message = error instanceof Error ? error.message : '铭刻失败';
+                const errorResult = { error: message };
                 setResult(errorResult);
                 return errorResult;
             } finally {

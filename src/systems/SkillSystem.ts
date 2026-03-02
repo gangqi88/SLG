@@ -328,7 +328,7 @@ export class SkillSystem {
 
         // 医疗技能经验（如果幸存者在医院工作）
         if (survivor.assignedBuildingId) {
-            const building = this.gameState.buildings.find((b: any) => b.id === survivor.assignedBuildingId);
+            const building = this.gameState.buildings.find((b: Building) => b.id === survivor.assignedBuildingId);
             if (building?.type === 'hospital') {
                 this.gainBaseSkillExperience(survivor, 'medical', experienceGain);
             }

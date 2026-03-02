@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { UniSatWallet } from '../types/unisat';
+import type { Skill } from '../../types/slg/hero.types';
 import type { 
     NFTHero, 
     NFTHeroInscriptionData,
@@ -92,9 +93,9 @@ export const useNFTHero = (
                                 level: heroData.level,
                                 attributes: heroData.attributes,
                                 skills: {
-                                    active: heroData.skills.active as any,
-                                    passive: heroData.skills.passive as any,
-                                    talent: heroData.skills.talent as any,
+                                    active: heroData.skills.active as unknown as Skill,
+                                    passive: heroData.skills.passive as unknown as Skill,
+                                    talent: heroData.skills.talent as unknown as Skill,
                                 },
                             },
                             ownership: {
@@ -157,9 +158,9 @@ export const useNFTHero = (
                     level: heroData.level,
                     attributes: heroData.attributes,
                     skills: {
-                        active: heroData.skills.active as any,
-                        passive: heroData.skills.passive as any,
-                        talent: heroData.skills.talent as any,
+                        active: heroData.skills.active as unknown as Skill,
+                        passive: heroData.skills.passive as unknown as Skill,
+                        talent: heroData.skills.talent as unknown as Skill,
                     },
                 },
                 ownership: {

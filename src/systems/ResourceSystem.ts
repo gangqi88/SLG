@@ -161,7 +161,7 @@ export class ResourceSystem {
         consumption: number;
         netChange: number;
     }> {
-        const stats = {} as Record<ResourceType, any>;
+        const stats: Record<ResourceType, { amount: number; capacity: number; production: number; consumption: number; netChange: number; }> = {} as Record<ResourceType, { amount: number; capacity: number; production: number; consumption: number; netChange: number; }>;
 
         Object.keys(this.gameState.resources).forEach(resourceType => {
             const type = resourceType as ResourceType;

@@ -1,4 +1,4 @@
-import { GameState, ResourceType, ProfessionalSkillType, ProfessionalSkill, GameDifficulty } from '../types/game.types';
+import { GameState, ResourceType, ProfessionalSkillType, ProfessionalSkill, GameDifficulty, BuildingType, SurvivorSkills } from '../types/game.types';
 import { ResourceSystem } from '../systems/ResourceSystem';
 import { BuildingSystem } from '../systems/BuildingSystem';
 import { SurvivalSystem } from '../systems/SurvivalSystem';
@@ -6,6 +6,31 @@ import { TimeSystem } from '../systems/TimeSystem';
 import { GAME_CONSTANTS } from '../utils/constants';
 import { generateId, checkGameOver, calculatePopulationCapacity } from '../utils/helpers';
 import { saveGame, loadGame } from '../utils/storage';
+
+interface InscriptionData {
+    v?: string;
+    ts?: number;
+    data?: {
+        days?: number;
+        resources?: Record<ResourceType, { amount: number }>;
+        buildings?: unknown[];
+        survivors?: unknown[];
+        time?: unknown;
+        gameStats?: unknown;
+        difficulty?: string;
+    };
+}
+
+interface GameSnapshot {
+    state: GameState;
+    systems: {
+        resourceSystem: ResourceSystem;
+        buildingSystem: BuildingSystem;
+        survivalSystem: SurvivalSystem;
+        timeSystem: TimeSystem;
+    };
+    isRunning: boolean;
+}
 
 export class GameManager {
     private gameState: GameState;
@@ -259,8 +284,8 @@ export class GameManager {
     }
 
     // 游戏操作
-    createBuilding(type: string, x: number, y: number) {
-        return this.buildingSystem.createBuilding(type as any, x, y);
+    createBuilding(type: BuildingType, x: number, y: number) {
+        return this.buildingSystem.createBuilding(type, x, y);
     }
 
     upgradeBuilding(buildingId: string) {
@@ -279,7 +304,7 @@ export class GameManager {
         return this.buildingSystem.unassignWorker(buildingId, survivorId);
     }
 
-    addSurvivor(skills?: any) {
+    addSurvivor(skills?: Partial<SurvivorSkills>) {
         return this.survivalSystem.addSurvivor(skills);
     }
 
@@ -386,7 +411,7 @@ export class GameManager {
     }
 
     // 获取游戏状态快照（用于调试）
-    getGameSnapshot(): any {
+    getGameSnapshot(): GameSnapshot {
         return {
             state: this.gameState,
             systems: {
@@ -434,7 +459,7 @@ export class GameManager {
     }
 
     // 从铭文恢复游戏
-    restoreFromInscription(inscriptionData: any): boolean {
+    restoreFromInscription(inscriptionData: InscriptionData): boolean {
         try {
             if (!inscriptionData.data) {
                 throw new Error('无效的铭文数据');

@@ -52,7 +52,8 @@ export interface UniSatWallet {
     on(event: 'accountsChanged', callback: (accounts: string[]) => void): void;
     on(event: 'networkChanged', callback: (network: string) => void): void;
 
-    removeListener(event: string, callback: Function): void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    removeListener(event: string, callback: (...args: any[]) => void): void;
 }
 
 export interface SignPsbtOptions {

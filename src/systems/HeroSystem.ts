@@ -564,8 +564,9 @@ export class HeroSystem {
     // 应用强化属性
     const enhanceBonus = this.getEquipmentEnhanceBonus(equipment.type, equipment.level);
     Object.keys(enhanceBonus).forEach(attr => {
-      if (equipment.enhancements[attr as keyof typeof equipment.enhancements] !== undefined) {
-        (equipment.enhancements as any)[attr] += enhanceBonus[attr as keyof typeof enhanceBonus];
+      const key = attr as keyof typeof equipment.enhancements;
+      if (equipment.enhancements[key] !== undefined && enhanceBonus[key] !== undefined) {
+        equipment.enhancements[key]! += enhanceBonus[key]!;
       }
     });
 

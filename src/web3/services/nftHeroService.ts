@@ -60,10 +60,11 @@ export class NFTHeroService {
                 success: false,
                 error: '铸造失败：未获得铭文ID',
             };
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : '铸造失败';
             return {
                 success: false,
-                error: error.message || '铸造失败',
+                error: message,
             };
         }
     }
@@ -110,15 +111,16 @@ export class NFTHeroService {
                 success: false,
                 error: '铸造失败：未获得铭文ID',
             };
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : '铸造失败';
             return {
                 success: false,
-                error: error.message || '铸造失败',
+                error: message,
             };
         }
     }
 
-    buildMetadata(heroData: NFTHeroInscriptionData): Record<string, any> {
+    buildMetadata(heroData: NFTHeroInscriptionData): Record<string, unknown> {
         const factionNames: Record<string, string> = {
             human: 'Human',
             angel: 'Angel',

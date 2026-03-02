@@ -1,5 +1,5 @@
 import { Hero, Team, Buff, Debuff } from '../types/slg/hero.types';
-import { battleSystem } from './BattleSystem';
+import { battleSystem, BattleContext } from './BattleSystem';
 import { generateId } from '../utils/helpers';
 
 export interface PredictionConfig {
@@ -358,7 +358,7 @@ export class BattlePredictionSystem {
         defender: Hero,
         attackerState: MemberBattleState,
         defenderState: MemberBattleState
-    ): any {
+    ): BattleContext {
         return {
             attackerFaction: attacker.faction,
             defenderFaction: defender.faction,

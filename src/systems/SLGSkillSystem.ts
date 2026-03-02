@@ -168,7 +168,7 @@ export class SLGSkillSystem {
         break;
         
       case 'buff':
-      case 'debuff':
+      case 'debuff': {
         baseValue = effect.value;
         const buffDebuffType = effect.type === 'buff' ? '增益' : '减益';
         description = `${buffDebuffType}: ${baseValue}%`;
@@ -180,6 +180,7 @@ export class SLGSkillSystem {
           }
         }
         break;
+      }
         
       case 'special':
         baseValue = effect.value;
