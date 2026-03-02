@@ -1,5 +1,12 @@
 import { Hero, Team, TeamMember, FactionType, FACTION_BONUS } from '../types/slg/hero.types';
-import { generateId } from '../utils/helpers';
+import { TeamDataManager, TeamFormationService } from './teams';
+
+export type { RecommendedFormation } from './teams';
+export interface PositionBonus {
+  position: 'main' | 'sub1' | 'sub2';
+  attribute: keyof Hero['attributes'];
+  bonus: number;
+}
 
 export interface FormationBonus {
   type: string;
@@ -7,77 +14,15 @@ export interface FormationBonus {
   description: string;
 }
 
-export interface RecommendedFormation {
-  name: string;
-  description: string;
-  mainHero: string;
-  subHeroes: string[];
-  economyHeroes: string[];
-  bonuses: FormationBonus[];
-  strengths: string[];
-  weaknesses: string[];
-}
-
-export interface PositionBonus {
-  position: 'main' | 'sub1' | 'sub2';
-  attribute: keyof Hero['attributes'];
-  bonus: number;
-}
-
 export class TeamSystem {
   private static instance: TeamSystem;
   
-  private teams: Map<string, Team> = new Map();
-  private maxTeams: number = 5;
-  private maxTeamSize: number = 3;
+  private dataManager: TeamDataManager;
+  private formationService: TeamFormationService;
   
-  private recommendedFormations: RecommendedFormation[] = [
-    {
-      name: '人族·稳守发育流',
-      description: '资源爆炸、守城极强、续航无解',
-      mainHero: 'zhong-li-ye',
-      subHeroes: ['qin-lie', 'su-wan-qing'],
-      economyHeroes: ['su-mo', 'liang-shi'],
-      bonuses: [
-        { type: 'resource', value: 50, description: '资源产量+50%' },
-        { type: 'defense', value: 40, description: '守城防御+40%' },
-        { type: 'heal', value: 25, description: '治疗效果+25%' }
-      ],
-      strengths: ['资源获取', '城防', '续航'],
-      weaknesses: ['爆发']
-    },
-    {
-      name: '天使·圣光永动流',
-      description: '治疗拉满、防御无敌、克制恶魔',
-      mainHero: 'mi-jia-er',
-      subHeroes: ['luo-xi', 'jia-nan'],
-      economyHeroes: ['ai-lin-na', 'wu-lie'],
-      bonuses: [
-        { type: 'heal', value: 45, description: '治疗+45%' },
-        { type: 'defense', value: 60, description: '防御+60%' },
-        { type: 'demon_killer', value: 30, description: '对恶魔伤害+30%' }
-      ],
-      strengths: ['治疗', '防御', '克制恶魔'],
-      weaknesses: ['爆发']
-    },
-    {
-      name: '恶魔·炼狱爆杀流',
-      description: '爆发秒杀、掠夺攻城、压制极强',
-      mainHero: 'ba-er',
-      subHeroes: ['mo-luo-ke', 'ka-long'],
-      economyHeroes: ['a-jia-lei-si', 'ma-men'],
-      bonuses: [
-        { type: 'damage', value: 65, description: '伤害+65%' },
-        { type: 'aoe', value: 55, description: 'AOE+55%' },
-        { type: 'plunder', value: 40, description: '掠夺+40%' }
-      ],
-      strengths: ['爆发', '掠夺', '攻城'],
-      weaknesses: ['防御', '续航']
-    }
-  ];
-
   private constructor() {
-    this.initializeDefaultTeams();
+    this.dataManager = new TeamDataManager();
+    this.formationService = new TeamFormationService();
   }
 
   static getInstance(): TeamSystem {
@@ -87,85 +32,31 @@ export class TeamSystem {
     return TeamSystem.instance;
   }
 
-  private initializeDefaultTeams(): void {
-    for (let i = 1; i <= 3; i++) {
-      const teamId = `team_${i}`;
-      const team: Team = {
-        id: teamId,
-        name: `队伍 ${i}`,
-        owner: 'player',
-        members: [],
-        faction: 'human',
-        power: 0,
-        morale: 100,
-        bonuses: {
-          factionBonus: 0,
-          bondBonus: 0,
-          equipmentBonus: 0
-        },
-        status: 'idle',
-        history: {
-          battlesWon: 0,
-          battlesLost: 0,
-          winRate: 0
-        }
-      };
-      this.teams.set(teamId, team);
-    }
-  }
-
   createTeam(name: string, faction: FactionType): Team | null {
-    if (this.teams.size >= this.maxTeams) {
-      console.warn('已达到最大队伍数量');
-      return null;
+    const team = this.dataManager.createTeam(name);
+    if (team) {
+      team.faction = faction;
     }
-
-    const teamId = `team_${generateId()}`;
-    const team: Team = {
-      id: teamId,
-      name,
-      owner: 'player',
-      members: [],
-      faction,
-      power: 0,
-      morale: 100,
-      bonuses: {
-        factionBonus: 0,
-        bondBonus: 0,
-        equipmentBonus: 0
-      },
-      status: 'idle',
-      history: {
-        battlesWon: 0,
-        battlesLost: 0,
-        winRate: 0
-      }
-    };
-
-    this.teams.set(teamId, team);
     return team;
   }
 
   deleteTeam(teamId: string): boolean {
-    const team = this.teams.get(teamId);
-    if (!team) return false;
-
-    if (team.members.length > 0) {
+    const team = this.dataManager.getTeam(teamId);
+    if (team && team.members.length > 0) {
       console.warn('队伍中还有英雄，无法删除');
       return false;
     }
-
-    return this.teams.delete(teamId);
+    return this.dataManager.deleteTeam(teamId);
   }
 
   addHeroToTeam(teamId: string, hero: Hero, position: 'main' | 'sub1' | 'sub2'): boolean {
-    const team = this.teams.get(teamId);
+    const team = this.dataManager.getTeam(teamId);
     if (!team) {
       console.error('队伍不存在');
       return false;
     }
 
-    if (team.members.length >= this.maxTeamSize) {
+    if (team.members.length >= 3) {
       console.warn('队伍已满');
       return false;
     }
@@ -176,41 +67,28 @@ export class TeamSystem {
       'sub2': 'sub'
     };
 
-    const teamMember: TeamMember = {
-      heroId: hero.id,
-      position: positionMap[position],
-      isActive: true,
-      currentHealth: 100,
-      maxHealth: 100,
-      mana: 0,
-      maxMana: 100,
-      buffs: [],
-      debuffs: []
-    };
-
-    team.members.push(teamMember);
-    this.updateTeamPower(team);
-    this.checkTeamBonds(team);
-
-    return true;
+    const success = this.dataManager.addMember(teamId, hero.id, positionMap[position]);
+    if (success) {
+      this.updateTeamPower(team);
+      this.checkTeamBonds(team);
+    }
+    return success;
   }
 
   removeHeroFromTeam(teamId: string, heroId: string): boolean {
-    const team = this.teams.get(teamId);
+    const team = this.dataManager.getTeam(teamId);
     if (!team) return false;
 
-    const index = team.members.findIndex(m => m.heroId === heroId);
-    if (index === -1) return false;
-
-    team.members.splice(index, 1);
-    this.updateTeamPower(team);
-    this.checkTeamBonds(team);
-
-    return true;
+    const success = this.dataManager.removeMember(teamId, heroId);
+    if (success) {
+      this.updateTeamPower(team);
+      this.checkTeamBonds(team);
+    }
+    return success;
   }
 
   swapHeroPositions(teamId: string, heroId1: string, heroId2: string): boolean {
-    const team = this.teams.get(teamId);
+    const team = this.dataManager.getTeam(teamId);
     if (!team) return false;
 
     const member1 = team.members.find(m => m.heroId === heroId1);
@@ -260,32 +138,32 @@ export class TeamSystem {
   }
 
   getTeam(teamId: string): Team | undefined {
-    return this.teams.get(teamId);
+    return this.dataManager.getTeam(teamId);
   }
 
   getAllTeams(): Team[] {
-    return Array.from(this.teams.values());
+    return this.dataManager.getAllTeams();
   }
 
   getTeamByFaction(faction: FactionType): Team[] {
-    return Array.from(this.teams.values()).filter(t => t.faction === faction);
+    return this.dataManager.getAllTeams().filter(t => t.faction === faction);
   }
 
-  getRecommendedFormation(faction: FactionType): RecommendedFormation | undefined {
+  getRecommendedFormation(faction: FactionType): { name: string; description: string; mainHero: string; subHeroes: string[]; economyHeroes: string[]; bonuses: { type: string; value: number; description: string }[]; strengths: string[]; weaknesses: string[] } | undefined {
     const formationMap: Record<FactionType, string> = {
       'human': '人族·稳守发育流',
       'angel': '天使·圣光永动流',
       'demon': '恶魔·炼狱爆杀流'
     };
 
-    return this.recommendedFormations.find(f => f.name === formationMap[faction]);
+    return this.dataManager.getRecommendedFormations().find(f => f.name === formationMap[faction]);
   }
 
-  getAllRecommendedFormations(): RecommendedFormation[] {
-    return this.recommendedFormations;
+  getAllRecommendedFormations() {
+    return this.dataManager.getRecommendedFormations();
   }
 
-  calculateFormationBonus(formation: RecommendedFormation, team: Team): FormationBonus[] {
+  calculateFormationBonus(formation: { mainHero: string; subHeroes: string[]; bonuses: FormationBonus[] }, team: Team): FormationBonus[] {
     const bonuses: FormationBonus[] = [];
     const heroIds = team.members.map(m => m.heroId);
 
@@ -314,21 +192,21 @@ export class TeamSystem {
   }
 
   setTeamMorale(teamId: string, morale: number): void {
-    const team = this.teams.get(teamId);
+    const team = this.dataManager.getTeam(teamId);
     if (team) {
       team.morale = Math.max(30, Math.min(100, morale));
     }
   }
 
   updateTeamMorale(teamId: string, delta: number): void {
-    const team = this.teams.get(teamId);
+    const team = this.dataManager.getTeam(teamId);
     if (team) {
       team.morale = Math.max(30, Math.min(100, team.morale + delta));
     }
   }
 
   getTeamBattleStats(teamId: string): { won: number; lost: number; winRate: number } | null {
-    const team = this.teams.get(teamId);
+    const team = this.dataManager.getTeam(teamId);
     if (!team) return null;
 
     return {
@@ -339,7 +217,7 @@ export class TeamSystem {
   }
 
   recordBattleResult(teamId: string, won: boolean): void {
-    const team = this.teams.get(teamId);
+    const team = this.dataManager.getTeam(teamId);
     if (!team) return;
 
     if (won) {
@@ -407,7 +285,7 @@ export class TeamSystem {
   }
 
   optimizeTeamComposition(teamId: string, availableHeroes: Hero[]): { bestHeroes: Hero[]; score: number } {
-    const team = this.teams.get(teamId);
+    const team = this.dataManager.getTeam(teamId);
     if (!team || availableHeroes.length < 3) {
       return { bestHeroes: [], score: 0 };
     }
@@ -420,6 +298,22 @@ export class TeamSystem {
     const score = bestHeroes.reduce((sum, h) => sum + this.calculateHeroPower(h), 0);
 
     return { bestHeroes, score };
+  }
+
+  calculateFactionBonus(team: Team, heroes: Hero[]): number {
+    return this.formationService.calculateFactionBonus(team, heroes);
+  }
+
+  calculateTotalBonus(team: Team, heroes: Map<string, Hero>) {
+    return this.formationService.calculateTotalBonus(team, heroes);
+  }
+
+  getBestPosition(hero: Hero): 'main' | 'sub' {
+    return this.formationService.getBestPosition(hero);
+  }
+
+  isValidFormation(team: Team): { valid: boolean; errors: string[] } {
+    return this.formationService.isValidFormation(team);
   }
 }
 
