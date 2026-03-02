@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Hero, Team, FactionType } from '../../../types/slg/hero.types';
 import { battleSystem, DamageResult, BattleContext } from '../../../systems/BattleSystem';
 import { factionSystem } from '../../../systems/FactionSystem';
+import { battlePredictionSystem, PredictedOutcome } from '../../../systems/BattlePredictionSystem';
+import { battleReplaySystem } from '../../../systems/BattleReplaySystem';
 import './BattlePanel.css';
 
 interface BattlePanelProps {
@@ -23,6 +25,8 @@ export const BattlePanel: React.FC<BattlePanelProps> = ({
   const [battleResult, setBattleResult] = useState<DamageResult | null>(null);
   const [isBattling, setIsBattling] = useState(false);
   const [battleProgress, setBattleProgress] = useState(0);
+  const [prediction, setPrediction] = useState<PredictedOutcome | null>(null);
+  const [showPrediction, setShowPrediction] = useState(false);
 
   const attackerTeam = teams.find(t => t.id === attackerTeamId);
   const defenderTeam = teams.find(t => t.id === defenderTeamId);
@@ -157,7 +161,43 @@ export const BattlePanel: React.FC<BattlePanelProps> = ({
     };
     setBattleResult(finalResult);
     onBattleEnd?.(finalResult);
+
+    battleReplaySystem.finishRecording(winner);
   };
+
+  const runPrediction = () => {
+    if (attackerTeam && defenderTeam) {
+      const attackerHeroesMap = new Map(heroes.filter(h => 
+        attackerTeam.members.some(m => m.heroId === h.id)
+      ).map(h => [h.id, h]));
+      
+      const defenderHeroesMap = new Map(heroes.filter(h => 
+        defenderTeam.members.some(m => m.heroId === h.id)
+      ).map(h => [h.id, h]));
+
+      const result = battlePredictionSystem.predictBattleOutcome(
+        attackerTeam,
+        defenderTeam,
+        attackerHeroesMap,
+        defenderHeroesMap
+      );
+      setPrediction(result);
+      setShowPrediction(true);
+    }
+  };
+
+  const exportBattleReport = () => {
+    if (!battleResult) return;
+    const report = `战斗报告\n${'='.repeat(30)}\n${battleLog.join('\n')}`;
+    console.log(report);
+    alert('战报已输出到控制台');
+  };
+
+  useEffect(() => {
+    if (attackerTeamId && defenderTeamId && attackerTeam && defenderTeam) {
+      runPrediction();
+    }
+  }, [attackerTeamId, defenderTeamId]);
 
   const renderTeamCard = (team: Team | undefined, type: 'attacker' | 'defender') => {
     if (!team) {
@@ -285,7 +325,38 @@ export const BattlePanel: React.FC<BattlePanelProps> = ({
           >
             {isBattling ? '战斗中...' : '开始战斗'}
           </button>
+          <button 
+            className="battle-btn secondary"
+            onClick={exportBattleReport}
+            disabled={!battleResult}
+          >
+            导出战报
+          </button>
         </div>
+
+        {showPrediction && prediction && (
+          <div className="battle-prediction">
+            <h3>🔮 战斗预测</h3>
+            <div className="prediction-stats">
+              <div className="prediction-item">
+                <span className="prediction-label">进攻方胜率</span>
+                <span className="prediction-value attacker">{prediction.attackerWinRate.toFixed(1)}%</span>
+              </div>
+              <div className="prediction-item">
+                <span className="prediction-label">防守方胜率</span>
+                <span className="prediction-value defender">{prediction.defenderWinRate.toFixed(1)}%</span>
+              </div>
+              <div className="prediction-item">
+                <span className="prediction-label">预计回合</span>
+                <span className="prediction-value">{prediction.averageRounds.toFixed(1)}</span>
+              </div>
+              <div className="prediction-item">
+                <span className="prediction-label">置信度</span>
+                <span className="prediction-value">{prediction.confidence}%</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {isBattling && (
           <div className="battle-progress">

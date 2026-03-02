@@ -382,3 +382,61 @@
     grid-template-columns: 1fr;
   }
 }
+
+.battle-prediction {
+  background: linear-gradient(135deg, rgba(103, 58, 183, 0.2), rgba(156, 39, 176, 0.2));
+  border: 1px solid rgba(156, 39, 176, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.battle-prediction h3 {
+  margin: 0 0 12px 0;
+  color: #ce93d8;
+  font-size: 16px;
+}
+
+.prediction-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.prediction-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.prediction-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 4px;
+}
+
+.prediction-value {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.prediction-value.attacker {
+  color: #4caf50;
+}
+
+.prediction-value.defender {
+  color: #f44336;
+}
+
+.battle-btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  margin-left: 8px;
+}
+
+.battle-btn.secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
