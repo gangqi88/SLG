@@ -1,5 +1,6 @@
 import { Survivor, GameState, ProfessionalSkillType, ProfessionalSkill } from '../types/game.types';
 import { GAME_CONSTANTS } from '../utils/constants';
+import { generateSurvivorName } from '../utils/helpers';
 
 export class SurvivalSystem {
     private readonly gameState: GameState;
@@ -39,7 +40,7 @@ export class SurvivalSystem {
     addSurvivor(skills?: Partial<Survivor['skills']>): Survivor {
         const newSurvivor: Survivor = {
             id: `survivor-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
-            name: this.generateSurvivorName(),
+            name: generateSurvivorName(),
             health: 100,
             hunger: 100,
             stamina: 100,
@@ -438,15 +439,5 @@ export class SurvivalSystem {
         if (survivor.stamina < 20) chance *= 3;
 
         return chance * (1 / 3600); // 转换为每小时几率
-    }
-
-    private generateSurvivorName(): string {
-        const firstNames = ['张', '王', '李', '赵', '刘', '陈', '杨', '黄', '周', '吴'];
-        const lastNames = ['伟', '芳', '娜', '秀英', '敏', '静', '丽', '强', '磊', '军', '洋', '勇', '艳', '杰', '娟', '涛'];
-        
-        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-        const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-        
-        return firstName + lastName;
     }
 }
