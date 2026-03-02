@@ -83,7 +83,7 @@
 - [x] 品质和星级系统实现
 - [x] 阵营系统实现 ✅
 - [x] 基础战斗计算 ✅
-- [ ] Web3 NFT基础框架（待开始）
+- [x] Web3 NFT基础框架 ✅
 
 #### 阶段1.1：英雄数据模型 ✅
 - [x] Hero、Skill、Bond等接口定义
@@ -95,10 +95,16 @@
 - [x] 阵营克制关系实现
 - [x] 阵营UI设计
 
-#### 阶段1.3：Web3 NFT基础（待开始）
-- [ ] 智能合约设计和部署
-- [ ] NFT铸造接口实现
-- [ ] 钱包集成和交易流程
+#### 阶段1.3：Web3 NFT基础 ✅
+- [x] NFT英雄类型定义 (`src/types/slg/nft-hero.types.ts`)
+- [x] NFT铸造服务 (`src/web3/services/nftHeroService.ts`)
+- [x] NFT查询Hook (`src/web3/hooks/useNFTHero.ts`)
+- [x] 游戏内铸造Hook (`src/web3/hooks/useHeroMint.ts`)
+- [x] NFT英雄卡片组件 (`src/components/SLG/NFT/NFTHeroCard.tsx`)
+- [x] 铸造面板 (`src/components/SLG/NFT/HeroMintPanel.tsx`)
+- [x] 市场浏览组件 (`src/components/SLG/NFT/NFTMarketplace.tsx`)
+- [ ] 智能合约设计和部署（预留，未来可选）
+- [ ] 钱包集成和交易流程 ✅
 
 #### 阶段1.4：UI原型 ✅
 - [x] 英雄列表组件
@@ -115,16 +121,16 @@
 - [x] 多人对战功能
 
 #### 阶段2.1：战斗引擎
-- [ ] 实时战斗计算（客户端预测）
-- [ ] 战报生成与回放
-- [ ] 技能效果实现
-- [ ] 战斗UI完善
+- [x] 实时战斗计算（客户端预测）
+- [x] 战报生成与回放
+- [x] 技能效果实现
+- [x] 战斗UI完善
 
 #### 阶段2.2：养成系统
 - [x] 英雄升级、升星、进阶
 - [x] 技能学习和升级
 - [x] 羁绊系统实现
-- [ ] 装备强化系统
+- [x] 装备强化系统
 
 #### 阶段2.3：城池系统
 - [x] 三族主城风格
@@ -147,16 +153,17 @@
 - [ ] 优化和发布
 
 #### 阶段3.1：NFT英雄经济
-- [ ] 英雄NFT交易市场
-- [ ] 租赁和质押系统
-- [ ] 稀有度和经济平衡
-- [ ] 市场定价机制
+- [x] 英雄NFT交易市场框架
+- [x] 英雄NFT交易市场UI
+- [x] 质押和租赁系统
+- [x] 稀有度和经济平衡
+- [x] 市场定价机制
 
 #### 阶段3.2：代币经济
-- [ ] 游戏内资源代币化
-- [ ] 治理代币设计
-- [ ] 赛季奖励分发
-- [ ] 经济模型平衡
+- [x] 游戏内资源代币化
+- [x] 治理代币设计
+- [x] 赛季奖励分发
+- [x] 经济模型平衡
 
 #### 阶段3.3：跨链和扩展
 - [ ] 多钱包支持
@@ -237,19 +244,19 @@ src/
 ```
 src/web3/
 ├── contracts/
-│   ├── HeroNFT.sol            # 英雄NFT合约 🔄
-│   └── HeroMarket.sol         # 英雄市场合约 🔄
+│   ├── HeroNFT.sol            # 英雄NFT合约 📋 (预留)
+│   └── HeroMarket.sol         # 英雄市场合约 📋 (预留)
 ├── hooks/
-│   ├── useNFTHero.ts          # NFT英雄Hook 🔄
-│   ├── useHeroMarket.ts       # 市场Hook 🔄
-│   └── useHeroMint.ts         # 铸造Hook 🔄
+│   ├── useNFTHero.ts          # NFT英雄查询 ✅
+│   ├── useHeroMint.ts        # 铸造Hook ✅
+│   └── useUniSatWallet.ts    # 钱包Hook ✅
 ├── services/
-│   ├── nftService.ts          # NFT服务 🔄
-│   └── marketService.ts       # 市场服务 🔄
+│   ├── nftHeroService.ts     # NFT铸造服务 ✅
+│   └── unisatAPI.ts          # UniSat API服务 ✅
 └── components/SLG/NFT/
-    ├── NFTHero.tsx            # NFT英雄组件 🔄
-    ├── NFTMarket.tsx          # NFT市场组件 🔄
-    └── NFTMint.tsx            # NFT铸造组件 🔄
+    ├── NFTHeroCard.tsx       # NFT英雄卡片 ✅
+    ├── HeroMintPanel.tsx     # 铸造面板 ✅
+    └── NFTMarketplace.tsx    # 市场浏览 ✅
 ```
 
 ## 🎨 视觉设计规范
@@ -365,7 +372,7 @@ src/web3/
 
 ---
 
-**文档版本**: 1.1.0  
+**文档版本**: 1.8.0  
 **创建日期**: 2026年2月  
 **最后更新**: 2026年3月  
-**项目状态**: 第1-2月基本完成，准备进入第3-4月
+**项目状态**: 阶段3.2代币经济完成
