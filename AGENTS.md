@@ -30,11 +30,18 @@
 ### 测试
 - **状态**: 当前未配置测试框架
 - 如有测试: `npm test` 或 `npx vitest run`（如使用 vitest）
+- **单文件检查**: `npx eslint src/systems/ResourceSystem.ts`（指定单个文件）
+- **单文件修复**: `npx eslint src/systems/ResourceSystem.ts --fix`
 
 ## 代码风格指南
 
-### TypeScript 配置
-- Target: ES2020 | Strict mode | No unused locals/parameters
+### TypeScript 配置 (tsconfig.json)
+- **Target**: ES2020
+- **Strict mode**: enabled
+- **noUnusedLocals**: true
+- **noUnusedParameters**: true
+- **Module**: ESNext (bundler mode)
+- **jsx**: react-jsx
 
 ### 命名规范
 | 类型 | 规则 | 示例 |
@@ -63,7 +70,12 @@ import ResourcePanel from './components/UI/ResourcePanel';
 - **Indentation**: 4 spaces
 - **Quotes**: Single quotes
 - **Semicolons**: Required
-- **Line endings**: LF
+- **Line endings**: LF (EditorConfig: `crlf` on Windows, `lf` on Unix)
+
+### EditorConfig (.editorconfig)
+- indent_style: space
+- indent_size: 4
+- charset: utf-8
 
 ### React Patterns
 - Functional components with hooks
@@ -78,9 +90,14 @@ import ResourcePanel from './components/UI/ResourcePanel';
 - Use optional chaining (`?.`) and nullish coalescing (`??`)
 - Return boolean for save/load operations
 
-### ESLint 规则
-- Extends: eslint:recommended, @typescript-eslint/recommended, react-hooks/recommended
-- Plugins: react-refresh
+### ESLint 配置 (.eslintrc.cjs)
+- **Env**: browser, es2020
+- **Parser**: @typescript-eslint/parser
+- **Plugins**: react-refresh
+- **Extends**: eslint:recommended, @typescript-eslint/recommended, react-hooks/recommended
+- **Key Rules**:
+  - `react-refresh/only-export-components`: warn (allowConstantExport: true)
+  - 忽略: dist, .eslintrc.cjs
 
 ## 文件组织
 ```
@@ -146,3 +163,39 @@ VITE_FB_NETWORK=mainnet  # 或 testnet
 - 钱包: https://unisat.io/download
 - 文档: https://docs.unisat.io
 - API: https://api.unisat.io/query-v4
+
+## 常用操作
+
+### 开发服务器
+- 开发: `npm run dev` → localhost:8080
+- 无日志开发: `npm run dev-nolog`
+- 热重载: Vite 自动处理
+
+### 代码检查与构建
+- **全量 lint**: `npx eslint src/`
+- **全量 lint 修复**: `npx eslint src/ --fix`
+- **单文件 lint**: `npx eslint src/systems/ResourceSystem.ts`
+- **单文件 lint 修复**: `npx eslint src/systems/ResourceSystem.ts --fix`
+- **TypeScript 检查**: `npx tsc --noEmit`
+- **生产构建**: `npm run build`
+
+### 关键文件
+- Phaser 配置: `src/game/main.ts`
+- 游戏状态: localStorage 持久化
+
+## 剩余工作任务
+
+### Phase 3.3: 跨链和扩展
+- [ ] 多钱包支持
+- [ ] 跨链资产转移
+- [ ] 社交功能集成
+- [ ] 移动端适配
+
+### Phase 3.4: 优化发布
+- [ ] 性能优化
+- [ ] 安全审计
+- [ ] 生产部署
+- [ ] 用户培训
+
+### 其他待办
+- 智能合约设计和部署（预留，未来可选）

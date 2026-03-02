@@ -147,9 +147,9 @@
 ### 第5-6月：Web3深度集成
 
 #### 里程碑3：完整Web3经济
-- [ ] NFT英雄经济系统
-- [ ] 代币经济模型
-- [ ] 跨链和扩展功能
+- [x] NFT英雄经济系统
+- [x] 代币经济模型
+- [x] 跨链和扩展功能（框架）
 - [ ] 优化和发布
 
 #### 阶段3.1：NFT英雄经济
@@ -242,21 +242,40 @@ src/
 
 ### Web3集成架构
 ```
-src/web3/
-├── contracts/
-│   ├── HeroNFT.sol            # 英雄NFT合约 📋 (预留)
-│   └── HeroMarket.sol         # 英雄市场合约 📋 (预留)
-├── hooks/
-│   ├── useNFTHero.ts          # NFT英雄查询 ✅
-│   ├── useHeroMint.ts        # 铸造Hook ✅
-│   └── useUniSatWallet.ts    # 钱包Hook ✅
-├── services/
-│   ├── nftHeroService.ts     # NFT铸造服务 ✅
-│   └── unisatAPI.ts          # UniSat API服务 ✅
-└── components/SLG/NFT/
-    ├── NFTHeroCard.tsx       # NFT英雄卡片 ✅
-    ├── HeroMintPanel.tsx     # 铸造面板 ✅
-    └── NFTMarketplace.tsx    # 市场浏览 ✅
+src/
+├── types/slg/
+│   ├── nft-hero.types.ts        # NFT英雄类型 ✅
+│   ├── market.types.ts           # 市场类型 ✅
+│   ├── staking.types.ts          # 质押类型 ✅
+│   └── token.types.ts            # 代币类型 ✅
+├── systems/
+│   ├── BattleSystem.ts          # 战斗系统 ✅
+│   ├── BattleManager.ts         # 战斗管理 ✅
+│   ├── BattleReplaySystem.ts     # 战斗回放 ✅
+│   ├── BattlePredictionSystem.ts # 战斗预测 ✅
+│   ├── EquipmentSystem.ts       # 装备系统 ✅
+│   ├── NFTMarketService.ts      # NFT市场 ✅
+│   ├── StakingService.ts        # 质押服务 ✅
+│   └── TokenService.ts           # 代币服务 ✅
+└── web3/
+    ├── hooks/
+    │   ├── useNFTHero.ts       # NFT英雄查询 ✅
+    │   ├── useHeroMint.ts       # 铸造Hook ✅
+    │   ├── useNFTMarket.ts      # 市场Hook ✅
+    │   ├── useNFTHeroStaking.ts # 质押Hook ✅
+    │   └── useUniSatWallet.ts   # 钱包Hook ✅
+    ├── services/
+    │   ├── nftHeroService.ts   # NFT铸造服务 ✅
+    │   └── unisatAPI.ts         # UniSat API ✅
+    └── components/SLG/NFT/
+        ├── NFTHeroCard.tsx     # NFT英雄卡片 ✅
+        ├── HeroMintPanel.tsx   # 铸造面板 ✅
+        ├── NFTMarketPanel.tsx # 市场面板 ✅
+        ├── StakingPanel.tsx   # 质押面板 ✅
+        └── Market/
+            ├── MarketList.tsx          # 市场列表 ✅
+            ├── CreateListingPanel.tsx  # 上架面板 ✅
+            └── MyListingsPanel.tsx    # 我的上架 ✅
 ```
 
 ## 🎨 视觉设计规范
@@ -372,7 +391,7 @@ src/web3/
 
 ---
 
-**文档版本**: 1.8.0  
+**文档版本**: 1.9.0  
 **创建日期**: 2026年2月  
 **最后更新**: 2026年3月  
-**项目状态**: 阶段3.2代币经济完成
+**项目状态**: 阶段3.1-3.2完成，准备进入阶段3.3
