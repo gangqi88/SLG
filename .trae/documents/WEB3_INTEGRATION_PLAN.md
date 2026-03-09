@@ -71,7 +71,7 @@ export const config = createConfig({
       projectId: import.meta.env.VITE_WC_PROJECT_ID || '',
     }),
     coinbaseWallet({
-      appName: '无尽冬日',
+      appName: '文明火种',
     }),
   ],
   transports: {
@@ -973,7 +973,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>无尽冬日</h1>
+        <h1>文明火种</h1>
         <div className="game-controls">
           <ConnectButton />
           {isConnected && <TokenBalance />}

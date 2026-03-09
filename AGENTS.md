@@ -1,14 +1,31 @@
 # AGENTS.md - 项目开发指南
 
-> **AI 助手技能体系**: 本项目采用职责分离的技能配置，请根据需要查看对应的技能文件：
-> 
-> | 技能文件 | 职责 | 使用场景 |
-> |---------|------|----------|
-> | `.trae/skills/slg-game-developer/SKILL.md` | **SLG开发** | 编写英雄系统、战斗系统、Web3 NFT |
-> | `.trae/skills/endless-winter-game-developer/SKILL.md` | **生存游戏开发** | 编写生存、建造、资源系统 |
-> | `.trae/skills/endless-winter-project-manager/SKILL.md` | **项目管理** | 任务规划、进度跟踪、风险管理 |
-> | `.trae/skills/endless-winter-code-reviewer/SKILL.md` | **代码审查** | 审查代码质量、提出改进建议 |
-> | `.trae/skills/endless-winter-architect/SKILL.md` | **架构设计** | 系统架构、技术选型、性能规划 |
+> **AI 助手技能体系**: 本项目采用职责分离的技能配置，根据任务类型智能分配到对应的技能处理。
+
+## 技能体系概览
+
+| 技能文件 | 职责 | 使用场景 |
+|---------|------|----------|
+| `.trae/skills/task-scheduler/SKILL.md` | **任务调度** | 任务分类、技能路由、协作编排 |
+| `.trae/skills/web3-slg-project-manager/SKILL.md` | **项目管理** | 任务规划、进度跟踪、风险管理 |
+| `.trae/skills/architect/SKILL.md` | **架构设计** | 系统架构、技术选型、性能规划 |
+| `.trae/skills/web3-developer/SKILL.md` | **Web3开发** | 钱包集成、NFT/代币、链上数据 |
+| `.trae/skills/fullstack-code-standards/SKILL.md` | **代码规范** | 编写英雄系统、战斗系统、Web3代码 |
+| `.trae/skills/game-tester/SKILL.md` | **测试规范** | 测试设计、缺陷发现、质量保障 |
+| `.trae/skills/automation-workflow/SKILL.md` | **自动化工作流** | CI/CD、构建部署、脚本开发 |
+| `.trae/skills/art-resources/SKILL.md` | **美术资源** | 资源生成、资产管理、质量把控 |
+| `.trae/skills/document-reviewer/SKILL.md` | **文档审查** | 审查代码质量、文档审核 |
+
+### 任务分配流程
+
+```
+用户任务 → task-scheduler → 关键字识别 → 技能匹配 → 执行 → 结果返回
+```
+
+- 任务输入后由任务调度器分析
+- 通过关键字识别任务类型（开发/项目/测试/基础设施/文档）
+- 根据任务类型路由到对应的技能处理
+- 复杂任务触发多技能协作链
 
 ## 项目概述
 

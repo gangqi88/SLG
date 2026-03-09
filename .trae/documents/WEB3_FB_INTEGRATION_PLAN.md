@@ -1065,7 +1065,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>无尽冬日</h1>
+        <h1>文明火种</h1>
         <div className="game-controls">
           <UniSatConnectButton />
           <button onClick={handleNewGame}>新游戏</button>
