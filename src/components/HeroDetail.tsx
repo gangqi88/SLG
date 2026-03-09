@@ -17,31 +17,49 @@ const getQualityColor = (quality: Quality) => {
 
 const HeroDetail: React.FC<HeroDetailProps> = ({ hero, onClose }) => {
   return (
-    <div className="hero-detail-overlay" style={{
+    <div className="hero-detail-overlay animate-fade-in" style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
       backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center',
       zIndex: 1000
-    }}>
-      <div className="hero-detail-card" style={{
-        backgroundColor: '#333', padding: '20px', borderRadius: '8px', maxWidth: '600px', width: '90%',
-        maxHeight: '90vh', overflowY: 'auto', border: `2px solid ${getQualityColor(hero.quality)}`
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ color: getQualityColor(hero.quality), margin: 0 }}>{hero.name} <small style={{ fontSize: '0.6em', color: '#ccc' }}>({hero.quality})</small></h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '24px', cursor: 'pointer' }}>×</button>
+    }} onClick={onClose}>
+      <div className="hero-detail-card animate-slide-in" style={{
+        backgroundColor: '#2a2a2a', padding: '24px', borderRadius: '12px', maxWidth: '600px', width: '90%',
+        maxHeight: '90vh', overflowY: 'auto', border: `2px solid ${getQualityColor(hero.quality)}`,
+        boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+      }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid #444', paddingBottom: '12px' }}>
+          <h2 style={{ color: getQualityColor(hero.quality), margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {hero.name} 
+            <span style={{ fontSize: '0.5em', color: '#fff', backgroundColor: getQualityColor(hero.quality), padding: '2px 6px', borderRadius: '4px' }}>
+              {hero.quality}
+            </span>
+          </h2>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '28px', cursor: 'pointer', padding: '0', lineHeight: '1' }}>×</button>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
           <div>
-            <p><strong>种族:</strong> {hero.race}</p>
-            <p><strong>定位:</strong> {hero.position}</p>
-            <p><strong>兵种:</strong> {hero.troopType}</p>
+            <p style={{ margin: '5px 0' }}><strong style={{ color: '#aaa' }}>种族:</strong> <span style={{ color: '#fff' }}>{hero.race}</span></p>
+            <p style={{ margin: '5px 0' }}><strong style={{ color: '#aaa' }}>定位:</strong> <span style={{ color: '#fff' }}>{hero.position}</span></p>
+            <p style={{ margin: '5px 0' }}><strong style={{ color: '#aaa' }}>兵种:</strong> <span style={{ color: '#fff' }}>{hero.troopType}</span></p>
           </div>
-          <div>
-            <p><strong>统御:</strong> {hero.stats.command}</p>
-            <p><strong>武力:</strong> {hero.stats.strength}</p>
-            <p><strong>谋略:</strong> {hero.stats.strategy}</p>
-            <p><strong>防御:</strong> {hero.stats.defense}</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ backgroundColor: '#222', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.8em', color: '#aaa' }}>统御</div>
+              <div style={{ fontSize: '1.2em', color: '#4caf50' }}>{hero.stats.command}</div>
+            </div>
+            <div style={{ backgroundColor: '#222', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.8em', color: '#aaa' }}>武力</div>
+              <div style={{ fontSize: '1.2em', color: '#f44336' }}>{hero.stats.strength}</div>
+            </div>
+            <div style={{ backgroundColor: '#222', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.8em', color: '#aaa' }}>谋略</div>
+              <div style={{ fontSize: '1.2em', color: '#2196f3' }}>{hero.stats.strategy}</div>
+            </div>
+            <div style={{ backgroundColor: '#222', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.8em', color: '#aaa' }}>防御</div>
+              <div style={{ fontSize: '1.2em', color: '#ff9800' }}>{hero.stats.defense}</div>
+            </div>
           </div>
         </div>
 

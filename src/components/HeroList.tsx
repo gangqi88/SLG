@@ -22,19 +22,30 @@ const HeroList: React.FC = () => {
         <button onClick={() => setFilterRace(Race.DEMON)} style={{ marginRight: '10px' }}>恶魔</button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
+      <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
         {filteredHeroes.map(hero => (
           <div 
             key={hero.id} 
             onClick={() => setSelectedHero(hero)}
+            className="animate-fade-in"
             style={{
               border: '1px solid #444',
               borderRadius: '8px',
               padding: '15px',
               cursor: 'pointer',
               backgroundColor: '#2a2a2a',
-              transition: 'transform 0.2s',
-              boxShadow: '0 2px 5px rgba(0,0,0,0.3)'
+              transition: 'transform 0.2s, box-shadow 0.2s',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.3)',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-5px)';
+              e.currentTarget.style.boxShadow = '0 5px 15px rgba(0,0,0,0.5)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
             }}
           >
             <h3 style={{ margin: '0 0 10px 0', color: hero.quality === Quality.RED ? '#ff4d4f' : hero.quality === Quality.ORANGE ? '#fa8c16' : '#722ed1' }}>
