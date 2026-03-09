@@ -1,5 +1,5 @@
 import { GameState } from '../types/game.types';
-import { GAME_CONSTANTS } from '../utils/constants';
+import { GAME_CONSTANTS } from '../constants';
 
 export class TimeSystem {
     private readonly gameState: GameState;

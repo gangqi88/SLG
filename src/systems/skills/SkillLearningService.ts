@@ -1,7 +1,7 @@
 // 技能学习服务 - 处理技能学习和升级
 
 import { Survivor, SurvivorSkills, ProfessionalSkill, ProfessionalSkillType, SkillSpecialization, GameState } from '../../types/game.types';
-import { PROFESSIONAL_SKILLS_CONFIG } from '../../utils/constants';
+import { PROFESSIONAL_SKILLS_CONFIG } from '../../constants';
 
 export interface LearnableSkill {
     skillType: ProfessionalSkillType;

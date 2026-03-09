@@ -1,7 +1,7 @@
 // 技能效果计算器 - 计算技能对幸存者的加成效果
 
 import { Survivor } from '../../types/game.types';
-import { PROFESSIONAL_SKILLS_CONFIG } from '../../utils/constants';
+import { PROFESSIONAL_SKILLS_CONFIG } from '../../constants';
 
 export interface SkillEffects {
     workEfficiency: number;

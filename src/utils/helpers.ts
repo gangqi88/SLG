@@ -1,5 +1,5 @@
 import { ResourceType, BuildingType, GameState, Survivor, Building } from '../types/game.types';
-import { GAME_CONSTANTS, RESOURCE_TYPE_INFO } from './constants';
+import { GAME_CONSTANTS, RESOURCE_TYPE_INFO } from '../constants';
 
 // 生成唯一ID
 export const generateId = (): string => {

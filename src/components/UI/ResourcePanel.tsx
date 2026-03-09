@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ResourceType } from '../../types/game.types';
-import { RESOURCE_TYPE_INFO } from '../../utils/constants';
+import { RESOURCE_TYPE_INFO } from '../../constants';
 import { formatNumber } from '../../utils/helpers';
 
 interface ResourcePanelProps {

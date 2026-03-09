@@ -1,7 +1,7 @@
 // 技能经验服务 - 处理技能经验计算和升级
 
 import { Survivor, Building, SkillSpecialization, GameState } from '../../types/game.types';
-import { PROFESSIONAL_SKILLS_CONFIG, SKILL_CONSTANTS } from '../../utils/constants';
+import { PROFESSIONAL_SKILLS_CONFIG, SKILL_CONSTANTS } from '../../constants';
 
 export class SkillExperienceService {
     private gameState: GameState;

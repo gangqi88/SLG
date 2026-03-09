@@ -1,5 +1,5 @@
 import { Building, BuildingType, ResourceType, Survivor, GameState } from '../types/game.types';
-import { GAME_CONSTANTS, BUILDING_TYPE_INFO } from '../utils/constants';
+import { GAME_CONSTANTS, BUILDING_TYPE_INFO } from '../constants';
 import { generateId, hasEnoughResources, consumeResources } from '../utils/helpers';
 
 export class BuildingSystem {

@@ -3,7 +3,7 @@ import { ResourceSystem } from '../systems/ResourceSystem';
 import { BuildingSystem } from '../systems/BuildingSystem';
 import { SurvivalSystem } from '../systems/SurvivalSystem';
 import { TimeSystem } from '../systems/TimeSystem';
-import { GAME_CONSTANTS } from '../utils/constants';
+import { GAME_CONSTANTS } from '../constants';
 import { generateId, checkGameOver, calculatePopulationCapacity } from '../utils/helpers';
 import { saveGame, loadGame } from '../utils/storage';
 

@@ -1,5 +1,5 @@
 import { ResourceType, ResourceState, GameState } from '../types/game.types';
-import { GAME_CONSTANTS, RESOURCE_TYPE_INFO } from '../utils/constants';
+import { GAME_CONSTANTS, RESOURCE_TYPE_INFO } from '../constants';
 import { calculateTotalResource, getSeasonMultiplier } from '../utils/helpers';
 
 export class ResourceSystem {
@@ -26,7 +26,7 @@ export class ResourceSystem {
             const finalChange = netChange * seasonMultiplier * (deltaTime / 3600); // 转换为小时
 
             // 应用难度影响
-            const difficultyMultiplier = GAME_CONSTANTS.DIFFICULTY[this.gameState.difficulty].resourceMultiplier;
+            const difficultyMultiplier = GAME_CONSTANTS.DIFFICULTY_PARAMS[this.gameState.difficulty]?.resourceMultiplier ?? 1;
             resource.amount = Math.max(0, resource.amount + finalChange * difficultyMultiplier);
 
             // 确保不超过容量

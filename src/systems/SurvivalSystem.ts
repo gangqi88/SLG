@@ -1,5 +1,5 @@
 import { Survivor, GameState, ProfessionalSkillType, ProfessionalSkill } from '../types/game.types';
-import { GAME_CONSTANTS } from '../utils/constants';
+import { GAME_CONSTANTS } from '../constants';
 import { generateSurvivorName } from '../utils/helpers';
 
 export class SurvivalSystem {
@@ -328,7 +328,7 @@ export class SurvivalSystem {
         healthChange *= seasonEffect.survivorEffect.healthRecovery;
 
         // 难度影响
-        const difficultyEffect = GAME_CONSTANTS.DIFFICULTY[this.gameState.difficulty];
+        const difficultyEffect = GAME_CONSTANTS.DIFFICULTY_PARAMS[this.gameState.difficulty];
         healthChange *= difficultyEffect.survivorHealthRecovery;
 
         // 饥饿影响健康
