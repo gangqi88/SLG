@@ -8,77 +8,77 @@
 
 ### 任务1.1：类型定义与配置
 
-- [ ] 1.1.1 创建 `src/types/Alliance.ts`，定义 Alliance、AllianceMember、AllianceRole、AllianceTech、AdSpace、AdBid、ChatMessage、TradeRequest、AllianceWar 等接口
-- [ ] 1.1.2 创建 `src/config/alliance.ts`，定义联盟等级配置、科技配置、商店物品配置
-- [ ] 1.1.3 验证 TypeScript 编译无错误
+- [x] 1.1.1 创建 `src/types/Alliance.ts`，定义 Alliance、AllianceMember、AllianceRole、AllianceTech、AdSpace、AdBid、ChatMessage、TradeRequest、AllianceWar 等接口
+- [x] 1.1.2 创建 `src/config/alliance.ts`，定义联盟等级配置、科技配置、商店物品配置
+- [x] 1.1.3 验证 TypeScript 编译无错误
 
 ### 任务1.2：AllianceManager 单例框架
 
-- [ ] 1.2.1 创建 `src/game/logic/AllianceManager.ts` 单例类框架
-- [ ] 1.2.2 实现状态管理与 localStorage 持久化
-- [ ] 1.2.3 实现事件订阅机制
+- [x] 1.2.1 创建 `src/game/logic/AllianceManager.ts` 单例类框架
+- [x] 1.2.2 实现状态管理与 localStorage 持久化
+- [x] 1.2.3 实现事件订阅机制
 
 ### 任务1.3：React Hook
 
-- [ ] 1.3.1 创建 `src/hooks/useAlliance.ts` Hook
-- [ ] 1.3.2 实现基础状态管理
+- [x] 1.3.1 创建 `src/hooks/useAlliance.ts` Hook
+- [x] 1.3.2 实现基础状态管理
 
 ## 阶段二：核心功能（第2-3周）
 
 ### 任务2.1：联盟管理
 
-- [ ] 2.1.1 实现 createAlliance 方法 - 创建联盟
-- [ ] 2.1.2 实现 joinAlliance 方法 - 加入联盟
-- [ ] 2.1.3 实现 leaveAlliance 方法 - 离开联盟
-- [ ] 2.1.4 实现 updateAnnouncement 方法 - 更新公告
-- [ ] 2.1.5 实现 upgradeAlliance 方法 - 联盟升级
+- [x] 2.1.1 实现 createAlliance 方法 - 创建联盟
+- [x] 2.1.2 实现 joinAlliance 方法 - 加入联盟
+- [x] 2.1.3 实现 leaveAlliance 方法 - 离开联盟
+- [x] 2.1.4 实现 updateAnnouncement 方法 - 更新公告
+- [x] 2.1.5 实现 upgradeAlliance 方法 - 联盟升级
 
 ### 任务2.2：签到系统
 
-- [ ] 2.2.1 实现 checkIn 方法 - 签到
-- [ ] 2.2.2 实现 getCheckInStatus 方法 - 获取签到状态
-- [ ] 2.2.3 实现连续签到奖励计算
+- [x] 2.2.1 实现 checkIn 方法 - 签到
+- [x] 2.2.2 实现 getCheckInStatus 方法 - 获取签到状态
+- [x] 2.2.3 实现连续签到奖励计算
 
 ### 任务2.3：聊天系统
 
-- [ ] 2.3.1 实现 sendChatMessage 方法 - 发送消息
-- [ ] 2.3.2 实现 getChatHistory 方法 - 获取历史消息
-- [ ] 2.3.3 实现消息类型处理（普通/系统/公告）
+- [x] 2.3.1 实现 sendChatMessage 方法 - 发送消息
+- [x] 2.3.2 实现 getChatHistory 方法 - 获取历史消息
+- [x] 2.3.3 实现消息类型处理（普通/系统/公告）
 
 ## 阶段三：经济系统（第4周）
 
 ### 任务3.1：商店系统
 
-- [ ] 3.1.1 实现 getShopItems 方法 - 获取商店物品
-- [ ] 3.1.2 实现 buyShopItem 方法 - 购买物品
-- [ ] 3.1.3 实现每周限购逻辑
+- [x] 3.1.1 实现 getShopItems 方法 - 获取商店物品
+- [x] 3.1.2 实现 buyShopItem 方法 - 购买物品
+- [x] 3.1.3 实现每周限购逻辑
 
 ### 任务3.2：交易系统
 
-- [ ] 3.2.1 实现 createTradeRequest 方法 - 创建交易
-- [ ] 3.2.2 实现 acceptTradeRequest 方法 - 接受交易
-- [ ] 3.2.3 实现 cancelTradeRequest 方法 - 取消交易
+- [x] 3.2.1 实现 createTradeRequest 方法 - 创建交易
+- [x] 3.2.2 实现 acceptTradeRequest 方法 - 接受交易
+- [x] 3.2.3 实现 cancelTradeRequest 方法 - 取消交易
 
 ### 任务3.3：广告系统
 
-- [ ] 3.3.1 实现 placeAdBid 方法 - 出价
-- [ ] 3.3.2 实现 getAdInfo 方法 - 获取广告信息
-- [ ] 3.3.3 实现每周广告位结算
+- [x] 3.3.1 实现 placeAdBid 方法 - 出价
+- [x] 3.3.2 实现 getAdInfo 方法 - 获取广告信息
+- [x] 3.3.3 实现每周广告位结算
 
 ## 阶段四：高级功能（第5-6周）
 
 ### 任务4.1：科技系统
 
-- [ ] 4.1.1 实现 getTechInfo 方法 - 获取科技信息
-- [ ] 4.1.2 实现 upgradeTech 方法 - 升级科技
-- [ ] 4.1.3 实现科技属性加成计算
+- [x] 4.1.1 实现 getTechInfo 方法 - 获取科技信息
+- [x] 4.1.2 实现 upgradeTech 方法 - 升级科技
+- [x] 4.1.3 实现科技属性加成计算
 
 ### 任务4.2：联盟战
 
-- [ ] 4.2.1 实现 declareWar 方法 - 宣战
-- [ ] 4.2.2 实现 getWarInfo 方法 - 获取战争信息
-- [ ] 4.2.3 实现 submitWarScore 方法 - 提交战绩
-- [ ] 4.2.4 实现战争结算与奖励发放
+- [x] 4.2.1 实现 declareWar 方法 - 宣战
+- [x] 4.2.2 实现 getWarInfo 方法 - 获取战争信息
+- [x] 4.2.3 实现 submitWarScore 方法 - 提交战绩
+- [x] 4.2.4 实现战争结算与奖励发放
 
 ## 阶段五：Web3集成（第7周）
 
@@ -98,16 +98,16 @@
 
 ### 任务6.1：React组件
 
-- [ ] 6.1.1 创建 AllianceDashboard 组件
-- [ ] 6.1.2 创建 AllianceInfoPanel 组件
-- [ ] 6.1.3 创建 AllianceMemberList 组件
-- [ ] 6.1.4 创建 AllianceCheckIn 组件
-- [ ] 6.1.5 创建 AllianceChat 组件
-- [ ] 6.1.6 创建 AllianceShop 组件
-- [ ] 6.1.7 创建 AllianceTrade 组件
-- [ ] 6.1.8 创建 AllianceTech 组件
-- [ ] 6.1.9 创建 AllianceWar 组件
-- [ ] 6.1.10 创建 AllianceAd 组件
+- [x] 6.1.1 创建 AllianceDashboard 组件
+- [x] 6.1.2 创建 AllianceInfoPanel 组件
+- [x] 6.1.3 创建 AllianceMemberList 组件
+- [x] 6.1.4 创建 AllianceCheckIn 组件
+- [x] 6.1.5 创建 AllianceChat 组件
+- [x] 6.1.6 创建 AllianceShop 组件
+- [x] 6.1.7 创建 AllianceTrade 组件
+- [x] 6.1.8 创建 AllianceTech 组件
+- [x] 6.1.9 创建 AllianceWar 组件
+- [x] 6.1.10 创建 AllianceAd 组件
 
 ## 阶段七：测试与验收（第9周）
 
