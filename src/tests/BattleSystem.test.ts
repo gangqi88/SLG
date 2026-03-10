@@ -7,8 +7,8 @@ describe('BattleSystem Animation Integration', () => {
   let battleSystem: BattleSystem;
 
   beforeEach(() => {
-    // Setup 1v1 battle
-    const attacker = humanHeroes.slice(0, 1);
+    // Setup 3v1 battle to test combos (Human Unity needs 3 humans)
+    const attacker = humanHeroes.slice(0, 3);
     const defender = demonHeroes.slice(0, 1);
     battleSystem = new BattleSystem(attacker, defender);
   });
@@ -32,7 +32,7 @@ describe('BattleSystem Animation Integration', () => {
 
   it('should emit death event when unit hp reaches 0', () => {
     // Cheat: set defender HP to 1
-    battleSystem.units[1].currentHp = 1;
+    battleSystem.units[3].currentHp = 1; // defender is at index 3 (0-2 attacker, 3 defender)
     
     // Force damage
     // We can't easily force damage from outside without exposing methods,
@@ -51,5 +51,17 @@ describe('BattleSystem Animation Integration', () => {
     }
     
     expect(deathEventFound).toBe(true);
+  });
+
+  it('should trigger combo event after 20s', () => {
+      // We initialized with 3 humans, so combo should be active.
+      // Fast forward 20s
+      // We can jump time or step
+      battleSystem.update(20.1);
+      const events = battleSystem.getEvents();
+      // Check if 'combo' event exists
+      const comboEvent = events.find(e => e.type === 'combo');
+      expect(comboEvent).toBeDefined();
+      expect(comboEvent?.comboName).toBe('Human Unity');
   });
 });

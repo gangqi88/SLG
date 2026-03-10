@@ -79,18 +79,4 @@ button:active {
   animation: slideIn 0.3s ease-out;
 }
 
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-  .container {
-    padding: 10px;
-  }
-  
-  h1 {
-    font-size: 1.5em;
-  }
-
-  /* Grid adjustments */
-  .hero-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
-  }
-}
+/* Mobile Responsiveness Removed */

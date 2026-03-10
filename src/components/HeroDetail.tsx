@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Hero, Quality } from '../types/Hero';
+import { HeroLogic } from '../game/logic/HeroLogic';
+import HeroDevelopmentView from './HeroDevelopmentView';
 
 interface HeroDetailProps {
   hero: Hero;
@@ -16,6 +18,11 @@ const getQualityColor = (quality: Quality) => {
 };
 
 const HeroDetail: React.FC<HeroDetailProps> = ({ hero, onClose }) => {
+  const [showDevelopment, setShowDevelopment] = useState(false);
+  const [, setVersion] = useState(0); // To force re-render
+
+  const stats = HeroLogic.getStats(hero);
+
   return (
     <div className="hero-detail-overlay animate-fade-in" style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -33,8 +40,14 @@ const HeroDetail: React.FC<HeroDetailProps> = ({ hero, onClose }) => {
             <span style={{ fontSize: '0.5em', color: '#fff', backgroundColor: getQualityColor(hero.quality), padding: '2px 6px', borderRadius: '4px' }}>
               {hero.quality}
             </span>
+            <span style={{ fontSize: '0.5em', color: '#fff', backgroundColor: '#555', padding: '2px 6px', borderRadius: '4px' }}>
+               Lv.{hero.level} {'★'.repeat(hero.starRating)}
+             </span>
           </h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '28px', cursor: 'pointer', padding: '0', lineHeight: '1' }}>×</button>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <button onClick={() => setShowDevelopment(true)} style={{ background: '#2196f3', border: 'none', color: '#fff', padding: '8px 12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Development</button>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '28px', cursor: 'pointer', padding: '0', lineHeight: '1' }}>×</button>
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
@@ -46,19 +59,19 @@ const HeroDetail: React.FC<HeroDetailProps> = ({ hero, onClose }) => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div style={{ backgroundColor: '#222', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
               <div style={{ fontSize: '0.8em', color: '#aaa' }}>统御</div>
-              <div style={{ fontSize: '1.2em', color: '#4caf50' }}>{hero.stats.command}</div>
+              <div style={{ fontSize: '1.2em', color: '#4caf50' }}>{stats.command}</div>
             </div>
             <div style={{ backgroundColor: '#222', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
               <div style={{ fontSize: '0.8em', color: '#aaa' }}>武力</div>
-              <div style={{ fontSize: '1.2em', color: '#f44336' }}>{hero.stats.strength}</div>
+              <div style={{ fontSize: '1.2em', color: '#f44336' }}>{stats.strength}</div>
             </div>
             <div style={{ backgroundColor: '#222', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
               <div style={{ fontSize: '0.8em', color: '#aaa' }}>谋略</div>
-              <div style={{ fontSize: '1.2em', color: '#2196f3' }}>{hero.stats.strategy}</div>
+              <div style={{ fontSize: '1.2em', color: '#2196f3' }}>{stats.strategy}</div>
             </div>
             <div style={{ backgroundColor: '#222', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
               <div style={{ fontSize: '0.8em', color: '#aaa' }}>防御</div>
-              <div style={{ fontSize: '1.2em', color: '#ff9800' }}>{hero.stats.defense}</div>
+              <div style={{ fontSize: '1.2em', color: '#ff9800' }}>{stats.defense}</div>
             </div>
           </div>
         </div>
@@ -92,6 +105,14 @@ const HeroDetail: React.FC<HeroDetailProps> = ({ hero, onClose }) => {
           <p style={{ fontStyle: 'italic', color: '#aaa' }}>{hero.story}</p>
         </div>
       </div>
+
+      {showDevelopment && (
+        <HeroDevelopmentView 
+          hero={hero} 
+          onClose={() => setShowDevelopment(false)} 
+          onUpdate={() => setVersion(v => v + 1)} 
+        />
+      )}
     </div>
   );
 };

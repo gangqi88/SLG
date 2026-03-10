@@ -9,6 +9,10 @@ export const angelHeroes: Hero[] = [
     position: '群疗核心',
     troopType: '圣光使徒',
     stats: { command: 78, strength: 32, strategy: 100, defense: 62 },
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_luoxi',
       name: '圣辉',
@@ -45,6 +49,10 @@ export const angelHeroes: Hero[] = [
     position: '防御壁垒',
     troopType: '守护天使',
     stats: { command: 85, strength: 60, strategy: 40, defense: 98 }, // Inferred from "Defense Wall"
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_jianan',
       name: '壁垒',
@@ -81,6 +89,10 @@ export const angelHeroes: Hero[] = [
     position: '审判输出',
     troopType: '光翼战士',
     stats: { command: 96, strength: 98, strategy: 42, defense: 78 },
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_mijiaer',
       name: '裁决',
@@ -117,6 +129,10 @@ export const angelHeroes: Hero[] = [
     position: '全队增益',
     troopType: '祈愿天使',
     stats: { command: 72, strength: 28, strategy: 94, defense: 56 },
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_ailinna',
       name: '祈福',
@@ -153,6 +169,10 @@ export const angelHeroes: Hero[] = [
     position: '持续治疗',
     troopType: '治愈天使',
     stats: { command: 66, strength: 26, strategy: 96, defense: 54 },
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_lafeier',
       name: '愈合',
@@ -189,6 +209,10 @@ export const angelHeroes: Hero[] = [
     position: '速援突袭',
     troopType: '光翼骑兵',
     stats: { command: 70, strength: 88, strategy: 50, defense: 50 }, // Inferred
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_selandier',
       name: '神速',
@@ -225,6 +249,10 @@ export const angelHeroes: Hero[] = [
     position: '城防天使',
     troopType: '壁垒天使',
     stats: { command: 88, strength: 42, strategy: 48, defense: 100 },
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_wulie',
       name: '镇守',
@@ -261,6 +289,10 @@ export const angelHeroes: Hero[] = [
     position: '驱散控制',
     troopType: '净化天使',
     stats: { command: 64, strength: 30, strategy: 92, defense: 50 },
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_liya',
       name: '清心',
@@ -297,6 +329,10 @@ export const angelHeroes: Hero[] = [
     position: '保命辅助',
     troopType: '天命天使',
     stats: { command: 82, strength: 38, strategy: 66, defense: 86 },
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_andusi',
       name: '神佑',
@@ -333,6 +369,10 @@ export const angelHeroes: Hero[] = [
     position: '开场爆发',
     troopType: '破晓天使',
     stats: { command: 80, strength: 95, strategy: 60, defense: 60 }, // Inferred
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_chenxi',
       name: '破晓',

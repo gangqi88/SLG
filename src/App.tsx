@@ -4,13 +4,18 @@ import BattleView from './components/BattleView';
 import CityView from './components/CityView';
 import TaskView from './components/TaskView';
 import GachaView from './components/GachaView';
+import LootBoxView from './components/LootBoxView';
+import GatheringView from './components/GatheringView';
+import TowerDefenseView from './components/TowerDefenseView';
+import CookingView from './components/CookingView';
+import SiegeView from './components/SiegeView';
 import WalletConnect from './components/WalletConnect';
 import { humanHeroes } from './data/humanHeroes';
 import { demonHeroes } from './data/demonHeroes';
 import { WalletAccount } from './utils/web3';
 
 const App: React.FC = () => {
-  const [view, setView] = useState<'heroList' | 'battle' | 'city' | 'tasks' | 'gacha'>('heroList');
+  const [view, setView] = useState<'heroList' | 'battle' | 'city' | 'tasks' | 'gacha' | 'gathering' | 'lootbox' | 'towerDefense' | 'cooking' | 'siege'>('heroList');
   const [wallet, setWallet] = useState<WalletAccount | null>(null);
 
   // Simple test data: 3 Human vs 3 Demon
@@ -27,8 +32,13 @@ const App: React.FC = () => {
       <div style={{ padding: '10px', borderBottom: '1px solid #444', marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         <button onClick={() => setView('heroList')} style={view === 'heroList' ? { backgroundColor: '#555', borderColor: '#888' } : {}}>Hero List</button>
         <button onClick={() => setView('city')} style={view === 'city' ? { backgroundColor: '#555', borderColor: '#888' } : {}}>City Management</button>
+        <button onClick={() => setView('gathering')} style={view === 'gathering' ? { backgroundColor: '#555', borderColor: '#888' } : {}}>Gathering</button>
         <button onClick={() => setView('tasks')} style={view === 'tasks' ? { backgroundColor: '#555', borderColor: '#888' } : {}}>Tasks</button>
         <button onClick={() => setView('gacha')} style={view === 'gacha' ? { backgroundColor: '#555', borderColor: '#888' } : {}}>Gacha</button>
+        <button onClick={() => setView('lootbox')} style={view === 'lootbox' ? { backgroundColor: '#555', borderColor: '#888' } : {}}>Loot Box</button>
+        <button onClick={() => setView('towerDefense')} style={view === 'towerDefense' ? { backgroundColor: '#555', borderColor: '#888' } : {}}>Guard Qiao</button>
+        <button onClick={() => setView('cooking')} style={view === 'cooking' ? { backgroundColor: '#555', borderColor: '#888' } : {}}>Chef Contest</button>
+        <button onClick={() => setView('siege')} style={view === 'siege' ? { backgroundColor: '#555', borderColor: '#888' } : {}}>Siege War</button>
         <button onClick={() => setView('battle')} style={view === 'battle' ? { backgroundColor: '#555', borderColor: '#888' } : {}}>Test Battle</button>
       </div>
 
@@ -38,9 +48,27 @@ const App: React.FC = () => {
         <CityView onExit={() => setView('heroList')} />
       )}
 
+      {view === 'gathering' && (
+        <GatheringView onExit={() => setView('heroList')} />
+      )}
+
       {view === 'tasks' && <TaskView />}
       
       {view === 'gacha' && <GachaView />}
+
+      {view === 'lootbox' && <LootBoxView onExit={() => setView('heroList')} />}
+      
+      {view === 'towerDefense' && (
+        <TowerDefenseView onExit={() => setView('heroList')} />
+      )}
+
+      {view === 'cooking' && (
+        <CookingView onExit={() => setView('heroList')} />
+      )}
+
+      {view === 'siege' && (
+        <SiegeView onExit={() => setView('heroList')} />
+      )}
       
       {view === 'battle' && (
         <BattleView 

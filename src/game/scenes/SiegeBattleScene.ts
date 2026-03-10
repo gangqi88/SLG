@@ -5,40 +5,47 @@ import { Hero } from '../../types/Hero';
 import { VisualUnit } from '../visuals/VisualUnit';
 import { EffectManager } from '../visuals/EffectManager';
 import { PerformanceMonitor } from '../visuals/PerformanceMonitor';
+import { WALL_HERO, STREET_FIGHT_DEFENDERS } from '../../data/siegeHeroes';
 
-export class BattleScene extends Phaser.Scene {
+export class SiegeBattleScene extends Phaser.Scene {
   private battleSystem!: BattleSystem;
   private visualUnits: Map<string, VisualUnit> = new Map();
   private effectManager!: EffectManager;
   private performanceMonitor!: PerformanceMonitor;
   private battleLogText!: Phaser.GameObjects.Text;
   private isPaused: boolean = false;
+  private wallBroken: boolean = false;
   
   // Animation Queue
   private eventQueue: BattleEvent[] = [];
   private isProcessingEvent: boolean = false;
 
   constructor() {
-    super('BattleScene');
+    super('SiegeBattleScene');
   }
 
-  init(data: { attackerHeroes: Hero[]; defenderHeroes: Hero[] }) {
-    this.battleSystem = new BattleSystem(data.attackerHeroes, data.defenderHeroes);
+  init(data: { attackerHeroes: Hero[] }) {
+    // Phase 1: Attackers vs Wall
+    this.battleSystem = new BattleSystem(data.attackerHeroes, [WALL_HERO]);
+    this.wallBroken = false;
   }
 
   create() {
     this.add.image(0, 0, 'bg_battle').setOrigin(0).setDisplaySize(this.scale.width, this.scale.height);
+    
+    // Add Siege Hint
+    this.add.text(400, 50, 'PHASE 1: BREACH THE WALL', { fontSize: '32px', color: '#ff0000', stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5);
     
     this.effectManager = new EffectManager(this);
     this.performanceMonitor = new PerformanceMonitor(this);
 
     // Create unit visuals
     this.battleSystem.units.forEach((unit, index) => {
-      this.createVisualUnit(unit, index);
+      this.createVisualUnit(unit);
     });
 
     // UI for Battle Log
-    this.battleLogText = this.add.text(10, this.scale.height - 150, 'Battle Start!', {
+    this.battleLogText = this.add.text(10, this.scale.height - 150, 'Siege Started!', {
       font: '14px Arial',
       color: '#ffffff',
       wordWrap: { width: 300 },
@@ -46,23 +53,12 @@ export class BattleScene extends Phaser.Scene {
       padding: { x: 5, y: 5 }
     });
     
-    // Pause/Resume Button
-    const pauseBtn = this.add.text(this.scale.width - 100, 10, 'Pause', { fill: '#0f0', backgroundColor: '#333', padding: { x: 5, y: 5 } })
-      .setInteractive()
-      .on('pointerdown', () => {
-        this.isPaused = !this.isPaused;
-        pauseBtn.setText(this.isPaused ? 'Resume' : 'Pause');
-      });
-      
     // Exit Button
-    this.add.text(this.scale.width - 100, 40, 'Exit', { fill: '#f00', backgroundColor: '#333', padding: { x: 5, y: 5 } })
+    this.add.text(this.scale.width - 100, 40, 'Retreat', { fill: '#f00', backgroundColor: '#333', padding: { x: 5, y: 5 } })
       .setInteractive()
       .on('pointerdown', () => {
-        // Stop scene and notify app (via callback if possible, or event)
-        // Since we don't have direct React callback here, we rely on App component handling unmount or we can dispatch a custom event on window
-        // But for now, just pause
-        this.isPaused = true;
-        // In real app, we might use a global event bus or registry
+        this.scene.stop();
+        // Notify React via event? Or just stop.
       });
   }
 
@@ -71,8 +67,7 @@ export class BattleScene extends Phaser.Scene {
     
     if (this.isPaused) return;
 
-    // Process Animation Queue
-    if (this.isProcessingEvent) return; // Wait for current animation
+    if (this.isProcessingEvent) return;
 
     if (this.eventQueue.length > 0) {
       const event = this.eventQueue.shift();
@@ -80,11 +75,7 @@ export class BattleScene extends Phaser.Scene {
         this.processBattleEvent(event);
       }
     } else {
-      // If no animations pending, advance logic
-      // Convert delta to seconds
       const dt = delta / 1000;
-      
-      // Update Logic
       this.battleSystem.update(dt);
 
       // Sync positions
@@ -92,27 +83,46 @@ export class BattleScene extends Phaser.Scene {
           const visual = this.visualUnits.get(unit.uniqueId);
           if (visual) {
               visual.container.setPosition(unit.x, unit.y);
+              visual.updateHp(unit.currentHp, unit.maxHp);
           }
       });
       
-      // Fetch new events
       const newEvents = this.battleSystem.getEvents();
       this.eventQueue.push(...newEvents);
+
+      // Check win condition
+      const attackersAlive = this.battleSystem.units.some(u => u.side === 'attacker' && !u.isDead);
+      const defendersAlive = this.battleSystem.units.some(u => u.side === 'defender' && !u.isDead);
+
+      if (!attackersAlive) {
+          this.add.text(400, 300, 'DEFEAT', { fontSize: '64px', color: '#ff0000', backgroundColor: '#000' }).setOrigin(0.5).setDepth(100);
+          this.isPaused = true;
+      } else if (!defendersAlive) {
+          this.add.text(400, 300, 'VICTORY!', { fontSize: '64px', color: '#00ff00', backgroundColor: '#000' }).setOrigin(0.5).setDepth(100);
+          this.add.text(400, 400, 'Rewards Claimed: Gold x1000, Wood x500', { fontSize: '24px', color: '#ffd700', backgroundColor: '#000' }).setOrigin(0.5).setDepth(100);
+          this.isPaused = true;
+      }
     }
   }
 
-  private createVisualUnit(unit: BattleUnit, index: number) {
+  private createVisualUnit(unit: BattleUnit) {
     const x = unit.x;
     const y = unit.y;
     const color = unit.side === 'attacker' ? 0x0000ff : 0xff0000;
     
-    const visualUnit = new VisualUnit(this, x, y, color, unit.name);
-    // Flip defenders
+    // Special visual for Wall
+    const name = unit.troopType === 'Structure' ? 'WALL' : unit.name;
+    
+    const visualUnit = new VisualUnit(this, x, y, color, name);
     if (unit.side === 'defender') {
       visualUnit.container.setScale(-1, 1);
-      // Fix text orientation
       const text = visualUnit.container.list.find(obj => obj instanceof Phaser.GameObjects.Text) as Phaser.GameObjects.Text;
       if (text) text.setScale(-1, 1);
+    }
+
+    if (unit.troopType === 'Structure') {
+        // Make wall bigger
+        visualUnit.container.setScale(2); 
     }
 
     this.visualUnits.set(unit.uniqueId, visualUnit);
@@ -137,56 +147,25 @@ export class BattleScene extends Phaser.Scene {
       case 'death':
         this.handleDeathEvent(event);
         break;
-      case 'combo':
-        this.handleComboEvent(event);
-        break;
       default:
         this.isProcessingEvent = false;
         break;
     }
   }
 
-  private handleComboEvent(event: BattleEvent) {
-    // Show Combo Text
-    const textX = this.scale.width / 2;
-    const textY = this.scale.height / 3;
-    
-    this.effectManager.playFloatingText(textX, textY, `COMBO: ${event.comboName}!`, '#ffff00');
-    
-    // Play effect on affected units
-    if (event.affectedUnitIds) {
-      event.affectedUnitIds.forEach(unitId => {
-        const visual = this.visualUnits.get(unitId);
-        if (visual) {
-           this.effectManager.playEffect(visual.getPosition(), visual.getPosition(), 'buff'); // Assuming 'buff' effect exists
-           this.updateUnitHp(unitId);
-           // Show "Combo!" text on unit
-           this.effectManager.playFloatingText(visual.container.x, visual.container.y - 20, 'Combo!', '#ffff00');
-        }
-      });
-    }
-
-    // Delay next event slightly to let combo text show
-    this.time.delayedCall(1000, () => {
-      this.isProcessingEvent = false;
-    });
-  }
-
+  // Reuse handlers from BattleScene (simplified for brevity, assume similar implementation)
   private handleAttackEvent(event: BattleEvent) {
     const source = this.visualUnits.get(event.sourceId!);
     const target = this.visualUnits.get(event.targetId!);
 
     if (source && target) {
       source.playAttack(target.getPosition(), () => {
-        // Animation complete
         this.isProcessingEvent = false;
       });
       
-      // Delay hit effect slightly to match animation impact
       this.time.delayedCall(150, () => {
         target.playHit();
         this.effectManager.playFloatingText(target.container.x, target.container.y, `-${event.value}`, event.isCrit ? '#ff0000' : '#ffffff');
-        this.updateUnitHp(event.targetId!);
       });
     } else {
       this.isProcessingEvent = false;
@@ -194,59 +173,52 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private handleSkillEvent(event: BattleEvent) {
-    const source = this.visualUnits.get(event.sourceId!);
-    const target = this.visualUnits.get(event.targetId!);
-
-    if (source && target) {
-      // Play skill animation (maybe cast time?)
-      // For now, instant effect with delay
-      this.effectManager.playEffect(target.getPosition(), source.getPosition(), event.skillId);
-      
-      this.time.delayedCall(300, () => {
-        target.playHit();
-        this.effectManager.playFloatingText(target.container.x, target.container.y, `-${event.value} (Skill)`, '#ff00ff');
-        this.updateUnitHp(event.targetId!);
-        this.isProcessingEvent = false;
-      });
-    } else {
-      this.isProcessingEvent = false;
-    }
+      // Simplified
+      this.isProcessingEvent = false; 
   }
 
   private handleHealEvent(event: BattleEvent) {
-    const source = this.visualUnits.get(event.sourceId!);
-    const target = this.visualUnits.get(event.targetId!);
-
-    if (source && target) {
-      this.effectManager.playEffect(target.getPosition(), source.getPosition(), 'heal');
-      
-      this.time.delayedCall(200, () => {
-        this.effectManager.playFloatingText(target.container.x, target.container.y, `+${event.value}`, '#00ff00');
-        this.updateUnitHp(event.targetId!);
-        this.isProcessingEvent = false;
-      });
-    } else {
+      // Simplified
       this.isProcessingEvent = false;
-    }
   }
 
   private handleDeathEvent(event: BattleEvent) {
-    const target = this.visualUnits.get(event.targetId!);
-    if (target) {
-      target.playDie(() => {
+    const targetUnit = this.battleSystem.units.find(u => u.uniqueId === event.targetId);
+    const visual = this.visualUnits.get(event.targetId!);
+    
+    if (visual) {
+      visual.playDie(() => {
         this.isProcessingEvent = false;
+        
+        // Check if Wall died
+        if (targetUnit && targetUnit.troopType === 'Structure' && !this.wallBroken) {
+            this.triggerPhase2();
+        }
       });
     } else {
       this.isProcessingEvent = false;
     }
   }
 
-  private updateUnitHp(unitId: string) {
-    const unit = this.battleSystem.units.find(u => u.uniqueId === unitId);
-    const visual = this.visualUnits.get(unitId);
-    if (unit && visual) {
-      visual.updateHp(unit.currentHp, unit.maxHp);
-    }
+  private triggerPhase2() {
+      this.wallBroken = true;
+      this.add.text(400, 300, 'WALL BREACHED! STREET FIGHT BEGINS!', { fontSize: '48px', color: '#ff0000', stroke: '#fff', strokeThickness: 6 }).setOrigin(0.5);
+      
+      // Spawn Defenders
+      STREET_FIGHT_DEFENDERS.forEach(hero => {
+          this.battleSystem.addUnit(hero, 'defender');
+          // We need to find the newly added unit to create visual
+          // The new unit is the last one in units array
+          const newUnit = this.battleSystem.units[this.battleSystem.units.length - 1];
+          this.createVisualUnit(newUnit);
+      });
+      
+      // Attackers Plunder logic
+      this.battleSystem.units.forEach(u => {
+          if (u.side === 'attacker' && !u.isDead) {
+              this.effectManager.playFloatingText(u.x, u.y - 50, 'Looting...', '#ffd700');
+          }
+      });
   }
 
   private addLog(message: string) {

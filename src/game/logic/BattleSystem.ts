@@ -1,60 +1,44 @@
 import { Hero, HeroStats, Skill, TroopType } from '../../types/Hero';
 import { calculateNormalDamage, calculateSkillDamage, calculateHealing } from './CombatFormulas';
 import { BondManager } from './BondManager';
-
-export interface BattleUnit extends Hero {
-  uniqueId: string; // Runtime unique ID (e.g., heroId_1)
-  currentHp: number;
-  maxHp: number;
-  currentStats: HeroStats; // Stats after buffs/debuffs
-  cooldowns: { [skillId: string]: number }; // Remaining cooldown in seconds
-  buffs: Buff[];
-  isDead: boolean;
-  side: 'attacker' | 'defender';
-  positionIndex: number; // 0-2 (Front, Mid, Back) - Simplified
-  target?: string; // ID of current target
-}
-
-export interface Buff {
-  id: string;
-  name: string;
-  duration: number; // Seconds remaining
-  effect: (unit: BattleUnit) => void;
-  onRemove?: (unit: BattleUnit) => void;
-}
-
-export interface BattleLog {
-  timestamp: number;
-  sourceId: string;
-  targetId?: string;
-  action: 'attack' | 'skill' | 'heal' | 'buff' | 'death';
-  value?: number;
-  message: string;
-  isCrit?: boolean;
-}
-
-export interface BattleEvent {
-  type: 'attack' | 'skill' | 'heal' | 'death';
-  sourceId?: string;
-  targetId?: string;
-  skillId?: string;
-  value?: number;
-  isCrit?: boolean;
-  timestamp: number;
-}
+import { HeroLogic } from './HeroLogic';
+import { BattleUnit, Buff, BattleLog, BattleEvent } from '../../types/BattleTypes';
+import { ComboManager, ComboSkill } from './ComboManager';
 
 export class BattleSystem {
   units: BattleUnit[] = [];
   logs: BattleLog[] = [];
   eventQueue: BattleEvent[] = [];
   currentTime: number = 0; // In seconds
+  activeCombos: ComboSkill[] = [];
+  comboTimer: number = 0;
   
   constructor(attackerHeroes: Hero[], defenderHeroes: Hero[]) {
     this.initializeUnits(attackerHeroes, 'attacker');
     this.initializeUnits(defenderHeroes, 'defender');
+
+    // Initialize Combos
+    // We check combos for the attacker side for now (player side)
+    // Or maybe both sides? The prompt implies "heroes: Hero[]", likely the player's team.
+    // Let's assume combos apply to each side independently.
+    // For simplicity, let's just check attacker combos for now as the prompt is about "Implement Combo Skills system" generally.
+    // But usually in games both sides can have it.
+    // However, the prompt says "checkCombos(heroes: Hero[])".
+    // Let's store combos per side? 
+    // "Initialize and store active combos using ComboManager."
+    
+    // Let's try to support both sides.
+    this.activeCombos = [
+        ...ComboManager.checkCombos(attackerHeroes, 'attacker'),
+        ...ComboManager.checkCombos(defenderHeroes, 'defender')
+    ];
   }
 
   // ... rest of the file ...
+  public addUnit(hero: Hero, side: 'attacker' | 'defender') {
+    this.initializeUnits([hero], side);
+  }
+
   private emitEvent(event: BattleEvent) {
     this.eventQueue.push(event);
   }
@@ -70,21 +54,55 @@ export class BattleSystem {
     const sideUnits: BattleUnit[] = [];
     
     heroes.forEach((hero, index) => {
+      // Calculate stats based on level/star
+      const calculatedStats = HeroLogic.getStats(hero);
+
       // Calculate HP based on Command (Troop Count) * 10 or similar base
       // Document says Command = Troop Limit. Let's say 1 Command = 100 HP for now.
-      const maxHp = hero.stats.command * 100;
+      const maxHp = calculatedStats.command * 100;
+      
+      // Determine range and speed based on TroopType
+      let range = 60; // Default melee
+      let speed = 50;  // Default speed
+      
+      if (hero.troopType === TroopType.ARCHER || hero.troopType === TroopType.MAGE) {
+          range = 250;
+          speed = 30;
+      } else if (hero.troopType === TroopType.CAVALRY) {
+          range = 60;
+          speed = 80;
+      } else if (hero.troopType === TroopType.FLYING) {
+          range = 60;
+          speed = 70;
+      } else if (hero.troopType === TroopType.STRUCTURE) {
+          range = 0;
+          speed = 0; // Immobile
+          maxHp *= 5; // Structure has high HP
+      }
+
+      // Randomize Y position (100-500), X based on side
+      const startX = side === 'attacker' ? 100 + Math.random() * 100 : 600 + Math.random() * 100;
+      const startY = 100 + Math.random() * 400;
       
       const unit: BattleUnit = {
         ...hero,
         uniqueId: `${side}_${index}_${hero.id}`,
         currentHp: maxHp,
         maxHp: maxHp,
-        currentStats: { ...hero.stats },
+        currentStats: { ...calculatedStats },
         cooldowns: {},
         buffs: [],
         isDead: false,
         side,
-        positionIndex: index
+        positionIndex: index,
+        shield: 0,
+        lifesteal: 0,
+        attackSpeed: 1.0,
+        normalAttackCooldown: Math.random(), // Randomize start to avoid synchronized attacks
+        x: startX,
+        y: startY,
+        speed,
+        range
       };
       
       this.units.push(unit);
@@ -102,6 +120,12 @@ export class BattleSystem {
     if (enemies.length === 0) return undefined;
 
     // AI Behaviors
+    // 0. Siege: Prioritize Structures
+    if (unit.troopType === TroopType.SIEGE) {
+        const structures = enemies.filter(e => e.troopType === TroopType.STRUCTURE);
+        if (structures.length > 0) return structures[0];
+    }
+
     // 1. Cavalry: Prioritize Back Row (highest index)
     if (unit.troopType === TroopType.CAVALRY) {
       // Sort by position index descending
@@ -138,6 +162,15 @@ export class BattleSystem {
   public update(deltaTime: number) {
     this.currentTime += deltaTime;
 
+    this.updateMovement(deltaTime);
+
+    // Combo Logic
+    this.comboTimer += deltaTime;
+    if (this.comboTimer >= 20) {
+      this.comboTimer = 0;
+      this.triggerCombos();
+    }
+
     // Check win condition
     const attackersAlive = this.units.some(u => u.side === 'attacker' && !u.isDead);
     const defendersAlive = this.units.some(u => u.side === 'defender' && !u.isDead);
@@ -153,33 +186,67 @@ export class BattleSystem {
       });
 
       // Update buffs
-      unit.buffs.forEach(buff => {
+      for (let i = unit.buffs.length - 1; i >= 0; i--) {
+        const buff = unit.buffs[i];
         buff.duration -= deltaTime;
-        // Apply continuous effects here if any
-      });
-      // Remove expired buffs
-      unit.buffs = unit.buffs.filter(buff => buff.duration > 0);
+        if (buff.duration <= 0) {
+           if (buff.onRemove) buff.onRemove(unit);
+           unit.buffs.splice(i, 1);
+        }
+      }
 
       // AI Logic:
       // 1. Try to use Active Skill
-      // 2. Else Normal Attack (with attack speed interval, simplified to 1s for now)
+      // 2. Else Normal Attack
       
-      // Check Active Skill
-      const activeSkill = unit.activeSkill;
-      if (activeSkill.cooldown && (unit.cooldowns[activeSkill.id] || 0) <= 0) {
-        this.useSkill(unit, activeSkill);
-        unit.cooldowns[activeSkill.id] = activeSkill.cooldown;
-      } else {
-        // Normal Attack (every 1 second approx)
-        // We can use a simple timer or just check roughly
-        // Let's assume this update is called every frame, we need an attack timer per unit.
-        // For simplicity, let's say 5% chance per tick (if 20 ticks/sec = 1 atk/sec)
-        // Or better, add 'attackTimer' to unit.
-        // Let's just use random chance for MVP to simulate attack speed.
-        if (Math.random() < deltaTime) { // If deltaTime is 1.0 (1 sec), 100% chance.
-           this.performNormalAttack(unit);
+      const target = this.findTarget(unit);
+      if (!target) return;
+
+      const dist = Math.sqrt(Math.pow(target.x - unit.x, 2) + Math.pow(target.y - unit.y, 2));
+
+      // Only attack if in range
+      if (dist <= unit.range) {
+        // Check Active Skill
+        const activeSkill = unit.activeSkill;
+        if (activeSkill.cooldown && (unit.cooldowns[activeSkill.id] || 0) <= 0) {
+          this.useSkill(unit, activeSkill);
+          unit.cooldowns[activeSkill.id] = activeSkill.cooldown;
+        } else {
+          // Normal Attack
+          unit.normalAttackCooldown = (unit.normalAttackCooldown || 0) - deltaTime;
+          if (unit.normalAttackCooldown <= 0) {
+             this.performNormalAttack(unit);
+             // Reset cooldown
+             unit.normalAttackCooldown = 1.0 / (unit.attackSpeed || 1.0);
+          }
         }
       }
+    });
+  }
+
+  private updateMovement(dt: number) {
+    this.units.forEach(unit => {
+      if (unit.isDead || unit.speed === 0) return;
+
+      const target = this.findTarget(unit);
+      if (target) {
+        const dx = target.x - unit.x;
+        const dy = target.y - unit.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > unit.range) {
+          const angle = Math.atan2(dy, dx);
+          // Move towards target
+          unit.x += Math.cos(angle) * unit.speed * dt;
+          unit.y += Math.sin(angle) * unit.speed * dt;
+        }
+      }
+    });
+  }
+
+  private triggerCombos() {
+    this.activeCombos.forEach(combo => {
+        combo.execute(this.units, this.emitEvent.bind(this));
     });
   }
 
@@ -216,6 +283,21 @@ export class BattleSystem {
       isCrit: result.isCrit,
       message: `${attacker.name} attacked ${target.name} for ${result.damage} damage!`
     });
+
+    if (attacker.lifesteal && attacker.lifesteal > 0) {
+        const healAmount = Math.floor(result.damage * attacker.lifesteal);
+        if (healAmount > 0) {
+            this.applyHealing(attacker, healAmount);
+            this.emitEvent({
+                type: 'heal',
+                sourceId: attacker.uniqueId,
+                targetId: attacker.uniqueId,
+                value: healAmount,
+                timestamp: this.currentTime,
+                skillId: 'lifesteal'
+            });
+        }
+    }
   }
 
   private useSkill(attacker: BattleUnit, skill: Skill) {
@@ -306,7 +388,20 @@ export class BattleSystem {
   }
 
   private applyDamage(unit: BattleUnit, damage: number) {
-    unit.currentHp = Math.max(0, unit.currentHp - damage);
+    let remainingDamage = damage;
+    
+    // Check Shield
+    if (unit.shield && unit.shield > 0) {
+        if (unit.shield >= remainingDamage) {
+            unit.shield -= remainingDamage;
+            remainingDamage = 0;
+        } else {
+            remainingDamage -= unit.shield;
+            unit.shield = 0;
+        }
+    }
+
+    unit.currentHp = Math.max(0, unit.currentHp - remainingDamage);
     if (unit.currentHp <= 0) {
       unit.isDead = true;
       

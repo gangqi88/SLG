@@ -9,6 +9,10 @@ export const demonHeroes: Hero[] = [
     position: 'AOE核心',
     troopType: '炼狱魔王',
     stats: { command: 98, strength: 99, strategy: 44, defense: 82 },
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_moloke',
       name: '焚天',
@@ -45,6 +49,10 @@ export const demonHeroes: Hero[] = [
     position: '残血收割',
     troopType: '收割恶魔',
     stats: { command: 60, strength: 92, strategy: 40, defense: 40 }, // Inferred
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_kalong',
       name: '血刃',
@@ -81,6 +89,10 @@ export const demonHeroes: Hero[] = [
     position: '潜行破城',
     troopType: '暗影魔女',
     stats: { command: 86, strength: 90, strategy: 62, defense: 66 },
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_lilisi',
       name: '隐匿',
@@ -117,6 +129,10 @@ export const demonHeroes: Hero[] = [
     position: '火焰持续',
     troopType: '火焰恶魔',
     stats: { command: 90, strength: 92, strategy: 36, defense: 76 },
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_salosi',
       name: '炼狱',
@@ -153,6 +169,10 @@ export const demonHeroes: Hero[] = [
     position: '狂暴坦克',
     troopType: '巨兽恶魔',
     stats: { command: 100, strength: 86, strategy: 22, defense: 96 },
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_beiximosi',
       name: '狂暴',
@@ -189,6 +209,10 @@ export const demonHeroes: Hero[] = [
     position: '掠夺核心',
     troopType: '贪欲恶魔',
     stats: { command: 50, strength: 50, strategy: 85, defense: 50 }, // Inferred
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_mamen',
       name: '贪婪',
@@ -225,6 +249,10 @@ export const demonHeroes: Hero[] = [
     position: '破甲攻城',
     troopType: '毁灭恶魔',
     stats: { command: 88, strength: 94, strategy: 30, defense: 80 },
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_ajialesi',
       name: '毁灭',
@@ -261,6 +289,10 @@ export const demonHeroes: Hero[] = [
     position: '减益压制',
     troopType: '恐惧恶魔',
     stats: { command: 70, strength: 38, strategy: 92, defense: 58 },
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_sailier',
       name: '恐惧',
@@ -297,6 +329,10 @@ export const demonHeroes: Hero[] = [
     position: '野战战神',
     troopType: '战争恶魔',
     stats: { command: 96, strength: 100, strategy: 26, defense: 84 },
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_baer',
       name: '战神',
@@ -333,6 +369,10 @@ export const demonHeroes: Hero[] = [
     position: '献祭爆发',
     troopType: '咒怨恶魔',
     stats: { command: 70, strength: 80, strategy: 80, defense: 40 }, // Inferred
+    level: 1,
+    exp: 0,
+    starRating: 1,
+    equipment: [null, null, null, null],
     talent: {
       id: 't_mofeisi',
       name: '献祭',

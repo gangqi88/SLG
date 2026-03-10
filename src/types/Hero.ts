@@ -17,6 +17,7 @@ export enum TroopType {
   MAGE = 'Mage',         // 法师 (Magic Damage)
   FLYING = 'Flying',     // 飞行 (Ignores terrain, melee/ranged)
   SIEGE = 'Siege',       // 攻城 (High dmg vs structures/defense)
+  STRUCTURE = 'Structure', // 建筑 (Immobile, High HP)
 }
 
 export interface Skill {
@@ -51,6 +52,10 @@ export interface Hero {
   position: string; // e.g., "内政核心", "防御坦克"
   troopType: TroopType | string; // Updated to use Enum but keep string compatibility for now
   stats: HeroStats;
+  level: number;
+  exp: number;
+  starRating: number; // 1-5
+  equipment: (string | null)[]; // 4 slots, storing equipment IDs or null
   talent: Skill;
   activeSkill: Skill;
   passiveSkill: Skill;
