@@ -15,6 +15,16 @@ This template has been updated for:
 
 ![screenshot](screenshot.png)
 
+## Project Constraints (IMPORTANT)
+
+This project is strictly designed for **Desktop Web3 Environments Only**.
+
+1.  **Platform**: Desktop Browser (Chrome, Firefox, Edge).
+2.  **Resolution**: Minimum **1024x768**.
+3.  **Interaction**: Mouse and Keyboard only. No touch support.
+4.  **Mobile**: **NO** mobile adaptation. No responsive design for screens narrower than 1024px. No `touchstart` or orientation handling.
+5.  **Web3**: Requires a Web3 environment (Wallet connection) for full functionality.
+
 ## Requirements
 
 [Node.js](https://nodejs.org) is required to install dependencies and run scripts via `npm`.
@@ -214,7 +224,7 @@ Before:
 "scripts": {
     "dev": "node log.js dev & dev-template-script",
     "build": "node log.js build & build-template-script"
-},
+}
 ```
 
 After:
@@ -223,7 +233,7 @@ After:
 "scripts": {
     "dev": "dev-template-script",
     "build": "build-template-script"
-},
+}
 ```
 
 Either of these will stop `log.js` from running. If you do decide to do this, please could you at least join our Discord and tell us which template you're using! Or send us a quick email. Either will be super-helpful, thank you.
