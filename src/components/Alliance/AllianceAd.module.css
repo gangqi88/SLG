@@ -1,0 +1,152 @@
+.ad {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #9ca3af;
+}
+
+.currentAd h4, .bidSection h4, .bidHistory h4 {
+  margin: 0 0 15px 0;
+  color: #fff;
+  font-size: 16px;
+}
+
+.currentAd {
+  padding: 20px;
+  background: #2d2d44;
+  border-radius: 12px;
+}
+
+.adCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #4ade80, #3b82f6);
+  border-radius: 10px;
+  color: #fff;
+}
+
+.allianceName {
+  font-size: 18px;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.message {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.adExpiry {
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+}
+
+.noAd {
+  padding: 40px;
+  background: #2d2d44;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.noAd p {
+  margin: 0;
+  color: #9ca3af;
+}
+
+.hint {
+  margin-top: 10px !important;
+  font-size: 13px !important;
+  color: #6b7280 !important;
+}
+
+.bidSection {
+  padding: 20px;
+  background: #2d2d44;
+  border-radius: 12px;
+}
+
+.bidSection p {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  color: #fbbf24;
+}
+
+.bidForm {
+  display: flex;
+  gap: 10px;
+}
+
+.input {
+  flex: 1;
+  padding: 12px;
+  background: #1f2937;
+  border: 1px solid #4b5563;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #4ade80;
+}
+
+.bidButton {
+  padding: 12px 24px;
+  background: #4ade80;
+  border: none;
+  border-radius: 8px;
+  color: #1a1a2e;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bidButton:hover {
+  background: #22c55e;
+}
+
+.bidHistory {
+  padding: 20px;
+  background: #2d2d44;
+  border-radius: 12px;
+}
+
+.empty {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.bidList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bidItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  background: #1f2937;
+  border-radius: 8px;
+}
+
+.bidAlliance {
+  color: #fff;
+  font-weight: 500;
+}
+
+.bidAmount {
+  color: #fbbf24;
+  font-weight: 600;
+}

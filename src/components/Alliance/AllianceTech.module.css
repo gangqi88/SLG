@@ -1,0 +1,137 @@
+.tech {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #9ca3af;
+}
+
+.contribution {
+  color: #9ca3af;
+}
+
+.contribution span {
+  color: #fbbf24;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.techItem {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: #2d2d44;
+  border-radius: 12px;
+}
+
+.icon {
+  font-size: 40px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1f2937;
+  border-radius: 12px;
+}
+
+.info {
+  flex: 1;
+}
+
+.info h4 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  color: #fff;
+}
+
+.info p {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.level {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.progressBar {
+  width: 100px;
+  height: 6px;
+  background: #1f2937;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.upgrade {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.cost {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cost span:first-child {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.costLabel {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.upgradeButton {
+  padding: 10px 24px;
+  background: #4ade80;
+  border: none;
+  border-radius: 8px;
+  color: #1a1a2e;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upgradeButton:hover:not(:disabled) {
+  background: #22c55e;
+}
+
+.upgradeButton:disabled {
+  background: #4b5563;
+  cursor: not-allowed;
+  color: #9ca3af;
+}

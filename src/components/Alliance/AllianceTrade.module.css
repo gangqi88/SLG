@@ -1,0 +1,159 @@
+.trade {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #9ca3af;
+}
+
+.createButton {
+  padding: 10px 20px;
+  background: #4ade80;
+  border: none;
+  border-radius: 8px;
+  color: #1a1a2e;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.createForm {
+  padding: 20px;
+  background: #2d2d44;
+  border-radius: 12px;
+}
+
+.createForm h4 {
+  margin: 0 0 15px 0;
+  color: #fff;
+}
+
+.formSection {
+  margin-bottom: 15px;
+}
+
+.formSection h5 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.formRow {
+  display: flex;
+  gap: 10px;
+}
+
+.formRow select, .formRow input {
+  padding: 10px;
+  background: #1f2937;
+  border: 1px solid #4b5563;
+  border-radius: 6px;
+  color: #fff;
+}
+
+.formRow input {
+  flex: 1;
+}
+
+.formActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.confirmButton, .cancelButton {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirmButton {
+  background: #4ade80;
+  color: #1a1a2e;
+}
+
+.cancelButton {
+  background: #4b5563;
+  color: #fff;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.empty {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.tradeItem {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: #2d2d44;
+  border-radius: 12px;
+}
+
+.tradeInfo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.offer, .request {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.value {
+  font-weight: 600;
+  color: #fff;
+}
+
+.exchange {
+  font-size: 20px;
+  color: #4ade80;
+}
+
+.trader {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.acceptButton {
+  padding: 8px 16px;
+  background: #3b82f6;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.acceptButton:hover {
+  background: #2563eb;
+}
