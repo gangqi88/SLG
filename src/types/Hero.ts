@@ -10,6 +10,15 @@ export enum Quality {
   RED = 'Red', // Legendary
 }
 
+export enum TroopType {
+  INFANTRY = 'Infantry', // 步兵
+  ARCHER = 'Archer',     // 弓兵 (Ranged)
+  CAVALRY = 'Cavalry',   // 骑兵 (Fast)
+  MAGE = 'Mage',         // 法师 (Magic Damage)
+  FLYING = 'Flying',     // 飞行 (Ignores terrain, melee/ranged)
+  SIEGE = 'Siege',       // 攻城 (High dmg vs structures/defense)
+}
+
 export interface Skill {
   id: string;
   name: string;
@@ -40,7 +49,7 @@ export interface Hero {
   race: Race;
   quality: Quality;
   position: string; // e.g., "内政核心", "防御坦克"
-  troopType: string; // e.g., "步兵", "弓兵"
+  troopType: TroopType | string; // Updated to use Enum but keep string compatibility for now
   stats: HeroStats;
   talent: Skill;
   activeSkill: Skill;

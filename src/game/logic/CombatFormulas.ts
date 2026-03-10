@@ -1,4 +1,4 @@
-import { Race, HeroStats } from '../../types/Hero';
+import { Race, HeroStats, TroopType } from '../../types/Hero';
 
 // Damage Constants
 const NORMAL_ATTACK_COEFF = 0.8;
@@ -8,11 +8,23 @@ const BASE_CRIT_DAMAGE = 1.5;
 const MAX_CRIT_RATE = 0.60;
 const MAX_CRIT_DAMAGE = 3.00;
 
-// Restraint Bonuses
-const RESTRAINT_BONUS = {
+// Restraint Bonuses (Race)
+const RACE_RESTRAINT_BONUS = {
   [Race.DEMON]: { [Race.HUMAN]: 0.25 },
   [Race.HUMAN]: { [Race.ANGEL]: 0.20 },
   [Race.ANGEL]: { [Race.DEMON]: 0.30 },
+};
+
+// Restraint Bonuses (Troop Type)
+// Infantry > Cavalry > Archer > Infantry
+// Mage > Siege > Flying > Mage
+const TROOP_RESTRAINT_BONUS = {
+  [TroopType.INFANTRY]: { [TroopType.CAVALRY]: 0.20 },
+  [TroopType.CAVALRY]: { [TroopType.ARCHER]: 0.20 },
+  [TroopType.ARCHER]: { [TroopType.INFANTRY]: 0.20, [TroopType.FLYING]: 0.40 }, // Archers counter Flying heavily
+  [TroopType.MAGE]: { [TroopType.SIEGE]: 0.25, [TroopType.INFANTRY]: 0.10 },
+  [TroopType.SIEGE]: { [TroopType.FLYING]: -0.30, [TroopType.INFANTRY]: 0.30 }, // Siege bad vs Flying, good vs Infantry
+  [TroopType.FLYING]: { [TroopType.MAGE]: 0.20, [TroopType.INFANTRY]: 0.15 },
 };
 
 /**
@@ -27,30 +39,43 @@ export const calculateDamageReduction = (defense: number): number => {
  * Calculate race restraint bonus.
  * Returns a multiplier (e.g., 1.25 for +25%).
  */
-export const getRestraintMultiplier = (attackerRace: Race, defenderRace: Race): number => {
-  const bonus = RESTRAINT_BONUS[attackerRace]?.[defenderRace] || 0;
+export const getRaceRestraintMultiplier = (attackerRace: Race, defenderRace: Race): number => {
+  const bonus = RACE_RESTRAINT_BONUS[attackerRace]?.[defenderRace] || 0;
+  return 1 + bonus;
+};
+
+/**
+ * Calculate troop restraint bonus.
+ */
+export const getTroopRestraintMultiplier = (attackerTroop: TroopType | string, defenderTroop: TroopType | string): number => {
+  // Safe cast or check if string matches enum
+  const att = attackerTroop as TroopType;
+  const def = defenderTroop as TroopType;
+  const bonus = TROOP_RESTRAINT_BONUS[att]?.[def] || 0;
   return 1 + bonus;
 };
 
 /**
  * Calculate normal attack damage.
- * Formula: (Strength * 0.8) * (1 - Reduction) * Restraint * Random(0.95, 1.05)
+ * Formula: (Strength * 0.8) * (1 - Reduction) * RaceRestraint * TroopRestraint * Random(0.95, 1.05)
  */
 export const calculateNormalDamage = (
   attackerStats: HeroStats,
   attackerRace: Race,
+  attackerTroop: TroopType | string,
   defenderStats: HeroStats,
-  defenderRace: Race
+  defenderRace: Race,
+  defenderTroop: TroopType | string
 ): { damage: number; isCrit: boolean } => {
   const baseDamage = attackerStats.strength * NORMAL_ATTACK_COEFF;
   const reduction = calculateDamageReduction(defenderStats.defense);
-  const restraint = getRestraintMultiplier(attackerRace, defenderRace);
+  const raceRestraint = getRaceRestraintMultiplier(attackerRace, defenderRace);
+  const troopRestraint = getTroopRestraintMultiplier(attackerTroop, defenderTroop);
   
   // Crit calculation
-  let isCrit = Math.random() < BASE_CRIT_RATE; // Simple base crit for now
-  // In a full implementation, crit rate might be affected by stats or skills
+  let isCrit = Math.random() < BASE_CRIT_RATE; 
   
-  let finalDamage = baseDamage * (1 - reduction) * restraint;
+  let finalDamage = baseDamage * (1 - reduction) * raceRestraint * troopRestraint;
   
   if (isCrit) {
     finalDamage *= BASE_CRIT_DAMAGE;
@@ -68,26 +93,26 @@ export const calculateNormalDamage = (
 
 /**
  * Calculate skill damage.
- * Formula: (Strategy * Coefficient) * (1 - Reduction) * Restraint
+ * Formula: (Strategy * Coefficient) * (1 - Reduction) * Restraints
  */
 export const calculateSkillDamage = (
   attackerStats: HeroStats,
   attackerRace: Race,
+  attackerTroop: TroopType | string,
   defenderStats: HeroStats,
   defenderRace: Race,
-  skillCoefficient: number // e.g., 1.5 for 150% damage
+  defenderTroop: TroopType | string,
+  skillCoefficient: number 
 ): { damage: number; isCrit: boolean } => {
   const baseDamage = attackerStats.strategy * skillCoefficient;
-  // Skill damage usually ignores some defense or uses strategy defense, but for simplicity we use physical defense formula here unless specified otherwise.
-  // The document says "Strategy: Skill Damage / Healing", implies Strategy is the source.
-  // Defense: "Damage Reduction". Usually applies to all damage.
   
   const reduction = calculateDamageReduction(defenderStats.defense);
-  const restraint = getRestraintMultiplier(attackerRace, defenderRace);
+  const raceRestraint = getRaceRestraintMultiplier(attackerRace, defenderRace);
+  const troopRestraint = getTroopRestraintMultiplier(attackerTroop, defenderTroop);
   
   let isCrit = Math.random() < BASE_CRIT_RATE;
   
-  let finalDamage = baseDamage * (1 - reduction) * restraint;
+  let finalDamage = baseDamage * (1 - reduction) * raceRestraint * troopRestraint;
   
   if (isCrit) {
     finalDamage *= BASE_CRIT_DAMAGE;

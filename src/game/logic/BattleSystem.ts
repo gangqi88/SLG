@@ -1,4 +1,4 @@
-import { Hero, HeroStats, Skill } from '../../types/Hero';
+import { Hero, HeroStats, Skill, TroopType } from '../../types/Hero';
 import { calculateNormalDamage, calculateSkillDamage, calculateHealing } from './CombatFormulas';
 import { BondManager } from './BondManager';
 
@@ -11,6 +11,7 @@ export interface BattleUnit extends Hero {
   buffs: Buff[];
   isDead: boolean;
   side: 'attacker' | 'defender';
+  positionIndex: number; // 0-2 (Front, Mid, Back) - Simplified
   target?: string; // ID of current target
 }
 
@@ -82,7 +83,8 @@ export class BattleSystem {
         cooldowns: {},
         buffs: [],
         isDead: false,
-        side
+        side,
+        positionIndex: index
       };
       
       this.units.push(unit);
@@ -94,13 +96,43 @@ export class BattleSystem {
     BondManager.applyBondEffects(sideUnits, activeBonds);
   }
 
-  // Find a target for a unit (simple logic: random living enemy)
+  // Find a target for a unit (AI logic based on TroopType)
   private findTarget(unit: BattleUnit): BattleUnit | undefined {
     const enemies = this.units.filter(u => u.side !== unit.side && !u.isDead);
     if (enemies.length === 0) return undefined;
-    // Prioritize front row? Or random?
-    // Let's pick random for now.
-    return enemies[Math.floor(Math.random() * enemies.length)];
+
+    // AI Behaviors
+    // 1. Cavalry: Prioritize Back Row (highest index)
+    if (unit.troopType === TroopType.CAVALRY) {
+      // Sort by position index descending
+      return enemies.sort((a, b) => b.positionIndex - a.positionIndex)[0];
+    }
+    
+    // 2. Archer: Kiting / Focus Fire Weakest? 
+    // Usually Archers hit closest unless specific skill. 
+    // But let's say Archers prioritize Flying units (since they counter them) or Low HP.
+    // Let's implement: Prioritize Flying, then Random.
+    if (unit.troopType === TroopType.ARCHER) {
+      const flyingEnemies = enemies.filter(e => e.troopType === TroopType.FLYING);
+      if (flyingEnemies.length > 0) {
+        return flyingEnemies[0];
+      }
+    }
+
+    // 3. Flying: Ignore Front Row (index 0), attack Mid/Back
+    if (unit.troopType === TroopType.FLYING) {
+      // Find enemies not in front (positionIndex > 0)
+      // Note: positionIndex is relative to their side array index. 
+      // If we assume index 0 is front, 1 mid, 2 back.
+      const backLines = enemies.filter(e => e.positionIndex > 0);
+      if (backLines.length > 0) {
+         return backLines[Math.floor(Math.random() * backLines.length)];
+      }
+    }
+
+    // Default (Infantry, Mage, Siege): Attack Front Row (lowest index)
+    // Sort by position index ascending (0 is front)
+    return enemies.sort((a, b) => a.positionIndex - b.positionIndex)[0];
   }
 
   public update(deltaTime: number) {
@@ -158,8 +190,10 @@ export class BattleSystem {
     const result = calculateNormalDamage(
       attacker.currentStats,
       attacker.race,
+      attacker.troopType,
       target.currentStats,
-      target.race
+      target.race,
+      target.troopType
     );
 
     this.applyDamage(target, result.damage);
@@ -235,8 +269,10 @@ export class BattleSystem {
         const result = calculateSkillDamage(
           attacker.currentStats,
           attacker.race,
+          attacker.troopType,
           target.currentStats,
           target.race,
+          target.troopType,
           coeff
         );
         this.applyDamage(target, result.damage);
