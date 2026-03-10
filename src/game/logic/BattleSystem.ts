@@ -59,7 +59,7 @@ export class BattleSystem {
 
       // Calculate HP based on Command (Troop Count) * 10 or similar base
       // Document says Command = Troop Limit. Let's say 1 Command = 100 HP for now.
-      const maxHp = calculatedStats.command * 100;
+      let maxHp = calculatedStats.command * 100;
       
       // Determine range and speed based on TroopType
       let range = 60; // Default melee
