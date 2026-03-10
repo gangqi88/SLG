@@ -1,0 +1,58 @@
+.container {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0 0 15px;
+}
+
+.currentAd {
+  background: #f9f9f9;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.allianceName {
+  font-weight: bold;
+  color: #3498db;
+  margin: 0 0 5px;
+}
+
+.message {
+  font-size: 14px;
+  margin: 0 0 5px;
+}
+
+.expiresAt {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+}
+
+.noAd {
+  text-align: center;
+  color: #999;
+  padding: 20px;
+  margin-bottom: 15px;
+}
+
+.bidButton {
+  width: 100%;
+  background: #9b59b6;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.bidButton:hover {
+  background: #8e44ad;
+}
