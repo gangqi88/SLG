@@ -19,16 +19,15 @@ export const ShopItemCard: React.FC<ShopItemProps> = ({ item, onPurchase }) => {
           <div className={styles.placeholder}>?</div>
         )}
       </div>
-      
+
       <h3 className={styles.name}>{item.nameKey}</h3>
       <p className={styles.description}>{item.descriptionKey}</p>
-      
+
       <div className={styles.price}>
-        {item.discount && (
-          <span className={styles.discount}>{item.discount}% OFF</span>
-        )}
+        {item.discount && <span className={styles.discount}>{item.discount}% OFF</span>}
         <span className={styles.amount}>
-          {item.currency === 'cny' ? '¥' : '💎'}{item.price}
+          {item.currency === 'cny' ? '¥' : '💎'}
+          {item.price}
         </span>
       </div>
 
@@ -38,11 +37,7 @@ export const ShopItemCard: React.FC<ShopItemProps> = ({ item, onPurchase }) => {
         </p>
       )}
 
-      <button
-        className={styles.buyButton}
-        onClick={onPurchase}
-        disabled={!canPurchase}
-      >
+      <button className={styles.buyButton} onClick={onPurchase} disabled={!canPurchase}>
         {canPurchase ? 'Buy' : 'Sold Out'}
       </button>
     </div>

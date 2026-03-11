@@ -22,21 +22,21 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
         default: 'arcade',
         arcade: {
           gravity: { y: 500, x: 0 },
-          debug: false
-        }
+          debug: false,
+        },
       },
-      scene: [PreloadScene, GatheringScene]
+      scene: [PreloadScene, GatheringScene],
     };
 
     const game = new Phaser.Game(config);
     gameRef.current = game;
-    
+
     // Tell PreloadScene to start GatheringScene
     game.registry.set('startData', { targetScene: 'GatheringScene' });
-    
+
     // Listen for exit event from scene
     game.events.on('exitGathering', () => {
-        onExit();
+      onExit();
     });
 
     return () => {

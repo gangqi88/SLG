@@ -25,25 +25,25 @@ const BattleView: React.FC<BattleViewProps> = ({ attackerHeroes, defenderHeroes,
         default: 'arcade',
         arcade: {
           gravity: { y: 0, x: 0 },
-          debug: false
-        }
+          debug: false,
+        },
       },
-      scene: [PreloadScene, BattleScene]
+      scene: [PreloadScene, BattleScene],
     };
 
     const game = new Phaser.Game(config);
     gameRef.current = game;
-    
+
     // Set data in registry for PreloadScene to pick up if direct init fails
     // But now PreloadScene expects { targetScene, sceneData }
     const sceneData = { attackerHeroes, defenderHeroes };
     game.registry.set('startData', { targetScene: 'BattleScene', sceneData });
-    
+
     game.events.once('ready', () => {
-       const scene = game.scene.getScene('PreloadScene');
-       if (scene) {
-           scene.scene.restart({ targetScene: 'BattleScene', sceneData });
-       }
+      const scene = game.scene.getScene('PreloadScene');
+      if (scene) {
+        scene.scene.restart({ targetScene: 'BattleScene', sceneData });
+      }
     });
 
     return () => {
@@ -55,10 +55,7 @@ const BattleView: React.FC<BattleViewProps> = ({ attackerHeroes, defenderHeroes,
   return (
     <div style={{ position: 'relative', width: '800px', height: '600px', margin: '0 auto' }}>
       <div id="phaser-container" />
-      <button 
-        onClick={onExit} 
-        style={{ position: 'absolute', top: 10, right: 10, zIndex: 100 }}
-      >
+      <button onClick={onExit} style={{ position: 'absolute', top: 10, right: 10, zIndex: 100 }}>
         Exit Battle
       </button>
     </div>

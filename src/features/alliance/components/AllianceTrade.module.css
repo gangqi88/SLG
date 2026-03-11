@@ -52,7 +52,8 @@
   gap: 10px;
 }
 
-.formRow select, .formRow input {
+.formRow select,
+.formRow input {
   padding: 10px;
   background: #1f2937;
   border: 1px solid #4b5563;
@@ -70,7 +71,8 @@
   margin-top: 15px;
 }
 
-.confirmButton, .cancelButton {
+.confirmButton,
+.cancelButton {
   flex: 1;
   padding: 10px;
   border: none;
@@ -117,7 +119,8 @@
   gap: 15px;
 }
 
-.offer, .request {
+.offer,
+.request {
   display: flex;
   flex-direction: column;
   gap: 4px;

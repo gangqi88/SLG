@@ -165,7 +165,9 @@ export const INITIAL_BUILDINGS: BuildingType[] = [
   BuildingType.HERO_HALL,
 ];
 
-export const UNLOCK_REQUIREMENTS: Partial<Record<BuildingType, { castleLevel?: number; buildingLevel?: BuildingType }>> = {
+export const UNLOCK_REQUIREMENTS: Partial<
+  Record<BuildingType, { castleLevel?: number; buildingLevel?: BuildingType }>
+> = {
   [BuildingType.WAREHOUSE]: { castleLevel: 5 },
   [BuildingType.WALL]: { castleLevel: 3 },
   [BuildingType.MARKET]: { castleLevel: 5 },

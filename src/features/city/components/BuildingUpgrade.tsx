@@ -17,7 +17,7 @@ export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
   onUpgrade,
   onCancel,
 }) => {
-  const canAfford = 
+  const canAfford =
     currentResources.wood >= upgradeCost.wood &&
     currentResources.stone >= upgradeCost.stone &&
     currentResources.gold >= upgradeCost.gold;
@@ -54,45 +54,55 @@ export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
   return (
     <div className={styles.overlay}>
       <div className={styles.container}>
-        <h3 className={styles.title}>Upgrade {getBuildingName(building.type)} to Level {building.level + 1}</h3>
-      
-      <div className={styles.cost}>
-        <div className={styles.costItem}>
-          <span>Wood:</span>
-          <span className={currentResources.wood >= upgradeCost.wood ? styles.affordable : styles.expensive}>
-            {upgradeCost.wood}
-          </span>
-        </div>
-        <div className={styles.costItem}>
-          <span>Stone:</span>
-          <span className={currentResources.stone >= upgradeCost.stone ? styles.affordable : styles.expensive}>
-            {upgradeCost.stone}
-          </span>
-        </div>
-        <div className={styles.costItem}>
-          <span>Gold:</span>
-          <span className={currentResources.gold >= upgradeCost.gold ? styles.affordable : styles.expensive}>
-            {upgradeCost.gold}
-          </span>
-        </div>
-        <div className={styles.costItem}>
-          <span>Time:</span>
-          <span>{formatTime(upgradeCost.time)}</span>
-        </div>
-      </div>
+        <h3 className={styles.title}>
+          Upgrade {getBuildingName(building.type)} to Level {building.level + 1}
+        </h3>
 
-      <div className={styles.actions}>
-        <button 
-          className={styles.upgradeButton} 
-          onClick={onUpgrade}
-          disabled={!canAfford}
-        >
-          Upgrade
-        </button>
-        <button className={styles.cancelButton} onClick={onCancel}>
-          Cancel
-        </button>
-      </div>
+        <div className={styles.cost}>
+          <div className={styles.costItem}>
+            <span>Wood:</span>
+            <span
+              className={
+                currentResources.wood >= upgradeCost.wood ? styles.affordable : styles.expensive
+              }
+            >
+              {upgradeCost.wood}
+            </span>
+          </div>
+          <div className={styles.costItem}>
+            <span>Stone:</span>
+            <span
+              className={
+                currentResources.stone >= upgradeCost.stone ? styles.affordable : styles.expensive
+              }
+            >
+              {upgradeCost.stone}
+            </span>
+          </div>
+          <div className={styles.costItem}>
+            <span>Gold:</span>
+            <span
+              className={
+                currentResources.gold >= upgradeCost.gold ? styles.affordable : styles.expensive
+              }
+            >
+              {upgradeCost.gold}
+            </span>
+          </div>
+          <div className={styles.costItem}>
+            <span>Time:</span>
+            <span>{formatTime(upgradeCost.time)}</span>
+          </div>
+        </div>
+
+        <div className={styles.actions}>
+          <button className={styles.upgradeButton} onClick={onUpgrade} disabled={!canAfford}>
+            Upgrade
+          </button>
+          <button className={styles.cancelButton} onClick={onCancel}>
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );

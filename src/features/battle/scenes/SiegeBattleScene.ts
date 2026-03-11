@@ -15,7 +15,7 @@ export class SiegeBattleScene extends Phaser.Scene {
   private battleLogText!: Phaser.GameObjects.Text;
   private isPaused: boolean = false;
   private wallBroken: boolean = false;
-  
+
   // Animation Queue
   private eventQueue: BattleEvent[] = [];
   private isProcessingEvent: boolean = false;
@@ -31,11 +31,21 @@ export class SiegeBattleScene extends Phaser.Scene {
   }
 
   create() {
-    this.add.image(0, 0, 'bg_battle').setOrigin(0).setDisplaySize(this.scale.width, this.scale.height);
-    
+    this.add
+      .image(0, 0, 'bg_battle')
+      .setOrigin(0)
+      .setDisplaySize(this.scale.width, this.scale.height);
+
     // Add Siege Hint
-    this.add.text(400, 50, 'PHASE 1: BREACH THE WALL', { fontSize: '32px', color: '#ff0000', stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5);
-    
+    this.add
+      .text(400, 50, 'PHASE 1: BREACH THE WALL', {
+        fontSize: '32px',
+        color: '#ff0000',
+        stroke: '#000000',
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5);
+
     this.effectManager = new EffectManager(this);
     this.performanceMonitor = new PerformanceMonitor(this);
 
@@ -50,11 +60,16 @@ export class SiegeBattleScene extends Phaser.Scene {
       color: '#ffffff',
       wordWrap: { width: 300 },
       backgroundColor: 'rgba(0,0,0,0.5)',
-      padding: { x: 5, y: 5 }
+      padding: { x: 5, y: 5 },
     });
-    
+
     // Exit Button
-    this.add.text(this.scale.width - 100, 40, 'Retreat', { fill: '#f00', backgroundColor: '#333', padding: { x: 5, y: 5 } })
+    this.add
+      .text(this.scale.width - 100, 40, 'Retreat', {
+        fill: '#f00',
+        backgroundColor: '#333',
+        padding: { x: 5, y: 5 },
+      })
       .setInteractive()
       .on('pointerdown', () => {
         this.scene.stop();
@@ -64,7 +79,7 @@ export class SiegeBattleScene extends Phaser.Scene {
 
   update(time: number, delta: number) {
     this.performanceMonitor.update(time, delta);
-    
+
     if (this.isPaused) return;
 
     if (this.isProcessingEvent) return;
@@ -79,28 +94,49 @@ export class SiegeBattleScene extends Phaser.Scene {
       this.battleSystem.update(dt);
 
       // Sync positions
-      this.battleSystem.units.forEach(unit => {
-          const visual = this.visualUnits.get(unit.uniqueId);
-          if (visual) {
-              visual.container.setPosition(unit.x, unit.y);
-              visual.updateHp(unit.currentHp, unit.maxHp);
-          }
+      this.battleSystem.units.forEach((unit) => {
+        const visual = this.visualUnits.get(unit.uniqueId);
+        if (visual) {
+          visual.container.setPosition(unit.x, unit.y);
+          visual.updateHp(unit.currentHp, unit.maxHp);
+        }
       });
-      
+
       const newEvents = this.battleSystem.getEvents();
       this.eventQueue.push(...newEvents);
 
       // Check win condition
-      const attackersAlive = this.battleSystem.units.some(u => u.side === 'attacker' && !u.isDead);
-      const defendersAlive = this.battleSystem.units.some(u => u.side === 'defender' && !u.isDead);
+      const attackersAlive = this.battleSystem.units.some(
+        (u) => u.side === 'attacker' && !u.isDead,
+      );
+      const defendersAlive = this.battleSystem.units.some(
+        (u) => u.side === 'defender' && !u.isDead,
+      );
 
       if (!attackersAlive) {
-          this.add.text(400, 300, 'DEFEAT', { fontSize: '64px', color: '#ff0000', backgroundColor: '#000' }).setOrigin(0.5).setDepth(100);
-          this.isPaused = true;
+        this.add
+          .text(400, 300, 'DEFEAT', { fontSize: '64px', color: '#ff0000', backgroundColor: '#000' })
+          .setOrigin(0.5)
+          .setDepth(100);
+        this.isPaused = true;
       } else if (!defendersAlive) {
-          this.add.text(400, 300, 'VICTORY!', { fontSize: '64px', color: '#00ff00', backgroundColor: '#000' }).setOrigin(0.5).setDepth(100);
-          this.add.text(400, 400, 'Rewards Claimed: Gold x1000, Wood x500', { fontSize: '24px', color: '#ffd700', backgroundColor: '#000' }).setOrigin(0.5).setDepth(100);
-          this.isPaused = true;
+        this.add
+          .text(400, 300, 'VICTORY!', {
+            fontSize: '64px',
+            color: '#00ff00',
+            backgroundColor: '#000',
+          })
+          .setOrigin(0.5)
+          .setDepth(100);
+        this.add
+          .text(400, 400, 'Rewards Claimed: Gold x1000, Wood x500', {
+            fontSize: '24px',
+            color: '#ffd700',
+            backgroundColor: '#000',
+          })
+          .setOrigin(0.5)
+          .setDepth(100);
+        this.isPaused = true;
       }
     }
   }
@@ -109,20 +145,22 @@ export class SiegeBattleScene extends Phaser.Scene {
     const x = unit.x;
     const y = unit.y;
     const color = unit.side === 'attacker' ? 0x0000ff : 0xff0000;
-    
+
     // Special visual for Wall
     const name = unit.troopType === 'Structure' ? 'WALL' : unit.name;
-    
+
     const visualUnit = new VisualUnit(this, x, y, color, name);
     if (unit.side === 'defender') {
       visualUnit.container.setScale(-1, 1);
-      const text = visualUnit.container.list.find(obj => obj instanceof Phaser.GameObjects.Text) as Phaser.GameObjects.Text;
+      const text = visualUnit.container.list.find(
+        (obj) => obj instanceof Phaser.GameObjects.Text,
+      ) as Phaser.GameObjects.Text;
       if (text) text.setScale(-1, 1);
     }
 
     if (unit.troopType === 'Structure') {
-        // Make wall bigger
-        visualUnit.container.setScale(2); 
+      // Make wall bigger
+      visualUnit.container.setScale(2);
     }
 
     this.visualUnits.set(unit.uniqueId, visualUnit);
@@ -132,7 +170,9 @@ export class SiegeBattleScene extends Phaser.Scene {
     this.isProcessingEvent = true;
 
     // Add log
-    this.addLog(`[${event.timestamp.toFixed(1)}] ${event.type}: ${event.sourceId?.split('_')[2] || '?'} -> ${event.targetId?.split('_')[2] || '?'}`);
+    this.addLog(
+      `[${event.timestamp.toFixed(1)}] ${event.type}: ${event.sourceId?.split('_')[2] || '?'} -> ${event.targetId?.split('_')[2] || '?'}`,
+    );
 
     switch (event.type) {
       case 'attack':
@@ -162,10 +202,15 @@ export class SiegeBattleScene extends Phaser.Scene {
       source.playAttack(target.getPosition(), () => {
         this.isProcessingEvent = false;
       });
-      
+
       this.time.delayedCall(150, () => {
         target.playHit();
-        this.effectManager.playFloatingText(target.container.x, target.container.y, `-${event.value}`, event.isCrit ? '#ff0000' : '#ffffff');
+        this.effectManager.playFloatingText(
+          target.container.x,
+          target.container.y,
+          `-${event.value}`,
+          event.isCrit ? '#ff0000' : '#ffffff',
+        );
       });
     } else {
       this.isProcessingEvent = false;
@@ -173,26 +218,26 @@ export class SiegeBattleScene extends Phaser.Scene {
   }
 
   private handleSkillEvent(event: BattleEvent) {
-      // Simplified
-      this.isProcessingEvent = false; 
+    // Simplified
+    this.isProcessingEvent = false;
   }
 
   private handleHealEvent(event: BattleEvent) {
-      // Simplified
-      this.isProcessingEvent = false;
+    // Simplified
+    this.isProcessingEvent = false;
   }
 
   private handleDeathEvent(event: BattleEvent) {
-    const targetUnit = this.battleSystem.units.find(u => u.uniqueId === event.targetId);
+    const targetUnit = this.battleSystem.units.find((u) => u.uniqueId === event.targetId);
     const visual = this.visualUnits.get(event.targetId!);
-    
+
     if (visual) {
       visual.playDie(() => {
         this.isProcessingEvent = false;
-        
+
         // Check if Wall died
         if (targetUnit && targetUnit.troopType === 'Structure' && !this.wallBroken) {
-            this.triggerPhase2();
+          this.triggerPhase2();
         }
       });
     } else {
@@ -201,24 +246,31 @@ export class SiegeBattleScene extends Phaser.Scene {
   }
 
   private triggerPhase2() {
-      this.wallBroken = true;
-      this.add.text(400, 300, 'WALL BREACHED! STREET FIGHT BEGINS!', { fontSize: '48px', color: '#ff0000', stroke: '#fff', strokeThickness: 6 }).setOrigin(0.5);
-      
-      // Spawn Defenders
-      STREET_FIGHT_DEFENDERS.forEach(hero => {
-          this.battleSystem.addUnit(hero, 'defender');
-          // We need to find the newly added unit to create visual
-          // The new unit is the last one in units array
-          const newUnit = this.battleSystem.units[this.battleSystem.units.length - 1];
-          this.createVisualUnit(newUnit);
-      });
-      
-      // Attackers Plunder logic
-      this.battleSystem.units.forEach(u => {
-          if (u.side === 'attacker' && !u.isDead) {
-              this.effectManager.playFloatingText(u.x, u.y - 50, 'Looting...', '#ffd700');
-          }
-      });
+    this.wallBroken = true;
+    this.add
+      .text(400, 300, 'WALL BREACHED! STREET FIGHT BEGINS!', {
+        fontSize: '48px',
+        color: '#ff0000',
+        stroke: '#fff',
+        strokeThickness: 6,
+      })
+      .setOrigin(0.5);
+
+    // Spawn Defenders
+    STREET_FIGHT_DEFENDERS.forEach((hero) => {
+      this.battleSystem.addUnit(hero, 'defender');
+      // We need to find the newly added unit to create visual
+      // The new unit is the last one in units array
+      const newUnit = this.battleSystem.units[this.battleSystem.units.length - 1];
+      this.createVisualUnit(newUnit);
+    });
+
+    // Attackers Plunder logic
+    this.battleSystem.units.forEach((u) => {
+      if (u.side === 'attacker' && !u.isDead) {
+        this.effectManager.playFloatingText(u.x, u.y - 50, 'Looting...', '#ffd700');
+      }
+    });
   }
 
   private addLog(message: string) {

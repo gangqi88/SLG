@@ -24,15 +24,15 @@ export class NFTManager {
         { trait_type: 'Strength', value: hero.stats.strength },
         { trait_type: 'Strategy', value: hero.stats.strategy },
         { trait_type: 'Defense', value: hero.stats.defense },
-      ]
+      ],
     };
   }
 
   static async mintHero(hero: Hero, address: string): Promise<boolean> {
     console.log(`Minting Hero NFT for ${hero.name} to ${address}...`);
     // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     // In a real app, this would call a contract or an API
     console.log('Minting successful! (Simulated)');
     return true;

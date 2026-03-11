@@ -55,7 +55,9 @@ export const AllianceInfoPanel: React.FC = () => {
             </div>
             <div className={styles.stat}>
               <span className={styles.label}>Members</span>
-              <span className={styles.value}>{alliance.memberCount}/{alliance.maxMembers}</span>
+              <span className={styles.value}>
+                {alliance.memberCount}/{alliance.maxMembers}
+              </span>
             </div>
             <div className={styles.stat}>
               <span className={styles.label}>Created</span>
@@ -79,7 +81,9 @@ export const AllianceInfoPanel: React.FC = () => {
         <h4>Unlocked Features</h4>
         <div className={styles.featureList}>
           {getFeatures().map((feature, index) => (
-            <span key={index} className={styles.feature}>{feature}</span>
+            <span key={index} className={styles.feature}>
+              {feature}
+            </span>
           ))}
         </div>
       </div>
@@ -88,9 +92,9 @@ export const AllianceInfoPanel: React.FC = () => {
         <div className={styles.announcementHeader}>
           <h4>Announcement</h4>
           {playerRole === 'leader' && (
-            <button 
+            <button
               className={styles.editButton}
-              onClick={() => isEditing ? handleSaveAnnouncement() : setIsEditing(true)}
+              onClick={() => (isEditing ? handleSaveAnnouncement() : setIsEditing(true))}
             >
               {isEditing ? 'Save' : 'Edit'}
             </button>

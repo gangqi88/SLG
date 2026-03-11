@@ -73,7 +73,7 @@ class AllianceManager {
   }
 
   private getDefaultState(): AllianceState {
-    const shopItems: ShopItem[] = DEFAULT_SHOP_ITEMS.map(item => ({
+    const shopItems: ShopItem[] = DEFAULT_SHOP_ITEMS.map((item) => ({
       ...item,
       soldThisWeek: 0,
     }));
@@ -109,7 +109,7 @@ class AllianceManager {
       data,
       timestamp: Date.now(),
     };
-    this.listeners.forEach(listener => listener(event));
+    this.listeners.forEach((listener) => listener(event));
   }
 
   public subscribe(listener: (event: AllianceEvent) => void): () => void {
@@ -146,7 +146,7 @@ class AllianceManager {
   }
 
   public getMember(memberId: string): AllianceMember | undefined {
-    return this.state.members.find(m => m.id === memberId);
+    return this.state.members.find((m) => m.id === memberId);
   }
 
   public getContribution(): number {
@@ -200,7 +200,7 @@ class AllianceManager {
     this.emit('alliance', alliance);
 
     // Sync with Web3
-    this.web3Service.createAlliance(name).then(tx => {
+    this.web3Service.createAlliance(name).then((tx) => {
       console.log('Alliance created on-chain:', tx);
     });
 
@@ -225,7 +225,7 @@ class AllianceManager {
     this.saveState();
 
     // Sync with Web3
-    this.web3Service.joinAlliance(allianceId).then(tx => {
+    this.web3Service.joinAlliance(allianceId).then((tx) => {
       console.log('Joined alliance on-chain:', tx);
     });
 
@@ -240,7 +240,7 @@ class AllianceManager {
     const penalty = Math.floor(this.state.playerContribution * LEAVE_PENALTY_RATE);
     this.state.playerContribution = Math.max(0, this.state.playerContribution - penalty);
 
-    this.state.members = this.state.members.filter(m => m.id !== this.playerId);
+    this.state.members = this.state.members.filter((m) => m.id !== this.playerId);
 
     if (this.state.currentAlliance.leaderId === this.playerId) {
       if (this.state.members.length === 0) {
@@ -262,7 +262,7 @@ class AllianceManager {
 
     // Sync with Web3
     if (this.state.currentAlliance) {
-      this.web3Service.leaveAlliance(this.state.currentAlliance.id).then(tx => {
+      this.web3Service.leaveAlliance(this.state.currentAlliance.id).then((tx) => {
         console.log('Left alliance on-chain:', tx);
       });
     }
@@ -327,7 +327,7 @@ class AllianceManager {
     this.state.playerContribution += reward;
     this.state.playerLastCheckIn = now;
 
-    const member = this.state.members.find(m => m.id === this.playerId);
+    const member = this.state.members.find((m) => m.id === this.playerId);
     if (member) {
       member.contribution += reward;
       member.lastCheckIn = now;
@@ -339,7 +339,7 @@ class AllianceManager {
     this.emit('contribution', { contribution: reward, streak: this.state.checkInStreak });
 
     // Sync with Web3
-    this.web3Service.checkIn(this.state.currentAlliance.id).then(tx => {
+    this.web3Service.checkIn(this.state.currentAlliance.id).then((tx) => {
       console.log('Checked in on-chain:', tx);
     });
 
@@ -360,7 +360,10 @@ class AllianceManager {
     return { available, streak: this.state.checkInStreak };
   }
 
-  public async sendChatMessage(content: string, type: 'normal' | 'system' | 'announcement' = 'normal'): Promise<ChatMessage> {
+  public async sendChatMessage(
+    content: string,
+    type: 'normal' | 'system' | 'announcement' = 'normal',
+  ): Promise<ChatMessage> {
     if (!this.state.currentAlliance) {
       throw new Error('No alliance');
     }
@@ -395,7 +398,7 @@ class AllianceManager {
   }
 
   public async buyShopItem(itemId: string, quantity = 1): Promise<boolean> {
-    const item = this.state.shopItems.find(i => i.id === itemId);
+    const item = this.state.shopItems.find((i) => i.id === itemId);
     if (!item) {
       return false;
     }
@@ -412,7 +415,7 @@ class AllianceManager {
     this.state.playerContribution -= totalPrice;
     item.soldThisWeek += quantity;
 
-    const member = this.state.members.find(m => m.id === this.playerId);
+    const member = this.state.members.find((m) => m.id === this.playerId);
     if (member) {
       member.contribution -= totalPrice;
     }
@@ -422,9 +425,11 @@ class AllianceManager {
 
     // Sync with Web3
     if (this.state.currentAlliance) {
-      this.web3Service.purchaseShopItem(this.state.currentAlliance.id, itemId, quantity).then(tx => {
-        console.log('Purchased shop item on-chain:', tx);
-      });
+      this.web3Service
+        .purchaseShopItem(this.state.currentAlliance.id, itemId, quantity)
+        .then((tx) => {
+          console.log('Purchased shop item on-chain:', tx);
+        });
     }
 
     return true;
@@ -436,7 +441,7 @@ class AllianceManager {
     offerResourceType: 'wood' | 'stone' | 'food' | 'gold',
     requestType: 'resource' | 'hero',
     requestAmount: number,
-    requestResourceType: 'wood' | 'stone' | 'food' | 'gold'
+    requestResourceType: 'wood' | 'stone' | 'food' | 'gold',
   ): TradeRequest {
     if (!this.state.currentAlliance) {
       throw new Error('No alliance');
@@ -463,7 +468,7 @@ class AllianceManager {
   }
 
   public acceptTradeRequest(tradeId: string): boolean {
-    const trade = this.state.tradeRequests.find(t => t.id === tradeId);
+    const trade = this.state.tradeRequests.find((t) => t.id === tradeId);
     if (!trade || trade.status !== 'open' || trade.creatorId === this.playerId) {
       return false;
     }
@@ -476,7 +481,7 @@ class AllianceManager {
   }
 
   public cancelTradeRequest(tradeId: string): boolean {
-    const trade = this.state.tradeRequests.find(t => t.id === tradeId);
+    const trade = this.state.tradeRequests.find((t) => t.id === tradeId);
     if (!trade || trade.creatorId !== this.playerId) {
       return false;
     }
@@ -523,7 +528,7 @@ class AllianceManager {
       return [];
     }
 
-    return DEFAULT_TECH_LIST.map(tech => ({
+    return DEFAULT_TECH_LIST.map((tech) => ({
       ...tech,
       currentLevel: alliance.techLevel[tech.id] || 0,
     }));
@@ -534,7 +539,7 @@ class AllianceManager {
       return false;
     }
 
-    const tech = DEFAULT_TECH_LIST.find(t => t.id === techId);
+    const tech = DEFAULT_TECH_LIST.find((t) => t.id === techId);
     if (!tech) {
       return false;
     }
@@ -552,7 +557,7 @@ class AllianceManager {
     this.state.playerContribution -= cost;
     this.state.currentAlliance.techLevel[techId] = currentLevel + 1;
 
-    const member = this.state.members.find(m => m.id === this.playerId);
+    const member = this.state.members.find((m) => m.id === this.playerId);
     if (member) {
       member.contribution -= cost;
     }
@@ -561,7 +566,7 @@ class AllianceManager {
     this.emit('tech', { techId, newLevel: currentLevel + 1 });
 
     // Sync with Web3
-    this.web3Service.upgradeTech(this.state.currentAlliance.id, techId).then(tx => {
+    this.web3Service.upgradeTech(this.state.currentAlliance.id, techId).then((tx) => {
       console.log('Upgraded tech on-chain:', tx);
     });
 
@@ -576,7 +581,7 @@ class AllianceManager {
     const bonuses: Record<string, number> = {};
     const techLevels = this.state.currentAlliance.techLevel;
 
-    DEFAULT_TECH_LIST.forEach(tech => {
+    DEFAULT_TECH_LIST.forEach((tech) => {
       const level = techLevels[tech.id] || 0;
       bonuses[tech.effectType] = tech.effectValue * level;
     });
@@ -619,7 +624,7 @@ class AllianceManager {
     this.emit('war', war);
 
     // Sync with Web3
-    this.web3Service.declareWar(this.state.currentAlliance.id, targetAllianceId).then(tx => {
+    this.web3Service.declareWar(this.state.currentAlliance.id, targetAllianceId).then((tx) => {
       console.log('Declared war on-chain:', tx);
     });
 
@@ -671,7 +676,7 @@ class AllianceManager {
     this.emit('war', war);
 
     // Sync with Web3
-    this.web3Service.resolveWar(war.id).then(tx => {
+    this.web3Service.resolveWar(war.id).then((tx) => {
       console.log('Resolved war on-chain:', tx);
     });
 
@@ -683,13 +688,15 @@ class AllianceManager {
   }
 
   public processApplication(applicationId: string, accepted: boolean): boolean {
-    const app = this.state.applications.find(a => a.id === applicationId);
+    const app = this.state.applications.find((a) => a.id === applicationId);
     if (!app || app.status !== 'pending') {
       return false;
     }
 
-    if (!this.state.currentAlliance || 
-        (this.state.playerRole !== 'leader' && this.state.playerRole !== 'officer')) {
+    if (
+      !this.state.currentAlliance ||
+      (this.state.playerRole !== 'leader' && this.state.playerRole !== 'officer')
+    ) {
       return false;
     }
 
@@ -728,7 +735,7 @@ class AllianceManager {
     const contribution = Math.floor(amount);
     this.state.playerContribution += contribution;
 
-    const member = this.state.members.find(m => m.id === this.playerId);
+    const member = this.state.members.find((m) => m.id === this.playerId);
     if (member) {
       member.contribution += contribution;
       member.weeklyContribution += contribution;
@@ -739,9 +746,11 @@ class AllianceManager {
 
     // Sync with Web3
     if (this.state.currentAlliance) {
-      this.web3Service.contribute(this.state.currentAlliance.id, contribution.toString()).then(tx => {
-        console.log('Contributed on-chain:', tx);
-      });
+      this.web3Service
+        .contribute(this.state.currentAlliance.id, contribution.toString())
+        .then((tx) => {
+          console.log('Contributed on-chain:', tx);
+        });
     }
 
     return contribution;
@@ -757,13 +766,13 @@ class AllianceManager {
     }
 
     this.state.playerContribution -= amount;
-    
+
     // Sync with Web3
     await this.web3Service.deposit(this.state.currentAlliance.id, amount.toString());
-    
+
     this.saveState();
     this.emit('contribution', { type: 'gold', amount }); // Treat deposit as contribution
-    
+
     return true;
   }
 
@@ -773,8 +782,12 @@ class AllianceManager {
     }
 
     // Sync with Web3
-    await this.web3Service.requestWithdraw(this.state.currentAlliance.id, amount.toString(), recipient);
-    
+    await this.web3Service.requestWithdraw(
+      this.state.currentAlliance.id,
+      amount.toString(),
+      recipient,
+    );
+
     return true;
   }
 
@@ -818,16 +831,18 @@ class AllianceManager {
   }
 
   public weeklyReset(): void {
-    this.state.shopItems.forEach(item => {
+    this.state.shopItems.forEach((item) => {
       item.soldThisWeek = 0;
     });
 
-    this.state.members.forEach(member => {
+    this.state.members.forEach((member) => {
       member.weeklyContribution = 0;
     });
 
-    const winningBid = this.state.pendingBids.reduce((max, bid) => 
-      bid.amount > max.amount ? bid : max, { amount: 0 } as AdBid);
+    const winningBid = this.state.pendingBids.reduce(
+      (max, bid) => (bid.amount > max.amount ? bid : max),
+      { amount: 0 } as AdBid,
+    );
 
     if (winningBid.amount > 0 && this.state.currentAlliance) {
       this.state.currentAlliance.adSpace = {

@@ -15,27 +15,53 @@ const Layout: React.FC = () => {
     border: '1px solid transparent',
     borderRadius: '4px',
     cursor: 'pointer',
-    fontSize: '14px'
+    fontSize: '14px',
   });
 
   return (
     <div className="container">
-      <WalletConnect 
-        onConnect={(acc) => setWallet(acc)} 
-        onDisconnect={() => setWallet(null)} 
-      />
+      <WalletConnect onConnect={(acc) => setWallet(acc)} onDisconnect={() => setWallet(null)} />
 
-      <div style={{ padding: '10px', borderBottom: '1px solid #444', marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-        <NavLink to="/" style={getLinkStyle} end>Hero List</NavLink>
-        <NavLink to="/city" style={getLinkStyle}>City Management</NavLink>
-        <NavLink to="/gathering" style={getLinkStyle}>Gathering</NavLink>
-        <NavLink to="/tasks" style={getLinkStyle}>Tasks</NavLink>
-        <NavLink to="/gacha" style={getLinkStyle}>Gacha</NavLink>
-        <NavLink to="/lootbox" style={getLinkStyle}>Loot Box</NavLink>
-        <NavLink to="/tower-defense" style={getLinkStyle}>Guard Qiao</NavLink>
-        <NavLink to="/cooking" style={getLinkStyle}>Chef Contest</NavLink>
-        <NavLink to="/siege" style={getLinkStyle}>Siege War</NavLink>
-        <NavLink to="/battle" style={getLinkStyle}>Test Battle</NavLink>
+      <div
+        style={{
+          padding: '10px',
+          borderBottom: '1px solid #444',
+          marginBottom: '20px',
+          display: 'flex',
+          gap: '10px',
+          flexWrap: 'wrap',
+        }}
+      >
+        <NavLink to="/" style={getLinkStyle} end>
+          Hero List
+        </NavLink>
+        <NavLink to="/city" style={getLinkStyle}>
+          City Management
+        </NavLink>
+        <NavLink to="/gathering" style={getLinkStyle}>
+          Gathering
+        </NavLink>
+        <NavLink to="/tasks" style={getLinkStyle}>
+          Tasks
+        </NavLink>
+        <NavLink to="/gacha" style={getLinkStyle}>
+          Gacha
+        </NavLink>
+        <NavLink to="/lootbox" style={getLinkStyle}>
+          Loot Box
+        </NavLink>
+        <NavLink to="/tower-defense" style={getLinkStyle}>
+          Guard Qiao
+        </NavLink>
+        <NavLink to="/cooking" style={getLinkStyle}>
+          Chef Contest
+        </NavLink>
+        <NavLink to="/siege" style={getLinkStyle}>
+          Siege War
+        </NavLink>
+        <NavLink to="/battle" style={getLinkStyle}>
+          Test Battle
+        </NavLink>
       </div>
 
       <Outlet context={{ wallet }} />

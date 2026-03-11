@@ -13,20 +13,14 @@ export const OfficialShop: React.FC = () => {
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Official Shop</h2>
-      
+
       <div className={styles.grid}>
         {shopItems.map((item) => (
-          <ShopItemCard
-            key={item.id}
-            item={item}
-            onPurchase={() => purchaseItem(item.id, 1)}
-          />
+          <ShopItemCard key={item.id} item={item} onPurchase={() => purchaseItem(item.id, 1)} />
         ))}
       </div>
 
-      {shopItems.length === 0 && (
-        <p className={styles.empty}>No items available</p>
-      )}
+      {shopItems.length === 0 && <p className={styles.empty}>No items available</p>}
     </div>
   );
 };

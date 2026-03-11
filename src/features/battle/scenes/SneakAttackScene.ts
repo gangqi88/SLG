@@ -17,9 +17,10 @@ export class SneakAttackScene extends Phaser.Scene {
     // Background
     this.add.rectangle(0, 0, 800, 600, 0x222222).setOrigin(0);
     this.add.grid(400, 300, 800, 600, 50, 50, 0x000000).setAlpha(0.2);
-    
+
     // Instructions
-    this.add.text(400, 300, 'FIND THE SPIES!', { fontSize: '48px', color: '#ff0000' })
+    this.add
+      .text(400, 300, 'FIND THE SPIES!', { fontSize: '48px', color: '#ff0000' })
       .setOrigin(0.5)
       .setAlpha(0.5);
 
@@ -32,11 +33,11 @@ export class SneakAttackScene extends Phaser.Scene {
       delay: 1000,
       callback: this.spawnSpy,
       callbackScope: this,
-      loop: true
+      loop: true,
     });
 
     // Initial Spies
-    for(let i=0; i<3; i++) this.spawnSpy();
+    for (let i = 0; i < 3; i++) this.spawnSpy();
 
     // Game Timer
     this.time.addEvent({
@@ -48,7 +49,7 @@ export class SneakAttackScene extends Phaser.Scene {
           this.gameOver();
         }
       },
-      loop: true
+      loop: true,
     });
 
     EventBus.emit('current-scene-ready', this);
@@ -59,9 +60,10 @@ export class SneakAttackScene extends Phaser.Scene {
 
     const x = Phaser.Math.Between(50, 750);
     const y = Phaser.Math.Between(100, 550);
-    
+
     // Spy visual - simple red tinted sprite
-    const spy = this.add.sprite(x, y, 'hero_icon_0') // Placeholder asset
+    const spy = this.add
+      .sprite(x, y, 'hero_icon_0') // Placeholder asset
       .setTint(0xff0000)
       .setInteractive()
       .setAlpha(0);
@@ -75,7 +77,7 @@ export class SneakAttackScene extends Phaser.Scene {
       hold: 1500,
       onComplete: () => {
         if (spy.active) spy.destroy();
-      }
+      },
     });
 
     spy.on('pointerdown', () => {
@@ -90,15 +92,17 @@ export class SneakAttackScene extends Phaser.Scene {
 
     this.score += 100;
     this.scoreText.setText(`Score: ${this.score}`);
-    
+
     // Effect
-    const text = this.add.text(spy.x, spy.y, '+100', { color: '#00ff00', fontSize: '24px' }).setOrigin(0.5);
+    const text = this.add
+      .text(spy.x, spy.y, '+100', { color: '#00ff00', fontSize: '24px' })
+      .setOrigin(0.5);
     this.tweens.add({
       targets: text,
       y: spy.y - 50,
       alpha: 0,
       duration: 500,
-      onComplete: () => text.destroy()
+      onComplete: () => text.destroy(),
     });
 
     spy.destroy();
@@ -107,9 +111,13 @@ export class SneakAttackScene extends Phaser.Scene {
   private gameOver() {
     this.scene.pause();
     this.add.rectangle(400, 300, 800, 600, 0x000000, 0.7);
-    this.add.text(400, 250, 'MISSION COMPLETE', { fontSize: '48px', color: '#ffffff' }).setOrigin(0.5);
-    this.add.text(400, 320, `Damage Dealt: ${this.score}`, { fontSize: '32px', color: '#00ff00' }).setOrigin(0.5);
-    
+    this.add
+      .text(400, 250, 'MISSION COMPLETE', { fontSize: '48px', color: '#ffffff' })
+      .setOrigin(0.5);
+    this.add
+      .text(400, 320, `Damage Dealt: ${this.score}`, { fontSize: '32px', color: '#00ff00' })
+      .setOrigin(0.5);
+
     // Notify React
     // In a real implementation, we would pass this score back to the SiegeManager
     // For now, we just rely on the user manually exiting

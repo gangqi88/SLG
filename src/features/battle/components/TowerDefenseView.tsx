@@ -21,10 +21,10 @@ const TowerDefenseView: React.FC<TowerDefenseViewProps> = ({ onExit }) => {
         default: 'arcade',
         arcade: {
           gravity: { y: 0, x: 0 },
-          debug: false
-        }
+          debug: false,
+        },
       },
-      scene: [TowerDefenseScene]
+      scene: [TowerDefenseScene],
     };
 
     const game = new Phaser.Game(config);
@@ -39,14 +39,13 @@ const TowerDefenseView: React.FC<TowerDefenseViewProps> = ({ onExit }) => {
   return (
     <div style={{ position: 'relative', width: '800px', height: '600px', margin: '0 auto' }}>
       <div id="phaser-td-container" />
-      <div style={{ position: 'absolute', top: 10, left: 10, color: '#fff', pointerEvents: 'none' }}>
+      <div
+        style={{ position: 'absolute', top: 10, left: 10, color: '#fff', pointerEvents: 'none' }}
+      >
         <p>Arrows to Move, Space to Shoot</p>
         <p>Protect Qiao Sisters in the center!</p>
       </div>
-      <button 
-        onClick={onExit} 
-        style={{ position: 'absolute', top: 10, right: 10, zIndex: 100 }}
-      >
+      <button onClick={onExit} style={{ position: 'absolute', top: 10, right: 10, zIndex: 100 }}>
         Exit Game
       </button>
     </div>

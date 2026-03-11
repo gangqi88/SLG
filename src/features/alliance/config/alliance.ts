@@ -1,13 +1,13 @@
-import { 
-  ALLIANCE_LEVEL_CONFIG, 
-  DEFAULT_TECH_LIST, 
+import {
+  ALLIANCE_LEVEL_CONFIG,
+  DEFAULT_TECH_LIST,
   DEFAULT_SHOP_ITEMS,
   CREATE_ALLIANCE_COST,
   CHECK_IN_REWARD,
   LEAVE_PENALTY_RATE,
   WAR_DECLARE_REQUIRED_LEVEL,
   WAR_DECLARE_DEPOSIT,
-  WAR_DURATION 
+  WAR_DURATION,
 } from '../types/Alliance';
 
 export interface AllianceConfig {
@@ -50,19 +50,19 @@ export const getMaxMembers = (level: number): number => {
 };
 
 export const getTechEffect = (techId: string, level: number): number => {
-  const tech = DEFAULT_TECH_LIST.find(t => t.id === techId);
+  const tech = DEFAULT_TECH_LIST.find((t) => t.id === techId);
   if (!tech) return 0;
   return tech.effectValue * level;
 };
 
 export const getTechUpgradeCost = (techId: string, currentLevel: number): number => {
-  const tech = DEFAULT_TECH_LIST.find(t => t.id === techId);
+  const tech = DEFAULT_TECH_LIST.find((t) => t.id === techId);
   if (!tech || currentLevel >= tech.maxLevel) return 0;
   return tech.costPerLevel;
 };
 
 export const getTechUpgradeTime = (techId: string): number => {
-  const tech = DEFAULT_TECH_LIST.find(t => t.id === techId);
+  const tech = DEFAULT_TECH_LIST.find((t) => t.id === techId);
   return tech?.upgradeTime || 0;
 };
 
@@ -75,7 +75,7 @@ export const getAllShopItems = () => {
 };
 
 export const getShopItem = (itemId: string) => {
-  return DEFAULT_SHOP_ITEMS.find(item => item.id === itemId);
+  return DEFAULT_SHOP_ITEMS.find((item) => item.id === itemId);
 };
 
 export const STORAGE_KEY = 'alliance_data';

@@ -12,28 +12,28 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
   const { getUpgradeCost, startUpgrade, currentResources } = useMainCity();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [countdown, setCountdown] = useState<string>('');
-  
+
   const upgradeCost = getUpgradeCost(building.type, building.level);
-  
+
   useEffect(() => {
     if (!building.isUpgrading || building.upgradeEndTime === 0) {
       setCountdown('');
       return;
     }
-    
+
     const updateCountdown = () => {
       const now = Date.now();
       const remaining = Math.max(0, building.upgradeEndTime - now);
-      
+
       if (remaining <= 0) {
         setCountdown('Completed!');
         return;
       }
-      
+
       const hours = Math.floor(remaining / 3600000);
       const minutes = Math.floor((remaining % 3600000) / 60000);
       const seconds = Math.floor((remaining % 60000) / 1000);
-      
+
       if (hours > 0) {
         setCountdown(`${hours}h ${minutes}m ${seconds}s`);
       } else if (minutes > 0) {
@@ -42,10 +42,10 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
         setCountdown(`${seconds}s`);
       }
     };
-    
+
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
-    
+
     return () => clearInterval(interval);
   }, [building.isUpgrading, building.upgradeEndTime]);
 
@@ -96,31 +96,27 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
   return (
     <>
       <div className={styles.card}>
-        <div className={styles.icon}>
-          {building.type.charAt(0).toUpperCase()}
-        </div>
+        <div className={styles.icon}>{building.type.charAt(0).toUpperCase()}</div>
         <div className={styles.info}>
           <h3 className={styles.name}>{getBuildingName(building.type)}</h3>
           <p className={styles.level}>
             Level {building.level} / {building.maxLevel}
           </p>
           {building.isUpgrading ? (
-            <div className={styles.upgrading}>
-              {countdown || 'Upgrading...'}
-            </div>
+            <div className={styles.upgrading}>{countdown || 'Upgrading...'}</div>
           ) : building.level >= building.maxLevel ? (
             <div className={styles.maxLevel}>MAX</div>
           ) : null}
         </div>
-        <button 
-          className={styles.upgradeButton} 
+        <button
+          className={styles.upgradeButton}
           onClick={handleUpgradeClick}
           disabled={building.isUpgrading || building.level >= building.maxLevel}
         >
           {building.level >= building.maxLevel ? 'Maxed' : 'Upgrade'}
         </button>
       </div>
-      
+
       {showUpgradeModal && (
         <BuildingUpgrade
           building={building}

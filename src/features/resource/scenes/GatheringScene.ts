@@ -8,7 +8,7 @@ export class GatheringScene extends Phaser.Scene {
   private gatheredText!: Phaser.GameObjects.Text;
   private gatheredData: { [key: string]: number } = {
     grass: 0,
-    wood: 0
+    wood: 0,
   };
   private isGathering: boolean = false;
   private gatheringTimer?: Phaser.Time.TimerEvent;
@@ -19,8 +19,8 @@ export class GatheringScene extends Phaser.Scene {
 
   create() {
     // Create background
-    this.add.rectangle(0, 0, 800, 600, 0x87CEEB).setOrigin(0); // Sky blue background
-    this.add.rectangle(0, 500, 800, 100, 0x228B22).setOrigin(0); // Green ground
+    this.add.rectangle(0, 0, 800, 600, 0x87ceeb).setOrigin(0); // Sky blue background
+    this.add.rectangle(0, 500, 800, 100, 0x228b22).setOrigin(0); // Green ground
 
     // Create player
     this.player = this.physics.add.sprite(100, 450, 'player');
@@ -32,7 +32,7 @@ export class GatheringScene extends Phaser.Scene {
       graphics.generateTexture('player', 32, 32);
       this.player.setTexture('player');
     }
-    
+
     this.player.setCollideWorldBounds(true);
     this.player.setGravityY(500); // Simple gravity
 
@@ -45,13 +45,13 @@ export class GatheringScene extends Phaser.Scene {
     platforms.create(400, 550, 'ground').setScale(2).refreshBody(); // Invisible ground platform for physics
     // If 'ground' texture doesn't exist...
     if (!this.textures.exists('ground')) {
-        const graphics = this.make.graphics({ x: 0, y: 0, add: false });
-        graphics.fillStyle(0x228B22);
-        graphics.fillRect(0, 0, 400, 50); // 400x50, scaled x2 -> 800x100
-        graphics.generateTexture('ground', 400, 50);
-        // Re-create the platform with the new texture
-        platforms.clear(true, true);
-        platforms.create(400, 550, 'ground').setDisplaySize(800, 100).refreshBody();
+      const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+      graphics.fillStyle(0x228b22);
+      graphics.fillRect(0, 0, 400, 50); // 400x50, scaled x2 -> 800x100
+      graphics.generateTexture('ground', 400, 50);
+      // Re-create the platform with the new texture
+      platforms.clear(true, true);
+      platforms.create(400, 550, 'ground').setDisplaySize(800, 100).refreshBody();
     }
 
     this.physics.add.collider(this.player, platforms);
@@ -59,7 +59,7 @@ export class GatheringScene extends Phaser.Scene {
 
     // Input
     if (this.input.keyboard) {
-        this.cursors = this.input.keyboard.createCursorKeys();
+      this.cursors = this.input.keyboard.createCursorKeys();
     }
 
     // UI
@@ -67,17 +67,22 @@ export class GatheringScene extends Phaser.Scene {
       fontSize: '16px',
       color: '#000000',
       backgroundColor: '#ffffff',
-      padding: { x: 5, y: 5 }
+      padding: { x: 5, y: 5 },
     });
 
     // Instructions
     this.add.text(10, 40, 'Arrows to move, Space to gather', {
-        fontSize: '14px',
-        color: '#000000'
+      fontSize: '14px',
+      color: '#000000',
     });
 
     // Back Button
-    const backBtn = this.add.text(this.scale.width - 100, 10, 'Back', { fill: '#fff', backgroundColor: '#333', padding: { x: 5, y: 5 } })
+    const backBtn = this.add
+      .text(this.scale.width - 100, 10, 'Back', {
+        fill: '#fff',
+        backgroundColor: '#333',
+        padding: { x: 5, y: 5 },
+      })
       .setInteractive()
       .on('pointerdown', () => {
         this.game.events.emit('exitGathering');
@@ -86,8 +91,8 @@ export class GatheringScene extends Phaser.Scene {
 
   update() {
     if (this.isGathering) {
-        this.player.setVelocityX(0);
-        return;
+      this.player.setVelocityX(0);
+      return;
     }
 
     const speed = 160;
@@ -106,34 +111,34 @@ export class GatheringScene extends Phaser.Scene {
 
     // Check for gathering interaction
     if (Phaser.Input.Keyboard.JustDown(this.cursors.space)) {
-        this.tryGather();
+      this.tryGather();
     }
   }
 
   private createResourceNodes() {
     // Add some random resource nodes
     for (let i = 0; i < 5; i++) {
-        const x = Phaser.Math.Between(100, 700);
-        const type = Phaser.Math.Between(0, 1) === 0 ? 'grass' : 'tree';
-        const color = type === 'grass' ? 0x00ff00 : 0x8B4513; // Bright Green or Saddle Brown
-        
-        let textureKey = `resource_${type}`;
-        if (!this.textures.exists(textureKey)) {
-            const graphics = this.make.graphics({ x: 0, y: 0, add: false });
-            graphics.fillStyle(color);
-            if (type === 'grass') {
-                graphics.fillCircle(10, 10, 10); // Simple circle for grass
-                graphics.generateTexture(textureKey, 20, 20);
-            } else {
-                graphics.fillRect(0, 0, 20, 40); // Rect for tree
-                graphics.generateTexture(textureKey, 20, 40);
-            }
-        }
+      const x = Phaser.Math.Between(100, 700);
+      const type = Phaser.Math.Between(0, 1) === 0 ? 'grass' : 'tree';
+      const color = type === 'grass' ? 0x00ff00 : 0x8b4513; // Bright Green or Saddle Brown
 
-        const node = this.resources.create(x, 480, textureKey);
-        node.setData('type', type);
-        node.setCollideWorldBounds(true);
-        node.setDrag(1000); // Stop sliding
+      const textureKey = `resource_${type}`;
+      if (!this.textures.exists(textureKey)) {
+        const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+        graphics.fillStyle(color);
+        if (type === 'grass') {
+          graphics.fillCircle(10, 10, 10); // Simple circle for grass
+          graphics.generateTexture(textureKey, 20, 20);
+        } else {
+          graphics.fillRect(0, 0, 20, 40); // Rect for tree
+          graphics.generateTexture(textureKey, 20, 40);
+        }
+      }
+
+      const node = this.resources.create(x, 480, textureKey);
+      node.setData('type', type);
+      node.setCollideWorldBounds(true);
+      node.setDrag(1000); // Stop sliding
     }
   }
 
@@ -141,58 +146,64 @@ export class GatheringScene extends Phaser.Scene {
     // Check overlap with resources
     let found = false;
     this.physics.overlap(this.player, this.resources, (player, resource) => {
-        if (found) return; // Only gather one at a time
-        found = true;
-        this.startGathering(resource as Phaser.Physics.Arcade.Sprite);
+      if (found) return; // Only gather one at a time
+      found = true;
+      this.startGathering(resource as Phaser.Physics.Arcade.Sprite);
     });
   }
 
   private startGathering(resource: Phaser.Physics.Arcade.Sprite) {
     this.isGathering = true;
     const type = resource.getData('type');
-    
+
     // Show gathering indicator
-    const text = this.add.text(this.player.x, this.player.y - 50, 'Gathering...', {
+    const text = this.add
+      .text(this.player.x, this.player.y - 50, 'Gathering...', {
         fontSize: '12px',
-        color: '#000'
-    }).setOrigin(0.5);
+        color: '#000',
+      })
+      .setOrigin(0.5);
 
     this.gatheringTimer = this.time.delayedCall(1000, () => {
-        // Success
-        this.gatheredData[type === 'grass' ? 'grass' : 'wood']++;
+      // Success
+      this.gatheredData[type === 'grass' ? 'grass' : 'wood']++;
 
-        // Loot Box Logic (20% chance)
-        if (Math.random() < 0.2) {
-            InventoryManager.addItem('basic_lootbox', 1);
-            // Show feedback
-            const lootText = this.add.text(this.player.x, this.player.y - 80, '🎁 Found Loot Box!', {
-                fontSize: '14px',
-                color: '#FFD700',
-                stroke: '#000',
-                strokeThickness: 2
-            }).setOrigin(0.5);
-            
-            this.tweens.add({
-                targets: lootText,
-                y: lootText.y - 50,
-                alpha: 0,
-                duration: 1500,
-                onComplete: () => lootText.destroy()
-            });
-        }
+      // Loot Box Logic (20% chance)
+      if (Math.random() < 0.2) {
+        InventoryManager.addItem('basic_lootbox', 1);
+        // Show feedback
+        const lootText = this.add
+          .text(this.player.x, this.player.y - 80, '🎁 Found Loot Box!', {
+            fontSize: '14px',
+            color: '#FFD700',
+            stroke: '#000',
+            strokeThickness: 2,
+          })
+          .setOrigin(0.5);
 
-        this.updateUI();
-        
-        // Remove resource
-        resource.destroy();
-        
-        // Cleanup
-        text.destroy();
-        this.isGathering = false;
+        this.tweens.add({
+          targets: lootText,
+          y: lootText.y - 50,
+          alpha: 0,
+          duration: 1500,
+          onComplete: () => lootText.destroy(),
+        });
+      }
+
+      this.updateUI();
+
+      // Remove resource
+      resource.destroy();
+
+      // Cleanup
+      text.destroy();
+      this.isGathering = false;
     });
   }
 
   private updateUI() {
-    this.gatheredText.setText(`Gathered: Grass: ${this.gatheredData.grass}, Wood: ${this.gatheredData.wood}`);
+    this.gatheredText.setText(
+      `Gathered: Grass: ${this.gatheredData.grass}, Wood: ${this.gatheredData.wood}`,
+    );
   }
 }

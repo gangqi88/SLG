@@ -17,14 +17,14 @@ export class PreloadScene extends Phaser.Scene {
   preload() {
     // Load assets here
     // For now, we can use placeholders or generate textures
-    
+
     // Backgrounds
     this.load.image('bg_battle', 'assets/bg_battle.png');
     this.load.image('bg_city', 'assets/bg_city.png');
-    
+
     // Hero avatars (if any)
     // this.load.image('hero_1', 'assets/hero_1.png');
-    
+
     // UI elements
     // this.load.image('btn_attack', 'assets/btn_attack.png');
   }
@@ -32,17 +32,17 @@ export class PreloadScene extends Phaser.Scene {
   create() {
     // Generate a simple background texture if image fails to load
     if (!this.textures.exists('bg_battle')) {
-        const graphics = this.make.graphics({ x: 0, y: 0, add: false });
-        graphics.fillStyle(0x333333);
-        graphics.fillRect(0, 0, 800, 600);
-        graphics.generateTexture('bg_battle', 800, 600);
+      const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+      graphics.fillStyle(0x333333);
+      graphics.fillRect(0, 0, 800, 600);
+      graphics.generateTexture('bg_battle', 800, 600);
     }
 
     if (!this.textures.exists('bg_city')) {
-        const graphics = this.make.graphics({ x: 0, y: 0, add: false });
-        graphics.fillStyle(0x004400); // Dark Green for City
-        graphics.fillRect(0, 0, 800, 600);
-        graphics.generateTexture('bg_city', 800, 600);
+      const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+      graphics.fillStyle(0x004400); // Dark Green for City
+      graphics.fillRect(0, 0, 800, 600);
+      graphics.generateTexture('bg_city', 800, 600);
     }
 
     if (this.data && this.data.targetScene) {

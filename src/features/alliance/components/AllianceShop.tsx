@@ -47,7 +47,9 @@ export const AllianceShop: React.FC = () => {
               <div className={styles.icon}>{getItemIcon(item.type)}</div>
               <div className={styles.info}>
                 <h4>{item.nameKey.replace('shop.', '').replace('_', ' ')}</h4>
-                <p className={styles.desc}>{item.descriptionKey.replace('shop.', '').replace('.desc', '')}</p>
+                <p className={styles.desc}>
+                  {item.descriptionKey.replace('shop.', '').replace('.desc', '')}
+                </p>
                 <div className={styles.price}>
                   <span className={styles.priceValue}>{item.price}</span>
                   <span className={styles.priceType}>Points</span>

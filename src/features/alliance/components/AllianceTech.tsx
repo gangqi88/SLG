@@ -6,19 +6,19 @@ export const AllianceTech: React.FC = () => {
   const { techList, playerContribution, upgradeTech } = useAlliance();
 
   const handleUpgrade = async (techId: string) => {
-    const tech = techList.find(t => t.id === techId);
+    const tech = techList.find((t) => t.id === techId);
     if (!tech) return;
-    
+
     if (playerContribution < tech.costPerLevel) {
       alert('Insufficient contribution points!');
       return;
     }
-    
+
     if (tech.currentLevel >= tech.maxLevel) {
       alert('This tech is already at max level!');
       return;
     }
-    
+
     const success = await upgradeTech(techId);
     if (success) {
       alert('Tech upgraded successfully!');
@@ -47,8 +47,9 @@ export const AllianceTech: React.FC = () => {
 
       <div className={styles.list}>
         {techList.map((tech) => {
-          const canUpgrade = playerContribution >= tech.costPerLevel && tech.currentLevel < tech.maxLevel;
-          
+          const canUpgrade =
+            playerContribution >= tech.costPerLevel && tech.currentLevel < tech.maxLevel;
+
           return (
             <div key={tech.id} className={styles.techItem}>
               <div className={styles.icon}>{getTechIcon(tech.effectType)}</div>
@@ -56,10 +57,12 @@ export const AllianceTech: React.FC = () => {
                 <h4>{tech.name}</h4>
                 <p>{tech.description}</p>
                 <div className={styles.level}>
-                  <span>Level {tech.currentLevel}/{tech.maxLevel}</span>
+                  <span>
+                    Level {tech.currentLevel}/{tech.maxLevel}
+                  </span>
                   <div className={styles.progressBar}>
-                    <div 
-                      className={styles.progress} 
+                    <div
+                      className={styles.progress}
                       style={{ width: `${(tech.currentLevel / tech.maxLevel) * 100}%` }}
                     />
                   </div>

@@ -1,4 +1,3 @@
-
 export interface IAllianceNFT {
   // Read functions
   balanceOf(owner: string): Promise<string>;

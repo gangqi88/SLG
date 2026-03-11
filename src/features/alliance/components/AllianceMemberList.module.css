@@ -78,7 +78,8 @@
   text-align: right;
 }
 
-.contribution, .weekly {
+.contribution,
+.weekly {
   display: flex;
   flex-direction: column;
   gap: 2px;

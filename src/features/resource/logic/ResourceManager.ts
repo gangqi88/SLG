@@ -32,7 +32,7 @@ export class ResourceManager {
       [ResourceType.FOOD]: 1000,
       [ResourceType.COIN]: 500,
     };
-    
+
     this.production = {
       [ResourceType.WOOD]: 0,
       [ResourceType.STONE]: 0,
@@ -44,11 +44,12 @@ export class ResourceManager {
     this.lastUpdate = Date.now();
   }
 
-  public update(deltaTime: number) { // deltaTime in seconds
+  public update(deltaTime: number) {
+    // deltaTime in seconds
     // Production is per hour, so per second is / 3600
     const factor = deltaTime / 3600;
 
-    Object.values(ResourceType).forEach(type => {
+    Object.values(ResourceType).forEach((type) => {
       const prod = this.production[type];
       if (prod > 0) {
         this.addResource(type, prod * factor);
@@ -83,8 +84,8 @@ export class ResourceManager {
   public setCapacity(amount: number) {
     this.capacity = amount;
   }
-  
+
   public getCapacity(): number {
-      return this.capacity;
+    return this.capacity;
   }
 }

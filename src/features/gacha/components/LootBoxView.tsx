@@ -31,7 +31,7 @@ const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
       setIsOpening(false);
       // Determine if we still have boxes of this type
       const updatedInv = InventoryManager.getItems();
-      const stillHasBox = updatedInv.find(i => i.item.id === selectedBox.item.id);
+      const stillHasBox = updatedInv.find((i) => i.item.id === selectedBox.item.id);
       if (!stillHasBox) {
         setSelectedBox(null);
       } else {
@@ -40,14 +40,16 @@ const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
     }, 1500); // 1.5s animation
   };
 
-  const boxes = inventory.filter(i => i.item.type === 'box');
-  const otherItems = inventory.filter(i => i.item.type !== 'box');
+  const boxes = inventory.filter((i) => i.item.type === 'box');
+  const otherItems = inventory.filter((i) => i.item.type !== 'box');
 
   return (
     <div style={styles.container}>
       <div style={styles.header}>
         <h2>Inventory & Loot Boxes</h2>
-        <button onClick={onExit} style={styles.closeBtn}>X</button>
+        <button onClick={onExit} style={styles.closeBtn}>
+          X
+        </button>
       </div>
 
       <div style={styles.content}>
@@ -56,12 +58,12 @@ const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
           <h3>Loot Boxes</h3>
           <div style={styles.grid}>
             {boxes.length === 0 && <p>No loot boxes found.</p>}
-            {boxes.map(box => (
-              <div 
-                key={box.item.id} 
+            {boxes.map((box) => (
+              <div
+                key={box.item.id}
                 style={{
                   ...styles.itemCard,
-                  borderColor: selectedBox?.item.id === box.item.id ? '#ffd700' : '#444'
+                  borderColor: selectedBox?.item.id === box.item.id ? '#ffd700' : '#444',
                 }}
                 onClick={() => !isOpening && setSelectedBox(box)}
               >
@@ -78,11 +80,9 @@ const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
           <h3>Resources & Fragments</h3>
           <div style={styles.grid}>
             {otherItems.length === 0 && <p>Empty inventory.</p>}
-            {otherItems.map(item => (
+            {otherItems.map((item) => (
               <div key={item.item.id} style={styles.itemCard}>
-                <div style={styles.icon}>
-                    {item.item.type === 'resource' ? '🪵' : '🧩'}
-                </div>
+                <div style={styles.icon}>{item.item.type === 'resource' ? '🪵' : '🧩'}</div>
                 <div>{item.item.name}</div>
                 <div>x{item.quantity}</div>
               </div>
@@ -97,7 +97,7 @@ const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
           <div style={styles.modal}>
             <h3>{selectedBox.item.name}</h3>
             <p>{selectedBox.item.description}</p>
-            
+
             <div style={{ margin: '20px 0', fontSize: '48px' }}>
               <span className={isOpening ? 'shaking-box' : ''}>🎁</span>
             </div>
@@ -120,8 +120,11 @@ const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
             )}
 
             {!isOpening && (
-              <button 
-                onClick={() => { setSelectedBox(null); setReward(null); }} 
+              <button
+                onClick={() => {
+                  setSelectedBox(null);
+                  setReward(null);
+                }}
                 style={styles.cancelBtn}
               >
                 {reward ? 'Close' : 'Cancel'}

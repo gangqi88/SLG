@@ -8,7 +8,7 @@ export const AdBillboard: React.FC = () => {
   return (
     <div className={styles.container}>
       <h3 className={styles.title}>Ad Billboard</h3>
-      
+
       {adSpace ? (
         <div className={styles.currentAd}>
           <p className={styles.allianceName}>{adSpace.allianceName}</p>

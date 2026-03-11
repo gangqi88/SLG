@@ -23,21 +23,21 @@ const CityView: React.FC<CityViewProps> = ({ onExit }) => {
         default: 'arcade',
         arcade: {
           gravity: { y: 0, x: 0 },
-          debug: false
-        }
+          debug: false,
+        },
       },
-      scene: [PreloadScene, CityScene, BattleScene]
+      scene: [PreloadScene, CityScene, BattleScene],
     };
 
     const game = new Phaser.Game(config);
     gameRef.current = game;
-    
+
     // Set initial data to tell PreloadScene to go to CityScene
     game.registry.set('startData', { targetScene: 'CityScene' });
-    
+
     // Listen for exit event from scene
     game.events.on('exitCity', () => {
-        onExit();
+      onExit();
     });
 
     return () => {

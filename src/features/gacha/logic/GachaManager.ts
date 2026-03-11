@@ -25,13 +25,13 @@ export class GachaManager {
   private pools: GachaPool[];
   private pityCounter: { [poolId: string]: number } = {};
   private history: { poolId: string; heroName: string; timestamp: number }[] = [];
-  
+
   // Combined hero list
   private availableHeroes: Hero[];
 
   constructor() {
     this.availableHeroes = [...allHeroes, ...newTroopHeroes];
-    
+
     this.pools = [
       {
         id: 'standard_pool',
@@ -42,7 +42,7 @@ export class GachaManager {
         upHeroes: [],
         rates: {
           [Quality.RED]: 0.02,
-          [Quality.ORANGE]: 0.10,
+          [Quality.ORANGE]: 0.1,
           [Quality.PURPLE]: 0.88,
         },
         pityLimit: 10, // Small pity for testing, usually 80
@@ -56,11 +56,11 @@ export class GachaManager {
         upHeroes: ['archer_1', 'cavalry_1'], // Elara, Lancelot
         rates: {
           [Quality.RED]: 0.02,
-          [Quality.ORANGE]: 0.10,
+          [Quality.ORANGE]: 0.1,
           [Quality.PURPLE]: 0.88,
         },
         pityLimit: 10,
-      }
+      },
     ];
   }
 
@@ -73,11 +73,11 @@ export class GachaManager {
   }
 
   public draw(poolId: string, count: number = 1): GachaResult[] {
-    const pool = this.pools.find(p => p.id === poolId);
+    const pool = this.pools.find((p) => p.id === poolId);
     if (!pool) throw new Error('Pool not found');
 
     const results: GachaResult[] = [];
-    
+
     for (let i = 0; i < count; i++) {
       results.push(this.drawOne(pool));
     }
@@ -87,17 +87,17 @@ export class GachaManager {
 
   private drawOne(pool: GachaPool): GachaResult {
     this.pityCounter[pool.id] = (this.pityCounter[pool.id] || 0) + 1;
-    
+
     let quality = Quality.PURPLE;
     const rand = Math.random();
-    
+
     // Check Pity
     // Simplified: if reach limit, guarantee Orange+ (or Red?)
     // Usually pity guarantees highest tier. Let's say Red.
     // Or soft pity. Here we implement hard pity for Red at limit.
     // Actually, usually 10-pull guarantees purple, 80-pull red.
     // Let's implement: 10 count guarantees at least Orange for demo.
-    
+
     if (this.pityCounter[pool.id] >= pool.pityLimit) {
       quality = Quality.ORANGE; // Guaranteed Orange+
       this.pityCounter[pool.id] = 0;
@@ -116,12 +116,12 @@ export class GachaManager {
     }
 
     const hero = this.selectHeroByQuality(pool, quality);
-    
+
     // Log
     this.history.unshift({
       poolId: pool.id,
       heroName: hero.name,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
     if (this.history.length > 50) this.history.pop();
 
@@ -133,11 +133,11 @@ export class GachaManager {
 
   private selectHeroByQuality(pool: GachaPool, quality: Quality): Hero {
     // Filter heroes by quality
-    const candidates = this.availableHeroes.filter(h => h.quality === quality);
-    
+    const candidates = this.availableHeroes.filter((h) => h.quality === quality);
+
     // Handle UP logic
-    const upCandidates = candidates.filter(h => pool.upHeroes.includes(h.id));
-    const normalCandidates = candidates.filter(h => !pool.upHeroes.includes(h.id));
+    const upCandidates = candidates.filter((h) => pool.upHeroes.includes(h.id));
+    const normalCandidates = candidates.filter((h) => !pool.upHeroes.includes(h.id));
 
     if (upCandidates.length > 0) {
       // 50% chance to get UP hero if available in this quality
@@ -148,7 +148,7 @@ export class GachaManager {
 
     if (candidates.length === 0) {
       // Fallback if no heroes of this quality (shouldn't happen with full data)
-      return this.availableHeroes[0]; 
+      return this.availableHeroes[0];
     }
 
     return candidates[Math.floor(Math.random() * candidates.length)];

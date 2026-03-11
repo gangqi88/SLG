@@ -41,12 +41,12 @@ class InventoryManager {
   public subscribe(listener: () => void) {
     this.listeners.push(listener);
     return () => {
-      this.listeners = this.listeners.filter(l => l !== listener);
+      this.listeners = this.listeners.filter((l) => l !== listener);
     };
   }
 
   private notifyListeners() {
-    this.listeners.forEach(l => l());
+    this.listeners.forEach((l) => l());
   }
 
   public addItem(itemId: string, quantity: number) {
@@ -63,7 +63,7 @@ class InventoryManager {
   public removeItem(itemId: string, quantity: number): boolean {
     const current = this.items.get(itemId) || 0;
     if (current < quantity) return false;
-    
+
     const newValue = current - quantity;
     if (newValue === 0) {
       this.items.delete(itemId);
@@ -85,7 +85,7 @@ class InventoryManager {
     return result;
   }
 
-  public openBox(boxId: string): { item: InventoryItem, dropped: boolean }[] | null {
+  public openBox(boxId: string): { item: InventoryItem; dropped: boolean }[] | null {
     const box = ITEMS_DB[boxId] as LootBox;
     if (!box || box.type !== 'box') return null;
 
@@ -95,10 +95,10 @@ class InventoryManager {
     // For now, let's pick ONE item based on weight.
     // Or maybe multiple? Usually lootboxes drop 1-3 items.
     // Let's implement: Pick 1 item from the table based on weights.
-    
+
     const totalWeight = box.dropTable.reduce((sum, drop) => sum + drop.weight, 0);
     let random = Math.random() * totalWeight;
-    
+
     let selectedDrop = null;
     for (const drop of box.dropTable) {
       random -= drop.weight;
@@ -109,17 +109,21 @@ class InventoryManager {
     }
 
     if (!selectedDrop) {
-        // Fallback to first item if something goes wrong with float precision
-        selectedDrop = box.dropTable[0];
+      // Fallback to first item if something goes wrong with float precision
+      selectedDrop = box.dropTable[0];
     }
 
-    const qty = Math.floor(Math.random() * (selectedDrop.maxQuantity - selectedDrop.minQuantity + 1)) + selectedDrop.minQuantity;
+    const qty =
+      Math.floor(Math.random() * (selectedDrop.maxQuantity - selectedDrop.minQuantity + 1)) +
+      selectedDrop.minQuantity;
     this.addItem(selectedDrop.itemId, qty);
 
-    return [{ 
+    return [
+      {
         item: { item: ITEMS_DB[selectedDrop.itemId], quantity: qty },
-        dropped: true
-    }];
+        dropped: true,
+      },
+    ];
   }
 }
 

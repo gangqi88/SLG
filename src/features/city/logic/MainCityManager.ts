@@ -150,7 +150,7 @@ class MainCityManager {
 
   private notify(): void {
     this.saveState();
-    this.listeners.forEach(listener => listener());
+    this.listeners.forEach((listener) => listener());
   }
 
   public getState(): MainCityState {
@@ -239,7 +239,7 @@ class MainCityManager {
   }
 
   public checkAndCompleteUpgrades(): void {
-    Object.keys(this.state.buildings).forEach(buildingId => {
+    Object.keys(this.state.buildings).forEach((buildingId) => {
       const building = this.state.buildings[buildingId];
       if (building.isUpgrading && Date.now() >= building.upgradeEndTime) {
         this.state.buildings[buildingId] = {
@@ -283,7 +283,7 @@ class MainCityManager {
       expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
     };
 
-    this.state.pendingBids.forEach(bid => {
+    this.state.pendingBids.forEach((bid) => {
       if (bid.allianceId !== winner.allianceId) {
         bid.refunded = true;
       }
@@ -306,7 +306,7 @@ class MainCityManager {
   }
 
   public async purchaseItem(itemId: string, quantity: number): Promise<boolean> {
-    const item = this.state.shopItems.find(i => i.id === itemId);
+    const item = this.state.shopItems.find((i) => i.id === itemId);
     if (!item) {
       return false;
     }
@@ -326,13 +326,13 @@ class MainCityManager {
 
   public getAuctionItems(status?: 'active' | 'ended'): AuctionItem[] {
     if (status) {
-      return this.state.auctionItems.filter(item => item.status === status);
+      return this.state.auctionItems.filter((item) => item.status === status);
     }
     return this.state.auctionItems;
   }
 
   public async placeBid(auctionId: string, amount: number): Promise<boolean> {
-    const auction = this.state.auctionItems.find(a => a.id === auctionId);
+    const auction = this.state.auctionItems.find((a) => a.id === auctionId);
     if (!auction || auction.status !== 'active') {
       return false;
     }
@@ -352,7 +352,7 @@ class MainCityManager {
   }
 
   public async buyout(auctionId: string): Promise<boolean> {
-    const auction = this.state.auctionItems.find(a => a.id === auctionId);
+    const auction = this.state.auctionItems.find((a) => a.id === auctionId);
     if (!auction || auction.status !== 'active') {
       return false;
     }
@@ -387,7 +387,7 @@ class MainCityManager {
   }
 
   public async cancelAuction(auctionId: string): Promise<boolean> {
-    const auction = this.state.auctionItems.find(a => a.id === auctionId);
+    const auction = this.state.auctionItems.find((a) => a.id === auctionId);
     if (!auction || auction.status !== 'active') {
       return false;
     }

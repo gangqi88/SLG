@@ -24,11 +24,11 @@ export class Web3Manager {
     try {
       const accounts = await window.unisat.requestAccounts();
       const publicKey = await window.unisat.getPublicKey();
-      
+
       if (accounts && accounts.length > 0) {
         return {
           address: accounts[0],
-          publicKey: publicKey
+          publicKey: publicKey,
         };
       }
     } catch (e) {
@@ -39,7 +39,7 @@ export class Web3Manager {
 
   static async signMessage(message: string): Promise<string | null> {
     if (!this.isUniSatInstalled()) return null;
-    
+
     try {
       const signature = await window.unisat.signMessage(message);
       return signature;

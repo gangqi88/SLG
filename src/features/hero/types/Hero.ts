@@ -12,11 +12,11 @@ export enum Quality {
 
 export enum TroopType {
   INFANTRY = 'Infantry', // 步兵
-  ARCHER = 'Archer',     // 弓兵 (Ranged)
-  CAVALRY = 'Cavalry',   // 骑兵 (Fast)
-  MAGE = 'Mage',         // 法师 (Magic Damage)
-  FLYING = 'Flying',     // 飞行 (Ignores terrain, melee/ranged)
-  SIEGE = 'Siege',       // 攻城 (High dmg vs structures/defense)
+  ARCHER = 'Archer', // 弓兵 (Ranged)
+  CAVALRY = 'Cavalry', // 骑兵 (Fast)
+  MAGE = 'Mage', // 法师 (Magic Damage)
+  FLYING = 'Flying', // 飞行 (Ignores terrain, melee/ranged)
+  SIEGE = 'Siege', // 攻城 (High dmg vs structures/defense)
   STRUCTURE = 'Structure', // 建筑 (Immobile, High HP)
 }
 

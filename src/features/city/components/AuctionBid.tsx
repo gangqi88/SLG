@@ -27,7 +27,7 @@ export const AuctionBid: React.FC<AuctionBidProps> = ({
     <div className={styles.overlay}>
       <div className={styles.modal}>
         <h3 className={styles.title}>Place Your Bid</h3>
-        
+
         <div className={styles.currentBid}>
           <span>Current Bid:</span>
           <span className={styles.amount}>{currentBid}</span>
@@ -48,39 +48,22 @@ export const AuctionBid: React.FC<AuctionBidProps> = ({
           </div>
 
           <div className={styles.quickBids}>
-            <button
-              type="button"
-              onClick={() => setBidAmount(minBid)}
-            >
+            <button type="button" onClick={() => setBidAmount(minBid)}>
               Min ({minBid})
             </button>
-            <button
-              type="button"
-              onClick={() => setBidAmount(Math.floor(currentBid * 1.1))}
-            >
+            <button type="button" onClick={() => setBidAmount(Math.floor(currentBid * 1.1))}>
               +10%
             </button>
-            <button
-              type="button"
-              onClick={() => setBidAmount(Math.floor(currentBid * 1.25))}
-            >
+            <button type="button" onClick={() => setBidAmount(Math.floor(currentBid * 1.25))}>
               +25%
             </button>
           </div>
 
           <div className={styles.actions}>
-            <button
-              type="submit"
-              className={styles.submitButton}
-              disabled={bidAmount < minBid}
-            >
+            <button type="submit" className={styles.submitButton} disabled={bidAmount < minBid}>
               Place Bid
             </button>
-            <button
-              type="button"
-              className={styles.cancelButton}
-              onClick={onCancel}
-            >
+            <button type="button" className={styles.cancelButton} onClick={onCancel}>
               Cancel
             </button>
           </div>

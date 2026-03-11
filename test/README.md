@@ -5,6 +5,7 @@
 ## 测试覆盖范围
 
 ### AllianceNFT 合约测试
+
 - ✅ 创建联盟
 - ✅ 加入/离开联盟
 - ✅ 贡献系统
@@ -13,6 +14,7 @@
 - ✅ 事件触发验证
 
 ### BuildingNFT 合约测试
+
 - ✅ 铸造建筑NFT
 - ✅ 建筑升级
 - ✅ 建筑转移
@@ -23,17 +25,20 @@
 ## 快速开始
 
 ### 1. 安装依赖
+
 ```bash
 cd test
 npm install
 ```
 
 ### 2. 运行本地测试
+
 ```bash
 npm test
 ```
 
 ### 3. 启动本地节点并测试
+
 ```bash
 # 终端1: 启动节点
 npm run node
@@ -43,6 +48,7 @@ npm run test:local
 ```
 
 ### 4. Goerli测试网测试
+
 ```bash
 # 配置环境变量
 cp .env.example .env
@@ -53,17 +59,19 @@ npm run test:goerli
 
 ## 测试覆盖率目标
 
-| 合约 | 目标覆盖率 |
-|------|-----------|
-| AllianceNFT | ≥ 90% |
-| BuildingNFT | ≥ 90% |
+| 合约        | 目标覆盖率 |
+| ----------- | ---------- |
+| AllianceNFT | ≥ 90%      |
+| BuildingNFT | ≥ 90%      |
 
 ## 运行覆盖率报告
+
 ```bash
 npm run coverage
 ```
 
 ## Gas报告
+
 ```bash
 REPORT_GAS=true npm test
 ```
@@ -71,11 +79,13 @@ REPORT_GAS=true npm test
 ## 合约部署
 
 ### 部署到本地
+
 ```bash
 npx hardhat run scripts/deploy.js --network localhost
 ```
 
 ### 部署到Goerli
+
 ```bash
 npx hardhat run scripts/deploy.js --network goerli
 ```
@@ -83,6 +93,7 @@ npx hardhat run scripts/deploy.js --network goerli
 ## 智能合约地址（Goerli）
 
 部署完成后更新 `.env` 文件：
+
 ```
 ALLIANCE_NFT_ADDRESS=0x...
 BUILDING_NFT_ADDRESS=0x...
@@ -90,11 +101,11 @@ BUILDING_NFT_ADDRESS=0x...
 
 ## 测试用例数量
 
-| 合约 | 测试用例 |
-|------|----------|
-| AllianceNFT | 14 |
-| BuildingNFT | 14 |
-| **总计** | **28** |
+| 合约        | 测试用例 |
+| ----------- | -------- |
+| AllianceNFT | 14       |
+| BuildingNFT | 14       |
+| **总计**    | **28**   |
 
 ## 预期结果
 

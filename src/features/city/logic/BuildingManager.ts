@@ -31,7 +31,12 @@ export class BuildingManager {
     this.addBuilding('warehouse_1', BuildingType.WAREHOUSE, 1, { x: 400, y: 400 });
   }
 
-  public addBuilding(id: string, type: BuildingType, level: number, position: { x: number; y: number }) {
+  public addBuilding(
+    id: string,
+    type: BuildingType,
+    level: number,
+    position: { x: number; y: number },
+  ) {
     this.buildings.set(id, { id, type, level, position });
   }
 
@@ -62,7 +67,7 @@ export class BuildingManager {
       [ResourceType.COIN]: 0,
     };
 
-    this.buildings.forEach(building => {
+    this.buildings.forEach((building) => {
       const level = building.level;
       // Base production: Level * 100 per hour
       const baseProd = level * 100;
@@ -95,7 +100,7 @@ export class BuildingManager {
 
   public calculateCapacity(): number {
     let capacity = 1000; // Base capacity
-    this.buildings.forEach(building => {
+    this.buildings.forEach((building) => {
       if (building.type === BuildingType.WAREHOUSE) {
         capacity += building.level * 2000;
       } else if (building.type === BuildingType.CASTLE) {

@@ -9,9 +9,8 @@ export const AuctionHouse: React.FC = () => {
   const { auctionItems, isLoading } = useMainCity();
   const [filter, setFilter] = useState<FilterStatus>('active');
 
-  const filteredItems = filter === 'all' 
-    ? auctionItems 
-    : auctionItems.filter(item => item.status === filter);
+  const filteredItems =
+    filter === 'all' ? auctionItems : auctionItems.filter((item) => item.status === filter);
 
   if (isLoading) {
     return <div className={styles.loading}>Loading auctions...</div>;
@@ -48,9 +47,7 @@ export const AuctionHouse: React.FC = () => {
         ))}
       </div>
 
-      {filteredItems.length === 0 && (
-        <p className={styles.empty}>No auctions found</p>
-      )}
+      {filteredItems.length === 0 && <p className={styles.empty}>No auctions found</p>}
     </div>
   );
 };

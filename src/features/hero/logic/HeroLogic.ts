@@ -33,7 +33,7 @@ export class HeroLogic {
   static canLevelUp(hero: Hero): boolean {
     const cost = this.getLevelUpCost(hero.level);
     const items = InventoryManager.getItems();
-    const expItem = items.find(i => i.item.id === 'item_hero_exp');
+    const expItem = items.find((i) => i.item.id === 'item_hero_exp');
     return (expItem?.quantity || 0) >= cost;
   }
 
@@ -41,7 +41,7 @@ export class HeroLogic {
     if (hero.starRating >= 5) return false;
     const cost = this.getStarUpCost(hero.starRating);
     const items = InventoryManager.getItems();
-    const fragItem = items.find(i => i.item.id === 'item_hero_fragment');
+    const fragItem = items.find((i) => i.item.id === 'item_hero_fragment');
     return (fragItem?.quantity || 0) >= cost;
   }
 

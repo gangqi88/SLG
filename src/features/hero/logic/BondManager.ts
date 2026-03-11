@@ -7,13 +7,13 @@ export class BondManager {
    * Returns a list of active bonds.
    */
   static getActiveBonds(heroes: Hero[]): Bond[] {
-    const heroIds = new Set(heroes.map(h => h.id));
+    const heroIds = new Set(heroes.map((h) => h.id));
     const activeBonds: Bond[] = [];
     const processedBondIds = new Set<string>();
 
-    heroes.forEach(hero => {
+    heroes.forEach((hero) => {
       if (hero.bond && !processedBondIds.has(hero.bond.id)) {
-        const isBondActive = hero.bond.requiredHeroes.every(reqId => heroIds.has(reqId));
+        const isBondActive = hero.bond.requiredHeroes.every((reqId) => heroIds.has(reqId));
         if (isBondActive) {
           activeBonds.push(hero.bond);
           processedBondIds.add(hero.bond.id);
@@ -34,10 +34,10 @@ export class BondManager {
    * - "治疗+X%"
    */
   static applyBondEffects(units: BattleUnit[], activeBonds: Bond[]) {
-    activeBonds.forEach(bond => {
+    activeBonds.forEach((bond) => {
       // Parse effect string
       // e.g. "步兵血量+30%", "全队防御+20%", "苏墨+温竹+梁石 -> 建造速度+30%" (Ignore non-combat)
-      
+
       const effect = bond.effect;
       let stat: 'strength' | 'defense' | 'strategy' | 'maxHp' | null = null;
       let value = 0;
@@ -66,24 +66,25 @@ export class BondManager {
         // For simplicity, apply to all units involved in the bond.
         // Or all units in the team?
         // Usually bonds apply to the heroes in the bond.
-        
-        units.forEach(unit => {
-          if (bond.requiredHeroes.includes(unit.id.split('_').pop() || '')) { // Extract original ID from uniqueId
-             // Apply buff
-             if (stat === 'maxHp') {
-               const bonus = unit.maxHp * value;
-               unit.maxHp += bonus;
-               unit.currentHp += bonus;
-             } else if (stat === 'strength') {
-               unit.currentStats.strength *= (1 + value);
-             } else if (stat === 'defense') {
-               unit.currentStats.defense *= (1 + value);
-             } else if (stat === 'strategy') {
-               unit.currentStats.strategy *= (1 + value);
-             }
+
+        units.forEach((unit) => {
+          if (bond.requiredHeroes.includes(unit.id.split('_').pop() || '')) {
+            // Extract original ID from uniqueId
+            // Apply buff
+            if (stat === 'maxHp') {
+              const bonus = unit.maxHp * value;
+              unit.maxHp += bonus;
+              unit.currentHp += bonus;
+            } else if (stat === 'strength') {
+              unit.currentStats.strength *= 1 + value;
+            } else if (stat === 'defense') {
+              unit.currentStats.defense *= 1 + value;
+            } else if (stat === 'strategy') {
+              unit.currentStats.strategy *= 1 + value;
+            }
           }
         });
-        
+
         console.log(`Applied Bond: ${bond.name} (${bond.effect})`);
       }
     });

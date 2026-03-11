@@ -160,7 +160,10 @@ export interface ShopItem {
   }[];
 }
 
-export const ALLIANCE_LEVEL_CONFIG: Record<number, { maxMembers: number; upgradeCost: number; unlockFeatures: string[] }> = {
+export const ALLIANCE_LEVEL_CONFIG: Record<
+  number,
+  { maxMembers: number; upgradeCost: number; unlockFeatures: string[] }
+> = {
   1: { maxMembers: 10, upgradeCost: 0, unlockFeatures: ['chat'] },
   2: { maxMembers: 15, upgradeCost: 50000, unlockFeatures: ['checkin', 'trade'] },
   3: { maxMembers: 20, upgradeCost: 150000, unlockFeatures: ['shop'] },

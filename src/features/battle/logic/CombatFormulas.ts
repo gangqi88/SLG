@@ -5,26 +5,26 @@ const NORMAL_ATTACK_COEFF = 0.8;
 const SKILL_HEALING_COEFF = 1.2;
 const BASE_CRIT_RATE = 0.05;
 const BASE_CRIT_DAMAGE = 1.5;
-const MAX_CRIT_RATE = 0.60;
-const MAX_CRIT_DAMAGE = 3.00;
+const MAX_CRIT_RATE = 0.6;
+const MAX_CRIT_DAMAGE = 3.0;
 
 // Restraint Bonuses (Race)
 const RACE_RESTRAINT_BONUS = {
   [Race.DEMON]: { [Race.HUMAN]: 0.25 },
-  [Race.HUMAN]: { [Race.ANGEL]: 0.20 },
-  [Race.ANGEL]: { [Race.DEMON]: 0.30 },
+  [Race.HUMAN]: { [Race.ANGEL]: 0.2 },
+  [Race.ANGEL]: { [Race.DEMON]: 0.3 },
 };
 
 // Restraint Bonuses (Troop Type)
 // Infantry > Cavalry > Archer > Infantry
 // Mage > Siege > Flying > Mage
 const TROOP_RESTRAINT_BONUS = {
-  [TroopType.INFANTRY]: { [TroopType.CAVALRY]: 0.20 },
-  [TroopType.CAVALRY]: { [TroopType.ARCHER]: 0.20 },
-  [TroopType.ARCHER]: { [TroopType.INFANTRY]: 0.20, [TroopType.FLYING]: 0.40 }, // Archers counter Flying heavily
-  [TroopType.MAGE]: { [TroopType.SIEGE]: 0.25, [TroopType.INFANTRY]: 0.10 },
-  [TroopType.SIEGE]: { [TroopType.FLYING]: -0.30, [TroopType.INFANTRY]: 0.30 }, // Siege bad vs Flying, good vs Infantry
-  [TroopType.FLYING]: { [TroopType.MAGE]: 0.20, [TroopType.INFANTRY]: 0.15 },
+  [TroopType.INFANTRY]: { [TroopType.CAVALRY]: 0.2 },
+  [TroopType.CAVALRY]: { [TroopType.ARCHER]: 0.2 },
+  [TroopType.ARCHER]: { [TroopType.INFANTRY]: 0.2, [TroopType.FLYING]: 0.4 }, // Archers counter Flying heavily
+  [TroopType.MAGE]: { [TroopType.SIEGE]: 0.25, [TroopType.INFANTRY]: 0.1 },
+  [TroopType.SIEGE]: { [TroopType.FLYING]: -0.3, [TroopType.INFANTRY]: 0.3 }, // Siege bad vs Flying, good vs Infantry
+  [TroopType.FLYING]: { [TroopType.MAGE]: 0.2, [TroopType.INFANTRY]: 0.15 },
 };
 
 /**
@@ -47,7 +47,10 @@ export const getRaceRestraintMultiplier = (attackerRace: Race, defenderRace: Rac
 /**
  * Calculate troop restraint bonus.
  */
-export const getTroopRestraintMultiplier = (attackerTroop: TroopType | string, defenderTroop: TroopType | string): number => {
+export const getTroopRestraintMultiplier = (
+  attackerTroop: TroopType | string,
+  defenderTroop: TroopType | string,
+): number => {
   // Safe cast or check if string matches enum
   const att = attackerTroop as TroopType;
   const def = defenderTroop as TroopType;
@@ -65,29 +68,29 @@ export const calculateNormalDamage = (
   attackerTroop: TroopType | string,
   defenderStats: HeroStats,
   defenderRace: Race,
-  defenderTroop: TroopType | string
+  defenderTroop: TroopType | string,
 ): { damage: number; isCrit: boolean } => {
   const baseDamage = attackerStats.strength * NORMAL_ATTACK_COEFF;
   const reduction = calculateDamageReduction(defenderStats.defense);
   const raceRestraint = getRaceRestraintMultiplier(attackerRace, defenderRace);
   const troopRestraint = getTroopRestraintMultiplier(attackerTroop, defenderTroop);
-  
+
   // Crit calculation
-  let isCrit = Math.random() < BASE_CRIT_RATE; 
-  
+  const isCrit = Math.random() < BASE_CRIT_RATE;
+
   let finalDamage = baseDamage * (1 - reduction) * raceRestraint * troopRestraint;
-  
+
   if (isCrit) {
     finalDamage *= BASE_CRIT_DAMAGE;
   }
-  
+
   // Add some randomness +/- 5%
   const randomness = 0.95 + Math.random() * 0.1;
   finalDamage *= randomness;
 
   return {
     damage: Math.max(1, Math.round(finalDamage)),
-    isCrit
+    isCrit,
   };
 };
 
@@ -102,25 +105,25 @@ export const calculateSkillDamage = (
   defenderStats: HeroStats,
   defenderRace: Race,
   defenderTroop: TroopType | string,
-  skillCoefficient: number 
+  skillCoefficient: number,
 ): { damage: number; isCrit: boolean } => {
   const baseDamage = attackerStats.strategy * skillCoefficient;
-  
+
   const reduction = calculateDamageReduction(defenderStats.defense);
   const raceRestraint = getRaceRestraintMultiplier(attackerRace, defenderRace);
   const troopRestraint = getTroopRestraintMultiplier(attackerTroop, defenderTroop);
-  
-  let isCrit = Math.random() < BASE_CRIT_RATE;
-  
+
+  const isCrit = Math.random() < BASE_CRIT_RATE;
+
   let finalDamage = baseDamage * (1 - reduction) * raceRestraint * troopRestraint;
-  
+
   if (isCrit) {
     finalDamage *= BASE_CRIT_DAMAGE;
   }
 
   return {
     damage: Math.max(1, Math.round(finalDamage)),
-    isCrit
+    isCrit,
   };
 };
 
@@ -130,15 +133,15 @@ export const calculateSkillDamage = (
  */
 export const calculateHealing = (healerStats: HeroStats): { healing: number; isCrit: boolean } => {
   const baseHealing = healerStats.strategy * SKILL_HEALING_COEFF;
-  let isCrit = Math.random() < BASE_CRIT_RATE;
-  
+  const isCrit = Math.random() < BASE_CRIT_RATE;
+
   let finalHealing = baseHealing;
   if (isCrit) {
     finalHealing *= BASE_CRIT_DAMAGE;
   }
-  
+
   return {
     healing: Math.round(finalHealing),
-    isCrit
+    isCrit,
   };
 };

@@ -1,5 +1,5 @@
 // Mock environment
-declare var global: any;
+declare let global: any;
 const globalAny: any = global;
 
 // Mock localStorage
@@ -7,9 +7,15 @@ if (typeof localStorage === 'undefined' || localStorage === null) {
   const store: Record<string, string> = {};
   globalAny.localStorage = {
     getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => { store[key] = value; },
-    removeItem: (key: string) => { delete store[key]; },
-    clear: () => { for (const key in store) delete store[key]; },
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      for (const key in store) delete store[key];
+    },
   };
 }
 
@@ -23,15 +29,15 @@ if (typeof window === 'undefined') {
     },
     removeEventListener: (event: string, cb: Function) => {
       if (!listeners[event]) return;
-      listeners[event] = listeners[event].filter(l => l !== cb);
+      listeners[event] = listeners[event].filter((l) => l !== cb);
     },
     dispatchEvent: (event: any) => {
       const type = event.type;
       if (listeners[type]) {
-        listeners[type].forEach(cb => cb(event));
+        listeners[type].forEach((cb) => cb(event));
       }
       return true;
-    }
+    },
   };
   globalAny.CustomEvent = class CustomEvent {
     type: string;
@@ -85,7 +91,7 @@ const runTests = async () => {
   const shopItems = manager.getShopItems();
   const item = shopItems[0];
   const initialContribution = manager.getContribution();
-  
+
   if (initialContribution >= item.price) {
     const purchaseSuccess = await manager.buyShopItem(item.id);
     if (purchaseSuccess && manager.getContribution() < initialContribution) {
@@ -102,7 +108,7 @@ const runTests = async () => {
   manager.contributeResource('gold', 1000); // More funds
   const techList = manager.getTechInfo();
   const tech = techList[0];
-  
+
   if (manager.getContribution() >= tech.costPerLevel) {
     const upgradeSuccess = await manager.upgradeTech(tech.id);
     if (upgradeSuccess) {
@@ -119,15 +125,17 @@ const runTests = async () => {
   const depositAmount = 100;
   const initialTreasury = await manager.getTreasuryBalance();
   const depositSuccess = await manager.depositToTreasury(depositAmount);
-  
+
   // Wait a bit for mock delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   const finalTreasury = await manager.getTreasuryBalance();
-  
+
   if (depositSuccess && BigInt(finalTreasury) > BigInt(initialTreasury)) {
     console.log('✅ Treasury deposit successful');
   } else {
-    console.error(`❌ Treasury deposit failed (Initial: ${initialTreasury}, Final: ${finalTreasury})`);
+    console.error(
+      `❌ Treasury deposit failed (Initial: ${initialTreasury}, Final: ${finalTreasury})`,
+    );
   }
 
   console.log('\nTests Completed.');

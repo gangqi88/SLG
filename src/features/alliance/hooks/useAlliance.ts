@@ -35,7 +35,10 @@ interface UseAllianceReturn {
   updateAnnouncement: (content: string) => Promise<boolean>;
   upgradeAlliance: () => Promise<boolean>;
   checkIn: () => Promise<{ contribution: number; streak: number }>;
-  sendChatMessage: (content: string, type?: 'normal' | 'system' | 'announcement') => Promise<ChatMessage>;
+  sendChatMessage: (
+    content: string,
+    type?: 'normal' | 'system' | 'announcement',
+  ) => Promise<ChatMessage>;
   getChatHistory: (offset?: number, limit?: number) => ChatMessage[];
   buyShopItem: (itemId: string, quantity?: number) => Promise<boolean>;
   createTradeRequest: (
@@ -44,7 +47,7 @@ interface UseAllianceReturn {
     offerResourceType: 'wood' | 'stone' | 'food' | 'gold',
     requestType: 'resource' | 'hero',
     requestAmount: number,
-    requestResourceType: 'wood' | 'stone' | 'food' | 'gold'
+    requestResourceType: 'wood' | 'stone' | 'food' | 'gold',
   ) => TradeRequest;
   acceptTradeRequest: (tradeId: string) => boolean;
   cancelTradeRequest: (tradeId: string) => boolean;
@@ -139,10 +142,13 @@ export const useAlliance = (): UseAllianceReturn => {
     return await manager.checkIn();
   }, []);
 
-  const sendChatMessage = useCallback(async (content: string, type: 'normal' | 'system' | 'announcement' = 'normal') => {
-    const manager = AllianceManager.getInstance();
-    return await manager.sendChatMessage(content, type);
-  }, []);
+  const sendChatMessage = useCallback(
+    async (content: string, type: 'normal' | 'system' | 'announcement' = 'normal') => {
+      const manager = AllianceManager.getInstance();
+      return await manager.sendChatMessage(content, type);
+    },
+    [],
+  );
 
   const getChatHistory = useCallback((offset = 0, limit = 50) => {
     const manager = AllianceManager.getInstance();
@@ -154,24 +160,27 @@ export const useAlliance = (): UseAllianceReturn => {
     return await manager.buyShopItem(itemId, quantity);
   }, []);
 
-  const createTradeRequest = useCallback((
-    offerType: 'resource' | 'hero',
-    offerAmount: number,
-    offerResourceType: 'wood' | 'stone' | 'food' | 'gold',
-    requestType: 'resource' | 'hero',
-    requestAmount: number,
-    requestResourceType: 'wood' | 'stone' | 'food' | 'gold'
-  ) => {
-    const manager = AllianceManager.getInstance();
-    return manager.createTradeRequest(
-      offerType,
-      offerAmount,
-      offerResourceType,
-      requestType,
-      requestAmount,
-      requestResourceType
-    );
-  }, []);
+  const createTradeRequest = useCallback(
+    (
+      offerType: 'resource' | 'hero',
+      offerAmount: number,
+      offerResourceType: 'wood' | 'stone' | 'food' | 'gold',
+      requestType: 'resource' | 'hero',
+      requestAmount: number,
+      requestResourceType: 'wood' | 'stone' | 'food' | 'gold',
+    ) => {
+      const manager = AllianceManager.getInstance();
+      return manager.createTradeRequest(
+        offerType,
+        offerAmount,
+        offerResourceType,
+        requestType,
+        requestAmount,
+        requestResourceType,
+      );
+    },
+    [],
+  );
 
   const acceptTradeRequest = useCallback((tradeId: string) => {
     const manager = AllianceManager.getInstance();
@@ -203,10 +212,13 @@ export const useAlliance = (): UseAllianceReturn => {
     return manager.submitWarScore(score);
   }, []);
 
-  const contributeResource = useCallback((type: 'wood' | 'stone' | 'food' | 'gold', amount: number) => {
-    const manager = AllianceManager.getInstance();
-    return manager.contributeResource(type, amount);
-  }, []);
+  const contributeResource = useCallback(
+    (type: 'wood' | 'stone' | 'food' | 'gold', amount: number) => {
+      const manager = AllianceManager.getInstance();
+      return manager.contributeResource(type, amount);
+    },
+    [],
+  );
 
   const save = useCallback(async () => {
     const manager = AllianceManager.getInstance();

@@ -1,5 +1,14 @@
-import { IAllianceNFT, AllianceOnChainData, MemberOnChainData, AllianceContractEvents } from '@/features/alliance/contracts/IAllianceNFT';
-import { ITreasuryContract, WithdrawalRequest, TreasuryContractEvents } from '@/features/city/contracts/ITreasuryContract';
+import {
+  IAllianceNFT,
+  AllianceOnChainData,
+  MemberOnChainData,
+  AllianceContractEvents,
+} from '@/features/alliance/contracts/IAllianceNFT';
+import {
+  ITreasuryContract,
+  WithdrawalRequest,
+  TreasuryContractEvents,
+} from '@/features/city/contracts/ITreasuryContract';
 import { dispatchMockEvent } from '@/features/alliance/hooks/useAllianceEvents';
 
 // Mock Web3 Service to simulate blockchain interactions
@@ -35,25 +44,29 @@ class MockAllianceService implements IAllianceNFT, ITreasuryContract {
   async getAllianceData(tokenId: string): Promise<AllianceOnChainData> {
     // Simulate fetch
     await this.simulateDelay();
-    return this.allianceData[tokenId] || {
-      name: `Alliance #${tokenId}`,
-      level: 1,
-      contributionPool: '0',
-      treasuryBalance: '0',
-      createdAt: Date.now(),
-      exists: true,
-    };
+    return (
+      this.allianceData[tokenId] || {
+        name: `Alliance #${tokenId}`,
+        level: 1,
+        contributionPool: '0',
+        treasuryBalance: '0',
+        createdAt: Date.now(),
+        exists: true,
+      }
+    );
   }
 
   async getMemberData(tokenId: string, memberAddress: string): Promise<MemberOnChainData> {
     await this.simulateDelay();
     const members = this.memberData[tokenId] || {};
-    return members[memberAddress] || {
-      memberAddress,
-      contribution: '0',
-      lastCheckIn: 0,
-      isActive: false,
-    };
+    return (
+      members[memberAddress] || {
+        memberAddress,
+        contribution: '0',
+        lastCheckIn: 0,
+        isActive: false,
+      }
+    );
   }
 
   async getAllianceMembers(tokenId: string): Promise<string[]> {
@@ -65,7 +78,7 @@ class MockAllianceService implements IAllianceNFT, ITreasuryContract {
   async createAlliance(name: string): Promise<string> {
     await this.simulateDelay(2000); // Simulate mining
     const tokenId = `alliance_${Date.now()}`;
-    
+
     this.allianceData[tokenId] = {
       name,
       level: 1,
@@ -82,8 +95,8 @@ class MockAllianceService implements IAllianceNFT, ITreasuryContract {
   async joinAlliance(tokenId: string): Promise<string> {
     await this.simulateDelay();
     // In real contract, msg.sender is used
-    const memberAddress = '0xUser'; 
-    
+    const memberAddress = '0xUser';
+
     if (!this.memberData[tokenId]) this.memberData[tokenId] = {};
     this.memberData[tokenId][memberAddress] = {
       memberAddress,
@@ -99,7 +112,7 @@ class MockAllianceService implements IAllianceNFT, ITreasuryContract {
   async leaveAlliance(tokenId: string): Promise<string> {
     await this.simulateDelay();
     const memberAddress = '0xUser';
-    
+
     if (this.memberData[tokenId] && this.memberData[tokenId][memberAddress]) {
       delete this.memberData[tokenId][memberAddress];
     }
@@ -111,19 +124,23 @@ class MockAllianceService implements IAllianceNFT, ITreasuryContract {
   async contribute(tokenId: string, amount: string): Promise<string> {
     await this.simulateDelay();
     const memberAddress = '0xUser';
-    
+
     // Update local state
     if (this.memberData[tokenId] && this.memberData[tokenId][memberAddress]) {
       const current = BigInt(this.memberData[tokenId][memberAddress].contribution);
       this.memberData[tokenId][memberAddress].contribution = (current + BigInt(amount)).toString();
     }
-    
+
     if (this.allianceData[tokenId]) {
       const currentPool = BigInt(this.allianceData[tokenId].contributionPool);
       this.allianceData[tokenId].contributionPool = (currentPool + BigInt(amount)).toString();
     }
 
-    dispatchMockEvent(AllianceContractEvents.ContributionReceived, { tokenId, member: memberAddress, amount });
+    dispatchMockEvent(AllianceContractEvents.ContributionReceived, {
+      tokenId,
+      member: memberAddress,
+      amount,
+    });
     return `0xTxHash_Contribute_${tokenId}`;
   }
 
@@ -139,7 +156,12 @@ class MockAllianceService implements IAllianceNFT, ITreasuryContract {
 
   async purchaseShopItem(tokenId: string, itemId: string, quantity: number): Promise<string> {
     await this.simulateDelay();
-    dispatchMockEvent(AllianceContractEvents.ShopPurchase, { tokenId, itemId, quantity, buyer: '0xUser' });
+    dispatchMockEvent(AllianceContractEvents.ShopPurchase, {
+      tokenId,
+      itemId,
+      quantity,
+      buyer: '0xUser',
+    });
     return `0xTxHash_ShopBuy_${tokenId}`;
   }
 
@@ -151,7 +173,10 @@ class MockAllianceService implements IAllianceNFT, ITreasuryContract {
 
   async declareWar(attackerTokenId: string, defenderTokenId: string): Promise<string> {
     await this.simulateDelay();
-    dispatchMockEvent(AllianceContractEvents.WarDeclared, { attacker: attackerTokenId, defender: defenderTokenId });
+    dispatchMockEvent(AllianceContractEvents.WarDeclared, {
+      attacker: attackerTokenId,
+      defender: defenderTokenId,
+    });
     return `0xTxHash_WarDeclare_${attackerTokenId}`;
   }
 
@@ -178,18 +203,30 @@ class MockAllianceService implements IAllianceNFT, ITreasuryContract {
     if (!this.treasuryData[allianceTokenId]) {
       this.treasuryData[allianceTokenId] = { balance: '0', requests: [] };
     }
-    
+
     const current = BigInt(this.treasuryData[allianceTokenId].balance);
     this.treasuryData[allianceTokenId].balance = (current + BigInt(amount)).toString();
 
-    dispatchMockEvent(TreasuryContractEvents.DepositReceived, { allianceTokenId, amount, depositor: '0xUser' });
+    dispatchMockEvent(TreasuryContractEvents.DepositReceived, {
+      allianceTokenId,
+      amount,
+      depositor: '0xUser',
+    });
     return `0xTxHash_Deposit_${allianceTokenId}`;
   }
 
-  async requestWithdraw(allianceTokenId: string, amount: string, recipient: string): Promise<string> {
+  async requestWithdraw(
+    allianceTokenId: string,
+    amount: string,
+    recipient: string,
+  ): Promise<string> {
     await this.simulateDelay();
     // Add request logic here
-    dispatchMockEvent(TreasuryContractEvents.WithdrawalRequested, { allianceTokenId, amount, recipient });
+    dispatchMockEvent(TreasuryContractEvents.WithdrawalRequested, {
+      allianceTokenId,
+      amount,
+      recipient,
+    });
     return `0xTxHash_RequestWithdraw_${allianceTokenId}`;
   }
 
@@ -206,7 +243,7 @@ class MockAllianceService implements IAllianceNFT, ITreasuryContract {
 
   // Helper
   private simulateDelay(ms: number = 500): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 

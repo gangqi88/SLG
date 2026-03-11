@@ -18,13 +18,16 @@ export class CityScene extends Phaser.Scene {
   }
 
   create() {
-    this.add.image(0, 0, 'bg_city').setOrigin(0).setDisplaySize(this.scale.width, this.scale.height);
+    this.add
+      .image(0, 0, 'bg_city')
+      .setOrigin(0)
+      .setDisplaySize(this.scale.width, this.scale.height);
 
     // Resource UI
     this.resourceText = this.add.text(10, 10, '', {
       font: '16px Arial',
       color: '#ffffff',
-      backgroundColor: '#000000'
+      backgroundColor: '#000000',
     });
 
     // Buildings
@@ -32,11 +35,16 @@ export class CityScene extends Phaser.Scene {
     this.createBuildingSprites();
 
     // Back Button
-    const backBtn = this.add.text(this.scale.width - 100, 10, 'Back', { fill: '#0f0', backgroundColor: '#333', padding: { x: 5, y: 5 } })
+    const backBtn = this.add
+      .text(this.scale.width - 100, 10, 'Back', {
+        fill: '#0f0',
+        backgroundColor: '#333',
+        padding: { x: 5, y: 5 },
+      })
       .setInteractive()
       .on('pointerdown', () => {
         // Switch back to React view or Main Menu
-        // For now, maybe just stop scene? 
+        // For now, maybe just stop scene?
         // We need a callback to App.tsx
         this.game.events.emit('exitCity');
       });
@@ -61,13 +69,13 @@ export class CityScene extends Phaser.Scene {
 
   private createBuildingSprites() {
     this.buildingContainer.removeAll(true);
-    
-    this.cityManager.buildingManager.getBuildings().forEach(building => {
+
+    this.cityManager.buildingManager.getBuildings().forEach((building) => {
       const x = building.position.x;
       const y = building.position.y;
-      
+
       const container = this.add.container(x, y);
-      
+
       // Building visual
       const rect = this.add.rectangle(0, 0, 80, 80, 0x666666);
       rect.setInteractive();
@@ -76,9 +84,13 @@ export class CityScene extends Phaser.Scene {
       });
 
       // Label
-      const label = this.add.text(0, -50, `${building.type} Lv.${building.level}`, {
-        fontSize: '12px', color: '#fff', backgroundColor: '#000'
-      }).setOrigin(0.5);
+      const label = this.add
+        .text(0, -50, `${building.type} Lv.${building.level}`, {
+          fontSize: '12px',
+          color: '#fff',
+          backgroundColor: '#000',
+        })
+        .setOrigin(0.5);
 
       container.add([rect, label]);
       this.buildingContainer.add(container);
@@ -91,8 +103,10 @@ export class CityScene extends Phaser.Scene {
 
     // Show upgrade dialog (simplified: just confirm)
     const cost = building.level * 100;
-    const confirm = window.confirm(`Upgrade ${building.type} to Lv.${building.level + 1}?\nCost: ${cost} Wood, ${cost} Stone`);
-    
+    const confirm = window.confirm(
+      `Upgrade ${building.type} to Lv.${building.level + 1}?\nCost: ${cost} Wood, ${cost} Stone`,
+    );
+
     if (confirm) {
       const success = this.cityManager.upgradeBuilding(buildingId);
       if (success) {

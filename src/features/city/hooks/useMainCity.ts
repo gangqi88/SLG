@@ -39,7 +39,7 @@ const generateBuildingId = (type: BuildingType): string => {
 
 const getInitialBuildings = (): Record<string, Building> => {
   const buildings: Record<string, Building> = {};
-  
+
   INITIAL_BUILDINGS.forEach((type, index) => {
     const id = generateBuildingId(type);
     buildings[id] = {
@@ -53,7 +53,7 @@ const getInitialBuildings = (): Record<string, Building> => {
       position: { x: (index % 4) * 100, y: Math.floor(index / 4) * 100 },
     };
   });
-  
+
   return buildings;
 };
 
@@ -129,7 +129,12 @@ export const useMainCity = (): UseMainCityReturn => {
   const [shopItems, setShopItems] = useState<ShopItem[]>([]);
   const [auctionItems, setAuctionItems] = useState<AuctionItem[]>([]);
   const [resourcePrices, setResourcePrices] = useState<ResourcePrices>(getDefaultResourcePrices());
-  const [currentResources, setCurrentResources] = useState({ wood: 10000, stone: 10000, food: 10000, gold: 10000 });
+  const [currentResources, setCurrentResources] = useState({
+    wood: 10000,
+    stone: 10000,
+    food: 10000,
+    gold: 10000,
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -166,10 +171,10 @@ export const useMainCity = (): UseMainCityReturn => {
     const checkAndCompleteUpgrades = () => {
       const now = Date.now();
       let hasUpdates = false;
-      
+
       const updatedBuildings = { ...buildings };
-      
-      Object.keys(updatedBuildings).forEach(buildingId => {
+
+      Object.keys(updatedBuildings).forEach((buildingId) => {
         const building = updatedBuildings[buildingId];
         if (building.isUpgrading && building.upgradeEndTime > 0 && now >= building.upgradeEndTime) {
           updatedBuildings[buildingId] = {
@@ -182,14 +187,14 @@ export const useMainCity = (): UseMainCityReturn => {
           hasUpdates = true;
         }
       });
-      
+
       if (hasUpdates) {
         setBuildings(updatedBuildings);
       }
     };
-    
+
     const interval = setInterval(checkAndCompleteUpgrades, 1000);
-    
+
     return () => clearInterval(interval);
   }, [buildings]);
 
@@ -207,9 +212,12 @@ export const useMainCity = (): UseMainCityReturn => {
     }
   }, [buildings, adSpace, pendingBids, shopItems, auctionItems, resourcePrices, isLoading]);
 
-  const getBuilding = useCallback((buildingId: string): Building | undefined => {
-    return buildings[buildingId];
-  }, [buildings]);
+  const getBuilding = useCallback(
+    (buildingId: string): Building | undefined => {
+      return buildings[buildingId];
+    },
+    [buildings],
+  );
 
   const getUpgradeCost = useCallback((_type: BuildingType, level: number): BuildingUpgradeCost => {
     const baseWood = 100;
@@ -226,60 +234,68 @@ export const useMainCity = (): UseMainCityReturn => {
     return { wood, stone, gold, time };
   }, []);
 
-  const startUpgrade = useCallback(async (buildingId: string): Promise<boolean> => {
-    const building = buildings[buildingId];
-    if (!building || building.isUpgrading || building.level >= building.maxLevel) {
-      return false;
-    }
+  const startUpgrade = useCallback(
+    async (buildingId: string): Promise<boolean> => {
+      const building = buildings[buildingId];
+      if (!building || building.isUpgrading || building.level >= building.maxLevel) {
+        return false;
+      }
 
-    const cost = getUpgradeCost(building.type, building.level);
+      const cost = getUpgradeCost(building.type, building.level);
 
-    if (currentResources.wood < cost.wood || 
-        currentResources.stone < cost.stone || 
-        currentResources.gold < cost.gold) {
-      return false;
-    }
+      if (
+        currentResources.wood < cost.wood ||
+        currentResources.stone < cost.stone ||
+        currentResources.gold < cost.gold
+      ) {
+        return false;
+      }
 
-    setCurrentResources(prev => ({
-      wood: prev.wood - cost.wood,
-      stone: prev.stone - cost.stone,
-      food: prev.food,
-      gold: prev.gold - cost.gold,
-    }));
+      setCurrentResources((prev) => ({
+        wood: prev.wood - cost.wood,
+        stone: prev.stone - cost.stone,
+        food: prev.food,
+        gold: prev.gold - cost.gold,
+      }));
 
-    const newBuildings = {
-      ...buildings,
-      [buildingId]: {
-        ...building,
-        isUpgrading: true,
-        upgradeStartTime: Date.now(),
-        upgradeEndTime: Date.now() + cost.time * 1000,
-      },
-    };
+      const newBuildings = {
+        ...buildings,
+        [buildingId]: {
+          ...building,
+          isUpgrading: true,
+          upgradeStartTime: Date.now(),
+          upgradeEndTime: Date.now() + cost.time * 1000,
+        },
+      };
 
-    setBuildings(newBuildings);
-    return true;
-  }, [buildings, getUpgradeCost, currentResources]);
+      setBuildings(newBuildings);
+      return true;
+    },
+    [buildings, getUpgradeCost, currentResources],
+  );
 
-  const cancelUpgrade = useCallback(async (buildingId: string): Promise<boolean> => {
-    const building = buildings[buildingId];
-    if (!building || !building.isUpgrading) {
-      return false;
-    }
+  const cancelUpgrade = useCallback(
+    async (buildingId: string): Promise<boolean> => {
+      const building = buildings[buildingId];
+      if (!building || !building.isUpgrading) {
+        return false;
+      }
 
-    const newBuildings = {
-      ...buildings,
-      [buildingId]: {
-        ...building,
-        isUpgrading: false,
-        upgradeStartTime: 0,
-        upgradeEndTime: 0,
-      },
-    };
+      const newBuildings = {
+        ...buildings,
+        [buildingId]: {
+          ...building,
+          isUpgrading: false,
+          upgradeStartTime: 0,
+          upgradeEndTime: 0,
+        },
+      };
 
-    setBuildings(newBuildings);
-    return true;
-  }, [buildings]);
+      setBuildings(newBuildings);
+      return true;
+    },
+    [buildings],
+  );
 
   const placeBid = useCallback(() => {
     console.log('Place bid clicked');
@@ -287,19 +303,17 @@ export const useMainCity = (): UseMainCityReturn => {
 
   const purchaseItem = useCallback((itemId: string, quantity: number) => {
     console.log('Purchase item:', itemId, quantity);
-    setShopItems(prev => 
-      prev.map(item => 
-        item.id === itemId 
-          ? { ...item, soldThisWeek: item.soldThisWeek + quantity }
-          : item
-      )
+    setShopItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId ? { ...item, soldThisWeek: item.soldThisWeek + quantity } : item,
+      ),
     );
   }, []);
 
   const placeBidAuction = useCallback((auctionId: string, amount: number) => {
     console.log('Place auction bid:', auctionId, amount);
-    setAuctionItems(prev =>
-      prev.map(item =>
+    setAuctionItems((prev) =>
+      prev.map((item) =>
         item.id === auctionId
           ? {
               ...item,
@@ -308,19 +322,15 @@ export const useMainCity = (): UseMainCityReturn => {
               highestBidderName: 'You',
               bidCount: item.bidCount + 1,
             }
-          : item
-      )
+          : item,
+      ),
     );
   }, []);
 
   const buyout = useCallback((auctionId: string) => {
     console.log('Buyout auction:', auctionId);
-    setAuctionItems(prev =>
-      prev.map(item =>
-        item.id === auctionId
-          ? { ...item, status: 'ended' as const }
-          : item
-      )
+    setAuctionItems((prev) =>
+      prev.map((item) => (item.id === auctionId ? { ...item, status: 'ended' as const } : item)),
     );
   }, []);
 

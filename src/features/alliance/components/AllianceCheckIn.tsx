@@ -51,8 +51,8 @@ export const AllianceCheckIn: React.FC = () => {
         <h4>Weekly Rewards</h4>
         <div className={styles.rewardList}>
           {rewards.map((reward, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className={`${styles.rewardItem} ${checkInStatus.streak >= reward.day ? styles.claimed : ''}`}
             >
               <span className={styles.day}>Day {reward.day}</span>

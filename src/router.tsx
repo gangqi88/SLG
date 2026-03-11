@@ -15,9 +15,16 @@ const TowerDefenseView = React.lazy(() => import('@/features/battle/components/T
 const CookingView = React.lazy(() => import('@/features/resource/components/CookingView'));
 const SiegeView = React.lazy(() => import('@/features/battle/components/SiegeView'));
 const BattleView = React.lazy(() => import('@/features/battle/components/BattleView'));
+const StyleGuide = React.lazy(() => import('@/shared/components/StyleGuide'));
 
 // Wrapper to handle onExit
-const WithExit = ({ Component, ...props }: { Component: React.ComponentType<any>, [key: string]: any }) => {
+const WithExit = ({
+  Component,
+  ...props
+}: {
+  Component: React.ComponentType<any>;
+  [key: string]: any;
+}) => {
   const navigate = useNavigate();
   return <Component {...props} onExit={() => navigate('/')} />;
 };
@@ -27,12 +34,12 @@ const BattleWrapper = () => {
   const navigate = useNavigate();
   const attackerHeroes = humanHeroes.slice(0, 3);
   const defenderHeroes = demonHeroes.slice(0, 3);
-  
+
   return (
-    <BattleView 
-      attackerHeroes={attackerHeroes} 
-      defenderHeroes={defenderHeroes} 
-      onExit={() => navigate('/')} 
+    <BattleView
+      attackerHeroes={attackerHeroes}
+      defenderHeroes={defenderHeroes}
+      onExit={() => navigate('/')}
     />
   );
 };
@@ -121,6 +128,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Loading />}>
             <BattleWrapper />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'style-guide',
+        element: (
+          <Suspense fallback={<Loading />}>
+            <StyleGuide />
           </Suspense>
         ),
       },

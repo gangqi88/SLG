@@ -25,21 +25,17 @@ export const AllianceMemberList: React.FC = () => {
       <div className={styles.header}>
         <h3>Members ({members.length})</h3>
       </div>
-      
+
       <div className={styles.list}>
         {sortedMembers.map((member) => {
           const badge = getRoleBadge(member.role);
           return (
             <div key={member.id} className={styles.member}>
-              <div className={styles.avatar}>
-                {member.name.charAt(0).toUpperCase()}
-              </div>
+              <div className={styles.avatar}>{member.name.charAt(0).toUpperCase()}</div>
               <div className={styles.info}>
                 <div className={styles.name}>
                   {member.name}
-                  {member.id === members[0]?.id && (
-                    <span className={styles.you}>(You)</span>
-                  )}
+                  {member.id === members[0]?.id && <span className={styles.you}>(You)</span>}
                 </div>
                 <div className={styles.joined}>
                   Joined {new Date(member.joinedAt).toLocaleDateString()}
@@ -55,9 +51,7 @@ export const AllianceMemberList: React.FC = () => {
                   <span className={styles.value}>{member.weeklyContribution.toLocaleString()}</span>
                 </div>
               </div>
-              <span className={`${styles.badge} ${badge.class}`}>
-                {badge.text}
-              </span>
+              <span className={`${styles.badge} ${badge.class}`}>{badge.text}</span>
             </div>
           );
         })}

@@ -22,19 +22,22 @@ export class DemolitionScene extends Phaser.Scene {
     this.add.rectangle(0, 0, 800, 600, 0x333333).setOrigin(0);
     // Wall hint at top
     this.add.rectangle(400, 50, 800, 100, 0x555555).setOrigin(0.5);
-    this.add.text(400, 50, 'THE WALL IS CRUMBLING!', { fontSize: '32px', color: '#aaaaaa' }).setOrigin(0.5);
+    this.add
+      .text(400, 50, 'THE WALL IS CRUMBLING!', { fontSize: '32px', color: '#aaaaaa' })
+      .setOrigin(0.5);
 
     // Player
-    this.player = this.physics.add.sprite(400, 550, 'hero_icon_0')
+    this.player = this.physics.add
+      .sprite(400, 550, 'hero_icon_0')
       .setTint(0x00ff00)
       .setCollideWorldBounds(true);
-    
+
     // Rocks Group
     this.rocks = this.physics.add.group();
 
     // Input
     if (this.input.keyboard) {
-        this.cursors = this.input.keyboard.createCursorKeys();
+      this.cursors = this.input.keyboard.createCursorKeys();
     }
 
     // UI
@@ -45,7 +48,7 @@ export class DemolitionScene extends Phaser.Scene {
       delay: 500, // Spawn every 0.5s
       callback: this.spawnRock,
       callbackScope: this,
-      loop: true
+      loop: true,
     });
 
     // Score Timer
@@ -57,7 +60,7 @@ export class DemolitionScene extends Phaser.Scene {
           this.scoreText.setText(`Damage: ${this.score}`);
         }
       },
-      loop: true
+      loop: true,
     });
 
     // Collision
@@ -103,8 +106,10 @@ export class DemolitionScene extends Phaser.Scene {
 
     this.add.rectangle(400, 300, 800, 600, 0x000000, 0.7);
     this.add.text(400, 250, 'KNOCKED OUT!', { fontSize: '48px', color: '#ff0000' }).setOrigin(0.5);
-    this.add.text(400, 320, `Final Damage: ${this.score}`, { fontSize: '32px', color: '#ffffff' }).setOrigin(0.5);
-    
+    this.add
+      .text(400, 320, `Final Damage: ${this.score}`, { fontSize: '32px', color: '#ffffff' })
+      .setOrigin(0.5);
+
     // In a real game, emit event "demolitionComplete" with score
     this.game.events.emit('demolitionComplete', this.score);
   }

@@ -10,7 +10,9 @@
   color: #9ca3af;
 }
 
-.currentAd h4, .bidSection h4, .bidHistory h4 {
+.currentAd h4,
+.bidSection h4,
+.bidHistory h4 {
   margin: 0 0 15px 0;
   color: #fff;
   font-size: 16px;

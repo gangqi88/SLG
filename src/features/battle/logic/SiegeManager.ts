@@ -1,7 +1,7 @@
 export enum SiegePhase {
   None = 'None',
   Declaration = 'Declaration',
-  Attack = 'Attack'
+  Attack = 'Attack',
 }
 
 export class SiegeManager {
@@ -31,7 +31,7 @@ export class SiegeManager {
     if (hour >= 12 && hour < 13) {
       return SiegePhase.Declaration;
     }
-    
+
     // 20:00 - 21:00 Attack
     if (hour >= 20 && hour < 21) {
       return SiegePhase.Attack;

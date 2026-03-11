@@ -14,16 +14,16 @@ import styles from './AllianceDashboard.module.css';
 type TabType = 'info' | 'members' | 'checkin' | 'chat' | 'shop' | 'trade' | 'tech' | 'war' | 'ad';
 
 export const AllianceDashboard: React.FC = () => {
-  const { 
-    alliance, 
-    hasAlliance, 
+  const {
+    alliance,
+    hasAlliance,
     isLoading,
     createAlliance,
     joinAlliance,
     playerRole,
-    playerContribution
+    playerContribution,
   } = useAlliance();
-  
+
   const [activeTab, setActiveTab] = useState<TabType>('info');
   const [createName, setCreateName] = useState('');
   const [joinId, setJoinId] = useState('');
@@ -58,18 +58,12 @@ export const AllianceDashboard: React.FC = () => {
       <div className={styles.noAlliance}>
         <h2>Alliance System</h2>
         <p>Join or create an alliance to enjoy exclusive benefits!</p>
-        
+
         <div className={styles.actions}>
-          <button 
-            className={styles.createButton}
-            onClick={() => setShowCreateModal(true)}
-          >
+          <button className={styles.createButton} onClick={() => setShowCreateModal(true)}>
             Create Alliance
           </button>
-          <button 
-            className={styles.joinButton}
-            onClick={() => setShowJoinModal(true)}
-          >
+          <button className={styles.joinButton} onClick={() => setShowJoinModal(true)}>
             Join Alliance
           </button>
         </div>
@@ -161,7 +155,7 @@ export const AllianceDashboard: React.FC = () => {
     }
   };
 
-  const isTabEnabled = (tab: typeof tabs[0]) => {
+  const isTabEnabled = (tab: (typeof tabs)[0]) => {
     if (!tab.requiresLevel) return true;
     return (alliance?.level || 0) >= tab.requiresLevel;
   };
@@ -172,9 +166,7 @@ export const AllianceDashboard: React.FC = () => {
         <h2>{alliance?.name}</h2>
         <div className={styles.headerInfo}>
           <span className={styles.level}>Level {alliance?.level}</span>
-          <span className={styles.contribution}>
-            Contribution: {playerContribution}
-          </span>
+          <span className={styles.contribution}>Contribution: {playerContribution}</span>
           {(playerRole === 'leader' || playerRole === 'officer') && (
             <span className={styles.role}>{playerRole}</span>
           )}
@@ -182,7 +174,7 @@ export const AllianceDashboard: React.FC = () => {
       </div>
 
       <div className={styles.tabs}>
-        {tabs.map(tab => (
+        {tabs.map((tab) => (
           <button
             key={tab.key}
             className={`${styles.tab} ${activeTab === tab.key ? styles.activeTab : ''} ${!isTabEnabled(tab) ? styles.disabledTab : ''}`}
@@ -195,9 +187,7 @@ export const AllianceDashboard: React.FC = () => {
         ))}
       </div>
 
-      <div className={styles.content}>
-        {renderContent()}
-      </div>
+      <div className={styles.content}>{renderContent()}</div>
     </div>
   );
 };

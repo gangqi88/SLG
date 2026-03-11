@@ -12,12 +12,12 @@ export const AllianceWar: React.FC = () => {
       alert('Please enter target alliance ID');
       return;
     }
-    
+
     if ((alliance?.level || 0) < 5) {
       alert('Alliance level 5 required to declare war');
       return;
     }
-    
+
     const war = await declareWar(targetId);
     if (war) {
       alert('War declared successfully!');
@@ -52,7 +52,7 @@ export const AllianceWar: React.FC = () => {
     if (!activeWar) return '';
     const remaining = activeWar.endTime - Date.now();
     if (remaining <= 0) return 'Ended';
-    
+
     const hours = Math.floor(remaining / (1000 * 60 * 60));
     const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
     return `${hours}h ${minutes}m`;
@@ -62,9 +62,7 @@ export const AllianceWar: React.FC = () => {
     <div className={styles.war}>
       <div className={styles.header}>
         <h3>Alliance War</h3>
-        {(alliance?.level || 0) >= 5 && (
-          <span className={styles.available}>Available</span>
-        )}
+        {(alliance?.level || 0) >= 5 && <span className={styles.available}>Available</span>}
       </div>
 
       <div className={styles.declareSection}>
@@ -90,7 +88,9 @@ export const AllianceWar: React.FC = () => {
           <div className={styles.warInfo}>
             <div className={styles.warStatus}>
               <span className={styles.statusLabel}>Status</span>
-              <span className={`${styles.status} ${activeWar.status === 'active' ? styles.active : ''}`}>
+              <span
+                className={`${styles.status} ${activeWar.status === 'active' ? styles.active : ''}`}
+              >
                 {getWarStatus()}
               </span>
             </div>

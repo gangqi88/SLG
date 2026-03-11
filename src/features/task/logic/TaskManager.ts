@@ -55,7 +55,10 @@ export class TaskManager {
         description: '将城堡升级到等级 2',
         target: { type: 'upgrade_building', targetId: 'castle_1', count: 2 },
         currentProgress: 1, // Assume level 1
-        rewards: [{ type: 'resource', id: 'wood', amount: 1000 }, { type: 'resource', id: 'diamond', amount: 100 }],
+        rewards: [
+          { type: 'resource', id: 'wood', amount: 1000 },
+          { type: 'resource', id: 'diamond', amount: 100 },
+        ],
         state: TaskState.IN_PROGRESS,
       },
       {
@@ -77,10 +80,10 @@ export class TaskManager {
         currentProgress: 0,
         rewards: [{ type: 'resource', id: 'diamond', amount: 500 }],
         state: TaskState.IN_PROGRESS,
-      }
+      },
     ];
 
-    tasks.forEach(t => this.tasks.set(t.id, t));
+    tasks.forEach((t) => this.tasks.set(t.id, t));
   }
 
   public getTasks(): Task[] {
@@ -89,26 +92,26 @@ export class TaskManager {
 
   public updateProgress(type: string, targetId: string | undefined, amount: number = 1) {
     let changed = false;
-    this.tasks.forEach(task => {
+    this.tasks.forEach((task) => {
       if (task.state === TaskState.IN_PROGRESS) {
         if (task.target.type === type) {
           if (!task.target.targetId || task.target.targetId === targetId) {
-            // For 'count' type targets, usually we increment. 
+            // For 'count' type targets, usually we increment.
             // For 'level' type (like upgrade), we set value.
             // Simplified logic here: assume everything is "reach X amount/level" or "accumulate X count"
             // Actually, let's just increment for battle_count, and set for upgrade_building if provided amount is absolute level.
-            
+
             if (type === 'upgrade_building') {
-                 task.currentProgress = Math.max(task.currentProgress, amount);
+              task.currentProgress = Math.max(task.currentProgress, amount);
             } else {
-                 task.currentProgress += amount;
+              task.currentProgress += amount;
             }
 
             if (task.currentProgress >= task.target.count) {
               task.state = TaskState.COMPLETED;
               changed = true;
             } else {
-                changed = true;
+              changed = true;
             }
           }
         }
@@ -122,9 +125,9 @@ export class TaskManager {
     const task = this.tasks.get(taskId);
     if (task && task.state === TaskState.COMPLETED) {
       task.state = TaskState.CLAIMED;
-      
+
       // Unlock next tasks
-      this.tasks.forEach(t => {
+      this.tasks.forEach((t) => {
         if (t.preRequisiteTaskId === taskId && t.state === TaskState.LOCKED) {
           t.state = TaskState.UNLOCKED; // Or directly IN_PROGRESS if auto-accept
           // Simplified:
@@ -142,13 +145,13 @@ export class TaskManager {
     this.listeners.push(callback);
     callback(this.getTasks());
   }
-  
+
   public unsubscribe(callback: (tasks: Task[]) => void) {
-      this.listeners = this.listeners.filter(l => l !== callback);
+    this.listeners = this.listeners.filter((l) => l !== callback);
   }
 
   private notifyListeners() {
     const tasks = this.getTasks();
-    this.listeners.forEach(l => l(tasks));
+    this.listeners.forEach((l) => l(tasks));
   }
 }
