@@ -4,8 +4,8 @@
 - [ ] Dependencies are optimized (no unused packages in package.json).
 - [ ] Build configuration (Vite) uses code splitting and minification.
 - [x] Linting (ESLint, Prettier, Stylelint) passes with zero errors.
-- [ ] React Router is correctly implemented with route-based navigation.
-- [ ] Lazy loading is implemented for route components (`React.lazy`).
+- [x] React Router is correctly implemented with route-based navigation.
+- [x] Lazy loading is implemented for route components (`React.lazy`).
 - [ ] Redux Toolkit is setup with root store and initial slices.
 - [ ] Singleton Managers are deprecated or integrated into Redux logic.
 - [ ] Storybook runs successfully and documents core components.

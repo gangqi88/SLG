@@ -10,10 +10,10 @@
   - [x] SubTask 2.2: Install and configure `stylelint` for CSS/SCSS files.
   - [x] SubTask 2.3: Configure Prettier and ensure EditorConfig consistency.
 
-- [ ] Task 3: Routing Implementation: Replace manual view switching with React Router.
-  - [ ] SubTask 3.1: Install `react-router-dom`.
-  - [ ] SubTask 3.2: Create route configuration (including lazy loading).
-  - [ ] SubTask 3.3: Refactor `App.tsx` to use `<RouterProvider>` or `<Routes>`.
+- [x] Task 3: Routing Implementation: Replace manual view switching with React Router.
+  - [x] SubTask 3.1: Install `react-router-dom`.
+  - [x] SubTask 3.2: Create route configuration (including lazy loading).
+  - [x] SubTask 3.3: Refactor `App.tsx` to use `<RouterProvider>` or `<Routes>`.
 
 - [ ] Task 4: State Management Refactoring: Migrate from Singleton Managers to Redux Toolkit.
   - [ ] SubTask 4.1: Install `@reduxjs/toolkit` and `react-redux`.
