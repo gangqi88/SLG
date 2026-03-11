@@ -1,6 +1,6 @@
 ---
-name: "typescript-expert"
-description: "Provides expert guidance on TypeScript types, interfaces, generics, and configuration. Invoke when the user asks about TypeScript syntax, errors, or best practices."
+name: 'typescript-expert'
+description: 'Provides expert guidance on TypeScript types, interfaces, generics, and configuration. Invoke when the user asks about TypeScript syntax, errors, or best practices.'
 ---
 
 # TypeScript Expert
@@ -18,6 +18,7 @@ This skill provides expert knowledge and assistance for TypeScript development b
 ## When to Use
 
 Invoke this skill when the user:
+
 - Asks how to define or fix TypeScript types.
 - Needs help with generics or advanced type features.
 - Enters queries about TypeScript configuration options.

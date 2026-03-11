@@ -1,6 +1,6 @@
 ---
-name: "react-expert"
-description: "Provides expert guidance on React components, hooks, and patterns. Invoke when the user asks about React state, effects, context, or component architecture."
+name: 'react-expert'
+description: 'Provides expert guidance on React components, hooks, and patterns. Invoke when the user asks about React state, effects, context, or component architecture.'
 ---
 
 # React Expert
@@ -18,6 +18,7 @@ This skill provides expert knowledge and assistance for React development based 
 ## When to Use
 
 Invoke this skill when the user:
+
 - Asks how to build or optimize React components.
 - Needs help with React Hooks or custom Hooks.
 - Enters queries about React 18+ features (Concurrent Mode, Server Components).

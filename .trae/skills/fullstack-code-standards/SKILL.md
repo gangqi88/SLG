@@ -72,15 +72,15 @@ useMemo和useCallback是性能优化的重要工具，但不应滥用。只有�
 ```typescript
 export function HeroCard({ hero, onSelect, isSelected = false }: HeroCardProps) {
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const power = useMemo(() => calculateHeroPower(hero, hero.starLevel), [hero]);
-  
+
   useEffect(() => {
     return () => { /* 清理副作用 */ };
   }, [hero.id]);
-  
+
   const handleClick = () => onSelect(hero.id);
-  
+
   return (
     <div className={`hero-card ${isSelected ? 'selected' : ''}`} onClick={handleClick}>
       <h3>{hero.name}</h3>
@@ -137,9 +137,12 @@ const MAX_HERO_LEVEL = 80;
 const isHeroMaxLevel = hero.level >= MAX_HERO_LEVEL;
 const canUpgradeStar = hero.starLevel < 5;
 
-interface HeroData { id: string; name: string; }
-export function HeroDetailPanel() { }
-function formatResourceAmount() { }
+interface HeroData {
+  id: string;
+  name: string;
+}
+export function HeroDetailPanel() {}
+function formatResourceAmount() {}
 ```
 
 ## 代码组织规范
@@ -155,6 +158,7 @@ function formatResourceAmount() { }
 ### Import 排序规则
 
 Import语句应当按照固定的顺序组织：
+
 1. React相关导入
 2. 第三方库导入
 3. 项目绝对路径导入（如 @/components）
@@ -174,7 +178,7 @@ Import语句应当按照固定的顺序组织：
 
 ```typescript
 function getHeroById(heroes: Hero[], id: string): Hero {
-  const hero = heroes.find(h => h.id === id);
+  const hero = heroes.find((h) => h.id === id);
   if (!hero) {
     throw new Error(`Hero with id "${id}" not found`);
   }
@@ -223,7 +227,7 @@ TODO和FIXME注释应当包含足够的信息，便于后续处理。
 
 ---
 
-*技能版本: 1.0.1*
-*最后更新: 2026-03-06*
-*相关文档: automation-workflow/SKILL.md, game-tester/SKILL.md*
-*遵守规范: .trae/rules/project-rules/SKILL.md*
+_技能版本: 1.0.1_
+_最后更新: 2026-03-06_
+_相关文档: automation-workflow/SKILL.md, game-tester/SKILL.md_
+_遵守规范: .trae/rules/project-rules/SKILL.md_

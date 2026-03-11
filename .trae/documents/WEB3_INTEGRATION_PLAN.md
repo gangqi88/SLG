@@ -1,17 +1,20 @@
 # Web3 集成实施方案
 
 ## 概述
+
 本项目将集成 Web3 功能，实现游戏状态上链、资产 NFT 化、代币经济系统。
 
 ## 技术选型
 
 ### 核心库
+
 - **wagmi v2** - React Web3 hooks 库
 - **viem v2** - TypeScript 原生以太坊交互库
 - **@rainbow-me/rainbowkit** - 钱包连接 UI 组件
 - **@tanstack/react-query v5** - 异步状态管理
 
 ### 区块链选择
+
 - **开发/测试**: Sepolia 测试网
 - **生产**: Ethereum Mainnet / Polygon / Base
 - **理由**: EVM 兼容，生态成熟，gas 费用可控
@@ -21,11 +24,13 @@
 ### 阶段一：基础环境搭建（第 1 周）
 
 #### 1.1 安装依赖
+
 ```bash
 npm install wagmi viem @tanstack/react-query @rainbow-me/rainbowkit
 ```
 
 #### 1.2 创建目录结构
+
 ```
 src/
 ├── web3/
@@ -52,15 +57,16 @@ src/
 ```
 
 #### 1.3 配置 wagmi
+
 创建 `src/web3/config/wagmi.ts`:
 
 ```typescript
-import { createConfig, http } from 'wagmi'
-import { mainnet, sepolia, polygon, base } from 'wagmi/chains'
-import { injected, walletConnect, coinbaseWallet } from 'wagmi/connectors'
+import { createConfig, http } from 'wagmi';
+import { mainnet, sepolia, polygon, base } from 'wagmi/chains';
+import { injected, walletConnect, coinbaseWallet } from 'wagmi/connectors';
 
 // 支持的链
-export const supportedChains = [mainnet, sepolia, polygon, base] as const
+export const supportedChains = [mainnet, sepolia, polygon, base] as const;
 
 // 创建配置
 export const config = createConfig({
@@ -80,17 +86,18 @@ export const config = createConfig({
     [polygon.id]: http(),
     [base.id]: http(),
   },
-})
+});
 
 // 类型声明
 declare module 'wagmi' {
   interface Register {
-    config: typeof config
+    config: typeof config;
   }
 }
 ```
 
 #### 1.4 创建 Web3Provider
+
 创建 `src/web3/providers/Web3Provider.tsx`:
 
 ```typescript
@@ -136,6 +143,7 @@ export default Web3Provider
 ```
 
 #### 1.5 更新 main.tsx
+
 ```typescript
 import React from 'react'
 import ReactDOM from 'react-dom/client'
@@ -156,6 +164,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 #### 2.1 合约架构
 
 **合约 1: GameState.sol** - 游戏状态存储
+
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -169,13 +178,13 @@ contract GameState {
         uint256 lastSaveTime;
         bool exists;
     }
-    
+
     mapping(address => PlayerState) public playerStates;
     mapping(address => uint256[]) public saveHistory;
-    
+
     event GameSaved(address indexed player, uint256 timestamp, uint256 daysSurvived);
     event GameLoaded(address indexed player, uint256 timestamp);
-    
+
     function saveGame(
         uint256 _daysSurvived,
         uint256 _totalSurvivors,
@@ -183,24 +192,24 @@ contract GameState {
         uint256 _resourcesHash
     ) external {
         PlayerState storage state = playerStates[msg.sender];
-        
+
         state.daysSurvived = _daysSurvived;
         state.totalSurvivors = _totalSurvivors;
         state.buildingsCount = _buildingsCount;
         state.resourcesHash = _resourcesHash;
         state.lastSaveTime = block.timestamp;
         state.exists = true;
-        
+
         saveHistory[msg.sender].push(block.timestamp);
-        
+
         emit GameSaved(msg.sender, block.timestamp, _daysSurvived);
     }
-    
+
     function loadGame() external view returns (PlayerState memory) {
         require(playerStates[msg.sender].exists, "No save found");
         return playerStates[msg.sender];
     }
-    
+
     function getSaveHistory() external view returns (uint256[] memory) {
         return saveHistory[msg.sender];
     }
@@ -208,6 +217,7 @@ contract GameState {
 ```
 
 **合约 2: GameAssets.sol** - 游戏资产 NFT
+
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -218,24 +228,24 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract GameAssets is ERC721, ERC721Enumerable, Ownable {
     enum AssetType { BUILDING, SURVIVOR, ITEM }
-    
+
     struct Asset {
         AssetType assetType;
         string metadataURI;
         uint256 power;
         uint256 createdAt;
     }
-    
+
     mapping(uint256 => Asset) public assets;
     mapping(address => uint256[]) public playerAssets;
-    
+
     uint256 private _tokenIdCounter;
-    
+
     event AssetMinted(address indexed player, uint256 tokenId, AssetType assetType);
     event AssetUpgraded(uint256 indexed tokenId, uint256 newPower);
-    
+
     constructor() ERC721("EndlessWinterAssets", "EWA") Ownable(msg.sender) {}
-    
+
     function mintAsset(
         address to,
         AssetType assetType,
@@ -243,31 +253,31 @@ contract GameAssets is ERC721, ERC721Enumerable, Ownable {
         uint256 power
     ) external onlyOwner returns (uint256) {
         uint256 tokenId = _tokenIdCounter++;
-        
+
         assets[tokenId] = Asset({
             assetType: assetType,
             metadataURI: metadataURI,
             power: power,
             createdAt: block.timestamp
         });
-        
+
         _safeMint(to, tokenId);
         playerAssets[to].push(tokenId);
-        
+
         emit AssetMinted(to, tokenId, assetType);
         return tokenId;
     }
-    
+
     function upgradeAsset(uint256 tokenId, uint256 newPower) external {
         require(ownerOf(tokenId) == msg.sender, "Not owner");
         assets[tokenId].power = newPower;
         emit AssetUpgraded(tokenId, newPower);
     }
-    
+
     function getPlayerAssets(address player) external view returns (uint256[] memory) {
         return playerAssets[player];
     }
-    
+
     // 必须的函数
     function supportsInterface(bytes4 interfaceId)
         public
@@ -281,6 +291,7 @@ contract GameAssets is ERC721, ERC721Enumerable, Ownable {
 ```
 
 **合约 3: GameToken.sol** - 游戏代币
+
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -290,33 +301,33 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract WinterToken is ERC20, Ownable {
     mapping(address => bool) public minters;
-    
+
     event MinterAdded(address indexed minter);
     event MinterRemoved(address indexed minter);
-    
+
     modifier onlyMinter() {
         require(minters[msg.sender] || msg.sender == owner(), "Not minter");
         _;
     }
-    
+
     constructor() ERC20("Winter Token", "WINTER") Ownable(msg.sender) {
         _mint(msg.sender, 1000000 * 10 ** decimals()); // 初始供应 100万
     }
-    
+
     function mint(address to, uint256 amount) external onlyMinter {
         _mint(to, amount);
     }
-    
+
     function addMinter(address minter) external onlyOwner {
         minters[minter] = true;
         emit MinterAdded(minter);
     }
-    
+
     function removeMinter(address minter) external onlyOwner {
         minters[minter] = false;
         emit MinterRemoved(minter);
     }
-    
+
     // 奖励函数 - 由游戏合约调用
     function rewardPlayer(address player, uint256 amount) external onlyMinter {
         _mint(player, amount);
@@ -325,16 +336,18 @@ contract WinterToken is ERC20, Ownable {
 ```
 
 #### 2.2 合约 ABI 文件
+
 创建 `src/web3/contracts/abi/GameState.json` (简化版):
+
 ```json
 {
   "abi": [
     {
       "inputs": [
-        {"name": "_daysSurvived", "type": "uint256"},
-        {"name": "_totalSurvivors", "type": "uint256"},
-        {"name": "_buildingsCount", "type": "uint256"},
-        {"name": "_resourcesHash", "type": "uint256"}
+        { "name": "_daysSurvived", "type": "uint256" },
+        { "name": "_totalSurvivors", "type": "uint256" },
+        { "name": "_buildingsCount", "type": "uint256" },
+        { "name": "_resourcesHash", "type": "uint256" }
       ],
       "name": "saveGame",
       "outputs": [],
@@ -347,12 +360,12 @@ contract WinterToken is ERC20, Ownable {
       "outputs": [
         {
           "components": [
-            {"name": "daysSurvived", "type": "uint256"},
-            {"name": "totalSurvivors", "type": "uint256"},
-            {"name": "buildingsCount", "type": "uint256"},
-            {"name": "resourcesHash", "type": "uint256"},
-            {"name": "lastSaveTime", "type": "uint256"},
-            {"name": "exists", "type": "bool"}
+            { "name": "daysSurvived", "type": "uint256" },
+            { "name": "totalSurvivors", "type": "uint256" },
+            { "name": "buildingsCount", "type": "uint256" },
+            { "name": "resourcesHash", "type": "uint256" },
+            { "name": "lastSaveTime", "type": "uint256" },
+            { "name": "exists", "type": "bool" }
           ],
           "name": "",
           "type": "tuple"
@@ -366,7 +379,9 @@ contract WinterToken is ERC20, Ownable {
 ```
 
 #### 2.3 合约地址配置
+
 创建 `src/web3/contracts/addresses.ts`:
+
 ```typescript
 export const CONTRACT_ADDRESSES = {
   sepolia: {
@@ -384,41 +399,48 @@ export const CONTRACT_ADDRESSES = {
     GameAssets: '0x...',
     WinterToken: '0x...',
   },
-} as const
+} as const;
 
-export type SupportedChain = keyof typeof CONTRACT_ADDRESSES
+export type SupportedChain = keyof typeof CONTRACT_ADDRESSES;
 ```
 
 ### 阶段三：前端 Hook 实现（第 2 周）
 
 #### 3.1 钱包连接 Hook
+
 创建 `src/web3/hooks/useWallet.ts`:
 
 ```typescript
-import { useAccount, useConnect, useDisconnect, useChainId, useSwitchChain } from 'wagmi'
-import { useCallback } from 'react'
+import { useAccount, useConnect, useDisconnect, useChainId, useSwitchChain } from 'wagmi';
+import { useCallback } from 'react';
 
 export const useWallet = () => {
-  const { address, isConnected, isConnecting, isReconnecting, status } = useAccount()
-  const chainId = useChainId()
-  const { connect, connectors, error: connectError, isPending } = useConnect()
-  const { disconnect } = useDisconnect()
-  const { switchChain } = useSwitchChain()
+  const { address, isConnected, isConnecting, isReconnecting, status } = useAccount();
+  const chainId = useChainId();
+  const { connect, connectors, error: connectError, isPending } = useConnect();
+  const { disconnect } = useDisconnect();
+  const { switchChain } = useSwitchChain();
 
-  const connectWallet = useCallback(async (connectorId: string) => {
-    const connector = connectors.find(c => c.id === connectorId)
-    if (connector) {
-      connect({ connector })
-    }
-  }, [connect, connectors])
+  const connectWallet = useCallback(
+    async (connectorId: string) => {
+      const connector = connectors.find((c) => c.id === connectorId);
+      if (connector) {
+        connect({ connector });
+      }
+    },
+    [connect, connectors],
+  );
 
   const disconnectWallet = useCallback(() => {
-    disconnect()
-  }, [disconnect])
+    disconnect();
+  }, [disconnect]);
 
-  const switchToChain = useCallback((chainId: number) => {
-    switchChain({ chainId })
-  }, [switchChain])
+  const switchToChain = useCallback(
+    (chainId: number) => {
+      switchChain({ chainId });
+    },
+    [switchChain],
+  );
 
   return {
     address,
@@ -432,56 +454,52 @@ export const useWallet = () => {
     connectWallet,
     disconnectWallet,
     switchToChain,
-  }
-}
+  };
+};
 
-export default useWallet
+export default useWallet;
 ```
 
 #### 3.2 游戏状态合约 Hook
+
 创建 `src/web3/hooks/useGameState.ts`:
 
 ```typescript
-import { useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi'
-import { useCallback, useEffect } from 'react'
-import { parseAbi } from 'viem'
-import { CONTRACT_ADDRESSES } from '../contracts/addresses'
+import { useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useCallback, useEffect } from 'react';
+import { parseAbi } from 'viem';
+import { CONTRACT_ADDRESSES } from '../contracts/addresses';
 
 const GAME_STATE_ABI = parseAbi([
   'function saveGame(uint256 _daysSurvived, uint256 _totalSurvivors, uint256 _buildingsCount, uint256 _resourcesHash) external',
   'function loadGame() external view returns (tuple(uint256 daysSurvived, uint256 totalSurvivors, uint256 buildingsCount, uint256 resourcesHash, uint256 lastSaveTime, bool exists))',
-])
+]);
 
 export interface SaveGameParams {
-  daysSurvived: number
-  totalSurvivors: number
-  buildingsCount: number
-  resourcesHash: string
-  chainId: number
+  daysSurvived: number;
+  totalSurvivors: number;
+  buildingsCount: number;
+  resourcesHash: string;
+  chainId: number;
 }
 
 export const useGameState = (chainId: number) => {
-  const contractAddress = CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.GameState
+  const contractAddress = CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.GameState;
 
   // 写入合约 - 保存游戏
-  const { 
-    writeContract, 
-    data: hash, 
-    error: writeError, 
-    isPending: isWriting 
-  } = useWriteContract()
+  const { writeContract, data: hash, error: writeError, isPending: isWriting } = useWriteContract();
 
   // 等待交易确认
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
-  })
+  });
 
   // 读取合约 - 加载游戏
-  const { 
-    data: savedState, 
-    refetch: refetchSavedState, 
+  const {
+    data: savedState,
+    refetch: refetchSavedState,
     isLoading: isReading,
-    error: readError 
+    error: readError,
   } = useReadContract({
     address: contractAddress as `0x${string}`,
     abi: GAME_STATE_ABI,
@@ -489,30 +507,33 @@ export const useGameState = (chainId: number) => {
     query: {
       enabled: !!contractAddress,
     },
-  })
+  });
 
-  const saveGameToChain = useCallback((params: Omit<SaveGameParams, 'chainId'>) => {
-    if (!contractAddress) {
-      console.error('Contract address not found for chain', chainId)
-      return
-    }
+  const saveGameToChain = useCallback(
+    (params: Omit<SaveGameParams, 'chainId'>) => {
+      if (!contractAddress) {
+        console.error('Contract address not found for chain', chainId);
+        return;
+      }
 
-    writeContract({
-      address: contractAddress as `0x${string}`,
-      abi: GAME_STATE_ABI,
-      functionName: 'saveGame',
-      args: [
-        BigInt(params.daysSurvived),
-        BigInt(params.totalSurvivors),
-        BigInt(params.buildingsCount),
-        BigInt(params.resourcesHash),
-      ],
-    })
-  }, [writeContract, contractAddress, chainId])
+      writeContract({
+        address: contractAddress as `0x${string}`,
+        abi: GAME_STATE_ABI,
+        functionName: 'saveGame',
+        args: [
+          BigInt(params.daysSurvived),
+          BigInt(params.totalSurvivors),
+          BigInt(params.buildingsCount),
+          BigInt(params.resourcesHash),
+        ],
+      });
+    },
+    [writeContract, contractAddress, chainId],
+  );
 
   const loadGameFromChain = useCallback(() => {
-    refetchSavedState()
-  }, [refetchSavedState])
+    refetchSavedState();
+  }, [refetchSavedState]);
 
   return {
     saveGameToChain,
@@ -524,26 +545,27 @@ export const useGameState = (chainId: number) => {
     saveError: writeError,
     loadError: readError,
     transactionHash: hash,
-  }
-}
+  };
+};
 
-export default useGameState
+export default useGameState;
 ```
 
 #### 3.3 NFT 资产 Hook
+
 创建 `src/web3/hooks/useNFTAssets.ts`:
 
 ```typescript
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
-import { useCallback } from 'react'
-import { parseAbi } from 'viem'
-import { CONTRACT_ADDRESSES } from '../contracts/addresses'
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useCallback } from 'react';
+import { parseAbi } from 'viem';
+import { CONTRACT_ADDRESSES } from '../contracts/addresses';
 
 const GAME_ASSETS_ABI = parseAbi([
   'function getPlayerAssets(address player) external view returns (uint256[])',
   'function assets(uint256 tokenId) external view returns (uint8 assetType, string metadataURI, uint256 power, uint256 createdAt)',
   'function upgradeAsset(uint256 tokenId, uint256 newPower) external',
-])
+]);
 
 export enum AssetType {
   BUILDING = 0,
@@ -552,21 +574,22 @@ export enum AssetType {
 }
 
 export interface Asset {
-  tokenId: number
-  assetType: AssetType
-  metadataURI: string
-  power: number
-  createdAt: number
+  tokenId: number;
+  assetType: AssetType;
+  metadataURI: string;
+  power: number;
+  createdAt: number;
 }
 
 export const useNFTAssets = (playerAddress: string, chainId: number) => {
-  const contractAddress = CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.GameAssets
+  const contractAddress =
+    CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.GameAssets;
 
   // 读取玩家资产
-  const { 
-    data: tokenIds, 
+  const {
+    data: tokenIds,
     refetch: refetchAssets,
-    isLoading 
+    isLoading,
   } = useReadContract({
     address: contractAddress as `0x${string}`,
     abi: GAME_ASSETS_ABI,
@@ -575,56 +598,56 @@ export const useNFTAssets = (playerAddress: string, chainId: number) => {
     query: {
       enabled: !!contractAddress && !!playerAddress,
     },
-  })
+  });
 
   // 升级资产
-  const { 
-    writeContract, 
-    data: hash, 
-    isPending: isUpgrading 
-  } = useWriteContract()
+  const { writeContract, data: hash, isPending: isUpgrading } = useWriteContract();
 
   const { isLoading: isConfirming, isSuccess: isUpgraded } = useWaitForTransactionReceipt({
     hash,
-  })
+  });
 
-  const upgradeAsset = useCallback((tokenId: number, newPower: number) => {
-    if (!contractAddress) return
-    
-    writeContract({
-      address: contractAddress as `0x${string}`,
-      abi: GAME_ASSETS_ABI,
-      functionName: 'upgradeAsset',
-      args: [BigInt(tokenId), BigInt(newPower)],
-    })
-  }, [writeContract, contractAddress])
+  const upgradeAsset = useCallback(
+    (tokenId: number, newPower: number) => {
+      if (!contractAddress) return;
+
+      writeContract({
+        address: contractAddress as `0x${string}`,
+        abi: GAME_ASSETS_ABI,
+        functionName: 'upgradeAsset',
+        args: [BigInt(tokenId), BigInt(newPower)],
+      });
+    },
+    [writeContract, contractAddress],
+  );
 
   const refreshAssets = useCallback(() => {
-    refetchAssets()
-  }, [refetchAssets])
+    refetchAssets();
+  }, [refetchAssets]);
 
   return {
-    tokenIds: tokenIds ? tokenIds.map(id => Number(id)) : [],
+    tokenIds: tokenIds ? tokenIds.map((id) => Number(id)) : [],
     isLoading,
     upgradeAsset,
     isUpgrading: isUpgrading || isConfirming,
     isUpgraded,
     refreshAssets,
     transactionHash: hash,
-  }
-}
+  };
+};
 
-export default useNFTAssets
+export default useNFTAssets;
 ```
 
 #### 3.4 代币 Hook
+
 创建 `src/web3/hooks/useToken.ts`:
 
 ```typescript
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
-import { useCallback } from 'react'
-import { parseAbi, formatUnits, parseUnits } from 'viem'
-import { CONTRACT_ADDRESSES } from '../contracts/addresses'
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useCallback } from 'react';
+import { parseAbi, formatUnits, parseUnits } from 'viem';
+import { CONTRACT_ADDRESSES } from '../contracts/addresses';
 
 const TOKEN_ABI = parseAbi([
   'function balanceOf(address account) external view returns (uint256)',
@@ -633,16 +656,17 @@ const TOKEN_ABI = parseAbi([
   'function allowance(address owner, address spender) external view returns (uint256)',
   'function decimals() external view returns (uint8)',
   'function symbol() external view returns (string)',
-])
+]);
 
 export const useToken = (playerAddress: string, chainId: number) => {
-  const contractAddress = CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.WinterToken
+  const contractAddress =
+    CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.WinterToken;
 
   // 读取余额
-  const { 
-    data: balance, 
+  const {
+    data: balance,
     refetch: refetchBalance,
-    isLoading: isLoadingBalance 
+    isLoading: isLoadingBalance,
   } = useReadContract({
     address: contractAddress as `0x${string}`,
     abi: TOKEN_ABI,
@@ -651,7 +675,7 @@ export const useToken = (playerAddress: string, chainId: number) => {
     query: {
       enabled: !!contractAddress && !!playerAddress,
     },
-  })
+  });
 
   // 读取代币信息
   const { data: decimals } = useReadContract({
@@ -661,7 +685,7 @@ export const useToken = (playerAddress: string, chainId: number) => {
     query: {
       enabled: !!contractAddress,
     },
-  })
+  });
 
   const { data: symbol } = useReadContract({
     address: contractAddress as `0x${string}`,
@@ -670,35 +694,32 @@ export const useToken = (playerAddress: string, chainId: number) => {
     query: {
       enabled: !!contractAddress,
     },
-  })
+  });
 
   // 转账
-  const { 
-    writeContract, 
-    data: hash, 
-    isPending: isTransferring 
-  } = useWriteContract()
+  const { writeContract, data: hash, isPending: isTransferring } = useWriteContract();
 
   const { isLoading: isConfirming, isSuccess: isTransferred } = useWaitForTransactionReceipt({
     hash,
-  })
+  });
 
-  const transfer = useCallback((to: string, amount: string) => {
-    if (!contractAddress || !decimals) return
-    
-    const parsedAmount = parseUnits(amount, decimals)
-    
-    writeContract({
-      address: contractAddress as `0x${string}`,
-      abi: TOKEN_ABI,
-      functionName: 'transfer',
-      args: [to as `0x${string}`, parsedAmount],
-    })
-  }, [writeContract, contractAddress, decimals])
+  const transfer = useCallback(
+    (to: string, amount: string) => {
+      if (!contractAddress || !decimals) return;
 
-  const formattedBalance = balance && decimals 
-    ? formatUnits(balance, decimals) 
-    : '0'
+      const parsedAmount = parseUnits(amount, decimals);
+
+      writeContract({
+        address: contractAddress as `0x${string}`,
+        abi: TOKEN_ABI,
+        functionName: 'transfer',
+        args: [to as `0x${string}`, parsedAmount],
+      });
+    },
+    [writeContract, contractAddress, decimals],
+  );
+
+  const formattedBalance = balance && decimals ? formatUnits(balance, decimals) : '0';
 
   return {
     balance: formattedBalance,
@@ -711,15 +732,16 @@ export const useToken = (playerAddress: string, chainId: number) => {
     isTransferred,
     refetchBalance,
     transactionHash: hash,
-  }
-}
+  };
+};
 
-export default useToken
+export default useToken;
 ```
 
 ### 阶段四：UI 集成（第 3 周）
 
 #### 4.1 钱包连接按钮组件
+
 创建 `src/web3/components/ConnectButton.tsx`:
 
 ```typescript
@@ -740,6 +762,7 @@ export default ConnectButton
 ```
 
 #### 4.2 链上存档按钮组件
+
 创建 `src/web3/components/ChainSaveButton.tsx`:
 
 ```typescript
@@ -752,22 +775,22 @@ interface ChainSaveButtonProps {
   onSuccess?: () => void
 }
 
-export const ChainSaveButton: React.FC<ChainSaveButtonProps> = ({ 
-  gameData, 
-  onSuccess 
+export const ChainSaveButton: React.FC<ChainSaveButtonProps> = ({
+  gameData,
+  onSuccess
 }) => {
   const { isConnected, chainId } = useAccount()
-  const { 
-    saveGameToChain, 
-    isSaving, 
-    isSaved, 
+  const {
+    saveGameToChain,
+    isSaving,
+    isSaved,
     saveError,
-    transactionHash 
+    transactionHash
   } = useGameState(chainId || 0)
 
   const handleSave = () => {
     if (!chainId) return
-    
+
     saveGameToChain({
       ...gameData,
     })
@@ -789,19 +812,19 @@ export const ChainSaveButton: React.FC<ChainSaveButtonProps> = ({
 
   return (
     <div className="chain-save-container">
-      <button 
-        onClick={handleSave} 
+      <button
+        onClick={handleSave}
         disabled={isSaving}
         className="web3-button"
       >
         {isSaving ? '保存中...' : '保存到链上'}
       </button>
-      
+
       {isSaved && (
         <div className="success-message">
           ✅ 保存成功!
           {transactionHash && (
-            <a 
+            <a
               href={`https://sepolia.etherscan.io/tx/${transactionHash}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -811,7 +834,7 @@ export const ChainSaveButton: React.FC<ChainSaveButtonProps> = ({
           )}
         </div>
       )}
-      
+
       {saveError && (
         <div className="error-message">
           ❌ 保存失败: {saveError.message}
@@ -825,6 +848,7 @@ export default ChainSaveButton
 ```
 
 #### 4.3 代币余额显示组件
+
 创建 `src/web3/components/TokenBalance.tsx`:
 
 ```typescript
@@ -859,78 +883,79 @@ export default TokenBalance
 ### 阶段五：GameManager 集成（第 3-4 周）
 
 #### 5.1 修改 GameManager
+
 更新 `src/game/GameManager.ts`，添加 Web3 集成层:
 
 ```typescript
 // ... 现有导入
-import { SaveGameParams } from '../web3/hooks/useGameState'
+import { SaveGameParams } from '../web3/hooks/useGameState';
 
 export interface Web3GameState {
-  isWeb3Enabled: boolean
-  lastChainSaveTime?: number
-  chainSaveHash?: string
+  isWeb3Enabled: boolean;
+  lastChainSaveTime?: number;
+  chainSaveHash?: string;
 }
 
 export class GameManager {
   // ... 现有属性
   private web3State: Web3GameState = {
     isWeb3Enabled: false,
-  }
+  };
 
   // 获取链上保存所需的数据
   getChainSaveData(): Omit<SaveGameParams, 'chainId'> {
-    const resourcesHash = this.calculateResourcesHash()
-    
+    const resourcesHash = this.calculateResourcesHash();
+
     return {
       daysSurvived: this.gameState.gameStats.daysSurvived,
       totalSurvivors: this.gameState.survivors.length,
       buildingsCount: this.gameState.buildings.length,
       resourcesHash,
-    }
+    };
   }
 
   // 计算资源哈希（用于链上验证）
   private calculateResourcesHash(): string {
     // 简化的哈希计算 - 实际项目中使用更复杂的算法
-    const resourcesData = JSON.stringify(this.gameState.resources)
-    let hash = 0
+    const resourcesData = JSON.stringify(this.gameState.resources);
+    let hash = 0;
     for (let i = 0; i < resourcesData.length; i++) {
-      const char = resourcesData.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
-      hash = hash & hash
+      const char = resourcesData.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash;
     }
-    return Math.abs(hash).toString()
+    return Math.abs(hash).toString();
   }
 
   // 从链上恢复游戏
   restoreFromChain(chainState: {
-    daysSurvived: number
-    totalSurvivors: number
-    buildingsCount: number
+    daysSurvived: number;
+    totalSurvivors: number;
+    buildingsCount: number;
   }): boolean {
     // 验证数据一致性
     if (chainState.daysSurvived !== this.gameState.gameStats.daysSurvived) {
-      console.warn('链上数据与本地数据不一致')
+      console.warn('链上数据与本地数据不一致');
       // 可以选择以链上数据为准
     }
 
-    this.web3State.lastChainSaveTime = Date.now()
-    return true
+    this.web3State.lastChainSaveTime = Date.now();
+    return true;
   }
 
   // 启用 Web3
   enableWeb3(): void {
-    this.web3State.isWeb3Enabled = true
+    this.web3State.isWeb3Enabled = true;
   }
 
   // 禁用 Web3
   disableWeb3(): void {
-    this.web3State.isWeb3Enabled = false
+    this.web3State.isWeb3Enabled = false;
   }
 
   // 获取 Web3 状态
   getWeb3State(): Web3GameState {
-    return { ...this.web3State }
+    return { ...this.web3State };
   }
 
   // ... 其他现有方法
@@ -938,6 +963,7 @@ export class GameManager {
 ```
 
 #### 5.2 更新 App.tsx 集成 Web3 UI
+
 ```typescript
 import React, { useState, useEffect, useRef } from 'react'
 import { GameManager } from './game/GameManager'
@@ -955,7 +981,7 @@ function App() {
   const [isGameRunning, setIsGameRunning] = useState(false)
   const [showGameUI, setShowGameUI] = useState(true)
   const [activeTab, setActiveTab] = useState<'local' | 'web3'>('local')
-  
+
   const { isConnected, address, chainId } = useAccount()
   const phaserRef = useRef<IRefPhaserGame | null>(null)
 
@@ -985,18 +1011,18 @@ function App() {
 
       <div className="game-container">
         {/* ... Phaser 游戏 */}
-        
+
         {showGameUI && (
           <div className="game-ui">
             {/* 标签页切换 */}
             <div className="ui-tabs">
-              <button 
+              <button
                 className={activeTab === 'local' ? 'active' : ''}
                 onClick={() => setActiveTab('local')}
               >
                 本地游戏
               </button>
-              <button 
+              <button
                 className={activeTab === 'web3' ? 'active' : ''}
                 onClick={() => setActiveTab('web3')}
               >
@@ -1007,23 +1033,23 @@ function App() {
             {activeTab === 'web3' && isConnected && (
               <div className="web3-panel">
                 <h3>区块链存档</h3>
-                <ChainSaveButton 
+                <ChainSaveButton
                   gameData={gameManager.getChainSaveData()}
                   onSuccess={() => alert('游戏已保存到区块链!')}
                 />
-                
+
                 <h3>NFT 资产</h3>
                 <div className="nft-assets">
                   <p>您的链上资产将显示在这里</p>
                 </div>
-                
+
                 <h3>代币操作</h3>
                 <div className="token-actions">
                   <p>使用 WINTER 代币购买游戏内道具</p>
                 </div>
               </div>
             )}
-            
+
             {/* ... 其他 UI */}
           </div>
         )}
@@ -1036,7 +1062,9 @@ function App() {
 ### 阶段六：环境配置（贯穿全程）
 
 #### 6.1 环境变量文件
+
 创建 `.env.example`:
+
 ```env
 # WalletConnect Project ID (从 https://cloud.walletconnect.com/ 获取)
 VITE_WC_PROJECT_ID=your_walletconnect_project_id
@@ -1049,6 +1077,7 @@ VITE_ALCHEMY_API_KEY=your_alchemy_api_key
 ```
 
 创建 `.env` (gitignore 中):
+
 ```env
 VITE_WC_PROJECT_ID=your_actual_project_id
 VITE_DEFAULT_CHAIN_ID=11155111
@@ -1056,10 +1085,12 @@ VITE_ALCHEMY_API_KEY=your_actual_api_key
 ```
 
 #### 6.2 更新 vite 配置
+
 更新 `vite/config.dev.mjs`:
+
 ```javascript
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   base: './',
@@ -1071,12 +1102,13 @@ export default defineConfig({
     // 确保环境变量可用
     'process.env': {},
   },
-})
+});
 ```
 
 ### 阶段七：测试与优化（第 4 周）
 
 #### 7.1 测试清单
+
 - [ ] 钱包连接/断开功能
 - [ ] 多钱包支持 (MetaMask, WalletConnect, Coinbase)
 - [ ] 网络切换功能
@@ -1087,12 +1119,14 @@ export default defineConfig({
 - [ ] 交易确认等待
 
 #### 7.2 性能优化
+
 - [ ] 合约调用缓存
 - [ ] 批量请求优化
 - [ ] 错误重试机制
 - [ ] 离线模式支持
 
 #### 7.3 安全考虑
+
 - [ ] 输入验证
 - [ ] 防止重放攻击
 - [ ] 合约权限控制
@@ -1100,19 +1134,20 @@ export default defineConfig({
 
 ## 实施时间表
 
-| 阶段 | 时间 | 主要任务 | 产出物 |
-|------|------|----------|--------|
-| 阶段一 | 第 1 周 | 环境搭建、依赖安装、基础配置 | 可运行的 Web3 环境 |
-| 阶段二 | 第 1-2 周 | 智能合约开发、部署、测试 | 部署到测试网的合约 |
-| 阶段三 | 第 2 周 | Hook 开发、合约交互封装 | 完整的 hooks 库 |
-| 阶段四 | 第 3 周 | UI 组件开发、用户界面集成 | Web3 UI 组件 |
-| 阶段五 | 第 3-4 周 | GameManager 集成、数据同步 | 完整的 Web3 游戏功能 |
-| 阶段六 | 全程 | 环境配置、文档编写 | 配置文件、文档 |
-| 阶段七 | 第 4 周 | 测试、优化、Bug 修复 | 稳定的 Web3 功能 |
+| 阶段   | 时间      | 主要任务                     | 产出物               |
+| ------ | --------- | ---------------------------- | -------------------- |
+| 阶段一 | 第 1 周   | 环境搭建、依赖安装、基础配置 | 可运行的 Web3 环境   |
+| 阶段二 | 第 1-2 周 | 智能合约开发、部署、测试     | 部署到测试网的合约   |
+| 阶段三 | 第 2 周   | Hook 开发、合约交互封装      | 完整的 hooks 库      |
+| 阶段四 | 第 3 周   | UI 组件开发、用户界面集成    | Web3 UI 组件         |
+| 阶段五 | 第 3-4 周 | GameManager 集成、数据同步   | 完整的 Web3 游戏功能 |
+| 阶段六 | 全程      | 环境配置、文档编写           | 配置文件、文档       |
+| 阶段七 | 第 4 周   | 测试、优化、Bug 修复         | 稳定的 Web3 功能     |
 
 ## 风险与应对
 
 ### 技术风险
+
 1. **智能合约漏洞**
    - 应对: 代码审计、形式化验证、测试网充分测试
 
@@ -1123,6 +1158,7 @@ export default defineConfig({
    - 应对: 异步处理、队列机制、离线缓存
 
 ### 业务风险
+
 1. **用户接受度**
    - 应对: 可选功能、保留本地存档、Web2.5 过渡
 
@@ -1131,14 +1167,14 @@ export default defineConfig({
 
 ## 预算估算
 
-| 项目 | 预估成本 | 说明 |
-|------|----------|------|
-| 智能合约开发 | 2-3 周工作量 | 3 个核心合约 |
-| 前端集成 | 2-3 周工作量 | Hook + UI |
-| 合约部署 (测试网) | 免费 | Sepolia 使用测试币 |
-| 合约部署 (主网) | $500-2000 | 取决于 Gas 价格 |
-| 合约审计 | $5000-15000 | 可选但推荐 |
-| 基础设施 | $100/月 | RPC 节点、IPFS 等 |
+| 项目              | 预估成本     | 说明               |
+| ----------------- | ------------ | ------------------ |
+| 智能合约开发      | 2-3 周工作量 | 3 个核心合约       |
+| 前端集成          | 2-3 周工作量 | Hook + UI          |
+| 合约部署 (测试网) | 免费         | Sepolia 使用测试币 |
+| 合约部署 (主网)   | $500-2000    | 取决于 Gas 价格    |
+| 合约审计          | $5000-15000  | 可选但推荐         |
+| 基础设施          | $100/月      | RPC 节点、IPFS 等  |
 
 ## 下一步行动
 

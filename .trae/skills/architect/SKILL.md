@@ -23,11 +23,11 @@
 
 ### 职责边界
 
-| 包含 | 不包含 |
-|------|--------|
+| 包含         | 不包含       |
+| ------------ | ------------ |
 | 系统架构设计 | 具体代码实现 |
 | 技术选型决策 | 美术资源制作 |
-| 性能规划 | 测试用例编写 |
+| 性能规划     | 测试用例编写 |
 | 数据结构设计 | 项目日常管理 |
 
 ## 系统架构设计
@@ -57,13 +57,13 @@
 
 ### 模块划分
 
-| 模块 | 职责 | 依赖 |
-|------|------|------|
-| UI模块 | React组件渲染 | 游戏状态 |
+| 模块     | 职责           | 依赖     |
+| -------- | -------------- | -------- |
+| UI模块   | React组件渲染  | 游戏状态 |
 | 游戏引擎 | Phaser场景管理 | 渲染资源 |
-| 业务系统 | 游戏逻辑处理 | 数据层 |
-| 数据层 | 状态持久化 | Web3层 |
-| Web3层 | 区块链交互 | 无 |
+| 业务系统 | 游戏逻辑处理   | 数据层   |
+| 数据层   | 状态持久化     | Web3层   |
+| Web3层   | 区块链交互     | 无       |
 
 ## 技术选型规范
 
@@ -77,14 +77,14 @@
 
 ### 技术栈选择
 
-| 层级 | 技术 | 选择理由 |
-|------|------|----------|
-| 前端框架 | React 19 | 组件化、生态完善 |
-| 游戏引擎 | Phaser 3.90 | 2D游戏首选 |
-| 语言 | TypeScript 5.7 | 类型安全、生态完善 |
-| 构建工具 | Vite 6 | 快速构建、热更新 |
-| 状态管理 | 组件状态 + Context | 轻量级需求 |
-| Web3 | UniSat API | Fractal Bitcoin首选 |
+| 层级     | 技术               | 选择理由            |
+| -------- | ------------------ | ------------------- |
+| 前端框架 | React 19           | 组件化、生态完善    |
+| 游戏引擎 | Phaser 3.90        | 2D游戏首选          |
+| 语言     | TypeScript 5.7     | 类型安全、生态完善  |
+| 构建工具 | Vite 6             | 快速构建、热更新    |
+| 状态管理 | 组件状态 + Context | 轻量级需求          |
+| Web3     | UniSat API         | Fractal Bitcoin首选 |
 
 ### 技术评估流程
 
@@ -96,12 +96,12 @@
 
 ### 性能目标
 
-| 指标 | 目标值 | 说明 |
-|------|--------|------|
-| 首屏加载 | < 3秒 | 首次访问完整加载 |
-| 交互响应 | < 100ms | 用户操作响应时间 |
-| 战斗计算 | < 16ms | 每帧计算时间（60fps） |
-| 内存占用 | < 500MB | 正常运行内存 |
+| 指标     | 目标值  | 说明                  |
+| -------- | ------- | --------------------- |
+| 首屏加载 | < 3秒   | 首次访问完整加载      |
+| 交互响应 | < 100ms | 用户操作响应时间      |
+| 战斗计算 | < 16ms  | 每帧计算时间（60fps） |
+| 内存占用 | < 500MB | 正常运行内存          |
 
 ### 性能优化策略
 
@@ -131,22 +131,22 @@
 // 性能监控示例
 class PerformanceMonitor {
   private metrics: Map<string, number> = new Map();
-  
+
   startMeasure(name: string) {
     performance.mark(`${name}-start`);
   }
-  
+
   endMeasure(name: string) {
     performance.mark(`${name}-end`);
     performance.measure(name, `${name}-start`, `${name}-end`);
     const measure = performance.getEntriesByName(name)[0];
     this.metrics.set(name, measure.duration);
-    
+
     if (measure.duration > 16) {
       console.warn(`Performance warning: ${name} took ${measure.duration}ms`);
     }
   }
-  
+
   getMetrics() {
     return Object.fromEntries(this.metrics);
   }
@@ -186,10 +186,10 @@ type HeroQuality = 'purple' | 'orange' | 'red';
 type Faction = 'human' | 'angel' | 'demon';
 
 interface HeroAttributes {
-  command: number;    // 统御
-  strength: number;   // 武力
+  command: number; // 统御
+  strength: number; // 武力
   intelligence: number; // 谋略
-  defense: number;   // 防御
+  defense: number; // 防御
 }
 ```
 
@@ -300,6 +300,7 @@ src/
 
 ```markdown
 协作点：
+
 - 架构设计需要通过代码规范落地
 - 代码实现需要遵循架构设计
 
@@ -310,6 +311,7 @@ src/
 
 ```markdown
 协作点：
+
 - 架构设计需要考虑可测试性
 - 性能测试验证架构效果
 
@@ -320,6 +322,7 @@ src/
 
 ```markdown
 协作点：
+
 - 构建流程需要适配架构设计
 - 部署策略需要考虑系统结构
 
@@ -328,10 +331,10 @@ src/
 
 ---
 
-*技能版本: 1.0.0*
-*创建日期: 2026-03-06*
-*相关文档: 
-  - fullstack-code-standards/SKILL.md
-  - game-tester/SKILL.md
-  - automation-workflow/SKILL.md*
-*遵守规范: .trae/rules/project-rules/SKILL.md*
+_技能版本: 1.0.0_
+_创建日期: 2026-03-06_ \*相关文档:
+
+- fullstack-code-standards/SKILL.md
+- game-tester/SKILL.md
+- automation-workflow/SKILL.md\*
+  _遵守规范: .trae/rules/project-rules/SKILL.md_

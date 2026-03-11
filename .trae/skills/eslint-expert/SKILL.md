@@ -1,6 +1,6 @@
 ---
-name: "eslint-expert"
-description: "Provides expert guidance on code linting using ESLint. Invoke when the user asks about linting rules, configuration, or fixing code style issues."
+name: 'eslint-expert'
+description: 'Provides expert guidance on code linting using ESLint. Invoke when the user asks about linting rules, configuration, or fixing code style issues.'
 ---
 
 # ESLint Expert
@@ -18,6 +18,7 @@ This skill provides expert knowledge and assistance for ESLint based on the offi
 ## When to Use
 
 Invoke this skill when the user:
+
 - Asks how to set up ESLint for a project.
 - Needs help with configuring rules or ignoring files.
 - Enters queries about specific ESLint rules or error messages.

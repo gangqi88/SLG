@@ -22,12 +22,12 @@
 
 ### 职责边界
 
-| 包含 | 不包含 |
-|------|--------|
+| 包含             | 不包含                   |
+| ---------------- | ------------------------ |
 | 美术资源规范制定 | 美术设计制作（外部团队） |
-| 资源导入和配置 | 代码编写 |
-| 资源质量检查 | 测试用例编写 |
-| 资源性能优化 | 系统架构设计 |
+| 资源导入和配置   | 代码编写                 |
+| 资源质量检查     | 测试用例编写             |
+| 资源性能优化     | 系统架构设计             |
 
 ## 资源分类规范
 
@@ -35,24 +35,24 @@
 
 游戏美术资源分为以下类别：
 
-| 资源类型 | 说明 | 格式要求 |
-|----------|------|----------|
-| 角色立绘 | 英雄角色外观展示 | PNG、PSD |
-| 场景图片 | 游戏背景、地图元素 | PNG、WebP |
-| UI素材 | 按钮、图标、面板 | PNG、SVG |
+| 资源类型 | 说明               | 格式要求      |
+| -------- | ------------------ | ------------- |
+| 角色立绘 | 英雄角色外观展示   | PNG、PSD      |
+| 场景图片 | 游戏背景、地图元素 | PNG、WebP     |
+| UI素材   | 按钮、图标、面板   | PNG、SVG      |
 | 特效动画 | 技能特效、战斗特效 | PNG序列、WebP |
-| 图标资源 | 技能图标、道具图标 | PNG、SVG |
-| 音效资源 | 背景音乐、音效 | MP3、OGG |
-| 字体资源 | 游戏字体 | TTF、WOFF2 |
+| 图标资源 | 技能图标、道具图标 | PNG、SVG      |
+| 音效资源 | 背景音乐、音效     | MP3、OGG      |
+| 字体资源 | 游戏字体           | TTF、WOFF2    |
 
 ### 资源优先级
 
-| 优先级 | 资源类型 | 说明 |
-|--------|----------|------|
-| P0 | 核心角色立绘 | 30名英雄完整立绘 |
-| P1 | 战斗特效 | 技能释放、伤害反馈 |
-| P2 | UI界面 | 主界面、背包、商店 |
-| P3 | 场景装饰 | 背景、粒子效果 |
+| 优先级 | 资源类型     | 说明               |
+| ------ | ------------ | ------------------ |
+| P0     | 核心角色立绘 | 30名英雄完整立绘   |
+| P1     | 战斗特效     | 技能释放、伤害反馈 |
+| P2     | UI界面       | 主界面、背包、商店 |
+| P3     | 场景装饰     | 背景、粒子效果     |
 
 ## 资源命名规范
 
@@ -133,32 +133,32 @@ assets/
 
 ### 图片资源标准
 
-| 标准项 | 要求 |
-|--------|------|
-| 分辨率 | 偶数像素，推荐512x512、1024x1024 |
-| 背景 | 透明或指定背景色 |
-| 文件大小 | 单图不超过2MB |
-| 色彩模式 | RGB 8bit |
-| 格式 | PNG（透明）、WebP（动画） |
+| 标准项   | 要求                             |
+| -------- | -------------------------------- |
+| 分辨率   | 偶数像素，推荐512x512、1024x1024 |
+| 背景     | 透明或指定背景色                 |
+| 文件大小 | 单图不超过2MB                    |
+| 色彩模式 | RGB 8bit                         |
+| 格式     | PNG（透明）、WebP（动画）        |
 
 ### 动画资源标准
 
-| 标准项 | 要求 |
-|--------|------|
-| 帧率 | 30fps或60fps |
-| 循环 | 需要循环的动画必须首尾平滑过渡 |
-| 序列帧 | 使用Sprite Sheet合并 |
-| 播放时长 | 单次特效不超过3秒 |
+| 标准项   | 要求                           |
+| -------- | ------------------------------ |
+| 帧率     | 30fps或60fps                   |
+| 循环     | 需要循环的动画必须首尾平滑过渡 |
+| 序列帧   | 使用Sprite Sheet合并           |
+| 播放时长 | 单次特效不超过3秒              |
 
 ### 音频资源标准
 
-| 标准项 | 要求 |
-|--------|------|
-| 采样率 | 44100Hz |
-| 位深 | 16bit |
-| 格式 | MP3（背景音乐）、OGG（音效） |
-| 时长 | 背景音乐不超过3分钟 |
-| 文件大小 | 单个音效不超过500KB |
+| 标准项   | 要求                         |
+| -------- | ---------------------------- |
+| 采样率   | 44100Hz                      |
+| 位深     | 16bit                        |
+| 格式     | MP3（背景音乐）、OGG（音效） |
+| 时长     | 背景音乐不超过3分钟          |
+| 文件大小 | 单个音效不超过500KB          |
 
 ## 资源导入规范
 
@@ -217,23 +217,21 @@ export const characterResources = {
 class ResourceLoader {
   async preload() {
     const scene = this.scene;
-    
+
     // 按优先级分组加载
-    await this.loadCriticalResources();  // P0 核心资源
-    await this.loadBattleResources();     // P1 战斗资源  
-    await this.loadUIResources();         // P2 UI资源
-    await this.loadDecorationResources();  // P3 装饰资源
+    await this.loadCriticalResources(); // P0 核心资源
+    await this.loadBattleResources(); // P1 战斗资源
+    await this.loadUIResources(); // P2 UI资源
+    await this.loadDecorationResources(); // P3 装饰资源
   }
-  
+
   private async loadCriticalResources() {
     const criticalAssets = [
       'characters/human/sumo/idle.png',
       'characters/angel/luxi/idle.png',
       'characters/demon/molok/idle.png',
     ];
-    await Promise.all(
-      criticalAssets.map(path => this.loadImage(path))
-    );
+    await Promise.all(criticalAssets.map((path) => this.loadImage(path)));
   }
 }
 ```
@@ -278,6 +276,7 @@ feature/*:  # 功能相关资源
 
 ```markdown
 协作点：
+
 - 资源配置需要符合代码规范
 - 资源加载使用统一的资源管理类
 - 资源路径使用项目定义的别名
@@ -291,6 +290,7 @@ feature/*:  # 功能相关资源
 
 ```markdown
 协作点：
+
 - 资源加载失败需要正确处理
 - 资源缺失需要显示占位图
 - 资源加载过程需要进度显示
@@ -304,6 +304,7 @@ feature/*:  # 功能相关资源
 
 ```markdown
 协作点：
+
 - 资源构建脚本自动化
 - 资源压缩优化集成到CI
 - 资源版本自动标记
@@ -315,14 +316,14 @@ feature/*:  # 功能相关资源
 
 ### 资源处理工具
 
-| 工具 | 用途 |
-|------|------|
-| Photoshop | 图片编辑、导出 |
-| Aseprite | 像素画、动画 |
-| TexturePacker | Sprite Sheet打包 |
-| Toptal Compressor | 图片压缩 |
-| FFMPEG | 音频格式转换 |
-| SVGOMG | SVG优化 |
+| 工具              | 用途             |
+| ----------------- | ---------------- |
+| Photoshop         | 图片编辑、导出   |
+| Aseprite          | 像素画、动画     |
+| TexturePacker     | Sprite Sheet打包 |
+| Toptal Compressor | 图片压缩         |
+| FFMPEG            | 音频格式转换     |
+| SVGOMG            | SVG优化          |
 
 ### 资源检查命令
 
@@ -342,6 +343,7 @@ find assets -name "*.png" -exec file {} \; | grep -v PNG
 ### 问题：资源加载失败
 
 解决方案：
+
 1. 检查文件路径是否正确
 2. 检查文件是否损坏
 3. 检查浏览器控制台错误信息
@@ -350,6 +352,7 @@ find assets -name "*.png" -exec file {} \; | grep -v PNG
 ### 问题：内存占用过高
 
 解决方案：
+
 1. 使用Sprite Sheet合并小图
 2. 降低图片分辨率
 3. 启用资源懒加载
@@ -358,6 +361,7 @@ find assets -name "*.png" -exec file {} \; | grep -v PNG
 ### 问题：动画不流畅
 
 解决方案：
+
 1. 检查帧率设置
 2. 优化Sprite Sheet尺寸
 3. 减少同屏动画数量
@@ -365,10 +369,10 @@ find assets -name "*.png" -exec file {} \; | grep -v PNG
 
 ---
 
-*技能版本: 1.0.0*
-*创建日期: 2026-03-06*
-*相关文档: 
-  - fullstack-code-standards/SKILL.md
-  - game-tester/SKILL.md
-  - automation-workflow/SKILL.md*
-*遵守规范: .trae/rules/project-rules/SKILL.md*
+_技能版本: 1.0.0_
+_创建日期: 2026-03-06_ \*相关文档:
+
+- fullstack-code-standards/SKILL.md
+- game-tester/SKILL.md
+- automation-workflow/SKILL.md\*
+  _遵守规范: .trae/rules/project-rules/SKILL.md_

@@ -1,6 +1,6 @@
 ---
-name: "chakra-ui-expert"
-description: "Provides expert guidance on building UIs with Chakra UI components and styling. Invoke when the user asks about Chakra UI themes, components, or responsiveness."
+name: 'chakra-ui-expert'
+description: 'Provides expert guidance on building UIs with Chakra UI components and styling. Invoke when the user asks about Chakra UI themes, components, or responsiveness.'
 ---
 
 # Chakra UI Expert
@@ -18,6 +18,7 @@ This skill provides expert knowledge and assistance for Chakra UI based on the o
 ## When to Use
 
 Invoke this skill when the user:
+
 - Asks how to implement UI components with Chakra UI.
 - Needs help with theming or styling Chakra UI components.
 - Enters queries about responsive layouts or style props.

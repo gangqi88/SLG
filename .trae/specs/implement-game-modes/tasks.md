@@ -66,6 +66,7 @@
   - [x] SubTask 12.3: Implement Alliance/Season reward calculation logic.
 
 # Task Dependencies
+
 - Task 3 depends on Task 1 (Resources needed for upgrades).
 - Task 4 depends on Task 3 (Hero data structure).
 - Task 5 depends on Task 4 (Combo skills used in battle).

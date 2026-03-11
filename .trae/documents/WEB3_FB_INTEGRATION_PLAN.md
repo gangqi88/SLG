@@ -1,9 +1,11 @@
 # Web3 集成实施方案（Fractal Bitcoin - UniSat 优先）
 
 ## 概述
+
 本项目将集成 Fractal Bitcoin (FB) 二层网络，**使用 UniSat 作为主要技术栈**，实现游戏状态铭刻、BRC-20 代币经济系统。
 
 **为什么选择 UniSat？**
+
 - 官方原生支持 Fractal Bitcoin
 - 完整的 API 生态（钱包 + 索引器）
 - 内置 BRC-20 和 Runes 支持
@@ -12,12 +14,14 @@
 ## 技术选型（UniSat 优先）
 
 ### 核心资源
+
 - **UniSat Wallet** - Chrome 扩展（`window.unisat` API）
 - **UniSat API** - 官方 REST API（api.unisat.io/query-v4）
 - **UniSat Indexer** - BRC-20/铭文索引服务
 - **bitcoinjs-lib** - 备用交易构建
 
 ### 网络配置
+
 - **主网**: Fractal Bitcoin Mainnet（`fractal_mainnet`）
 - **测试网**: Fractal Bitcoin Testnet（`fractal_testnet`）
 - **资产标准**: BRC-20（推荐）和 Runes
@@ -27,6 +31,7 @@
 ### 阶段一：UniSat 环境搭建（第 1 周）
 
 #### 1.1 安装依赖
+
 ```bash
 npm install bitcoinjs-lib axios
 npm install -D @types/bitcoinjs-lib
@@ -35,6 +40,7 @@ npm install -D @types/bitcoinjs-lib
 **注意**: UniSat API 通过原生 `window.unisat` 访问，无需额外 npm 包
 
 #### 1.2 创建目录结构
+
 ```
 src/web3/
 ├── config/
@@ -61,6 +67,7 @@ src/web3/
 ```
 
 #### 1.3 UniSat 网络配置
+
 创建 `src/web3/config/network.ts`:
 
 ```typescript
@@ -80,135 +87,142 @@ export const UNISAT_NETWORKS = {
     apiBase: 'https://api.unisat.io/query-v4',
     wsBase: 'wss://api.unisat.io/query-v4/ws',
   },
-}
+};
 
-export type UniSatNetwork = typeof UNISAT_NETWORKS[keyof typeof UNISAT_NETWORKS]
+export type UniSatNetwork = (typeof UNISAT_NETWORKS)[keyof typeof UNISAT_NETWORKS];
 
 // 当前网络
-export const CURRENT_NETWORK = import.meta.env.VITE_FB_NETWORK === 'mainnet' 
-  ? UNISAT_NETWORKS.fractalMainnet 
-  : UNISAT_NETWORKS.fractalTestnet
+export const CURRENT_NETWORK =
+  import.meta.env.VITE_FB_NETWORK === 'mainnet'
+    ? UNISAT_NETWORKS.fractalMainnet
+    : UNISAT_NETWORKS.fractalTestnet;
 ```
 
 #### 1.4 UniSat API 服务封装
+
 创建 `src/web3/services/unisatAPI.ts`:
 
 ```typescript
-const API_BASE = import.meta.env.VITE_UNISAT_API_BASE || 'https://api.unisat.io/query-v4'
-const API_KEY = import.meta.env.VITE_UNISAT_API_KEY
+const API_BASE = import.meta.env.VITE_UNISAT_API_BASE || 'https://api.unisat.io/query-v4';
+const API_KEY = import.meta.env.VITE_UNISAT_API_KEY;
 
 export interface BRC20Balance {
-  ticker: string
-  overallBalance: string
-  transferableBalance: string
-  availableBalance: string
-  decimals: number
+  ticker: string;
+  overallBalance: string;
+  transferableBalance: string;
+  availableBalance: string;
+  decimals: number;
 }
 
 export interface Inscription {
-  inscriptionId: string
-  inscriptionNumber: number
-  contentType: string
-  contentLength: number
+  inscriptionId: string;
+  inscriptionNumber: number;
+  contentType: string;
+  contentLength: number;
 }
 
 export class UniSatAPI {
-  private headers: Record<string, string>
+  private headers: Record<string, string>;
 
   constructor() {
     this.headers = {
       'Content-Type': 'application/json',
-    }
+    };
     if (API_KEY) {
-      this.headers['Authorization'] = `Bearer ${API_KEY}`
+      this.headers['Authorization'] = `Bearer ${API_KEY}`;
     }
   }
 
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const url = `${API_BASE}${endpoint}`
+    const url = `${API_BASE}${endpoint}`;
     const response = await fetch(url, {
       ...options,
       headers: {
         ...this.headers,
         ...options?.headers,
       },
-    })
-    
+    });
+
     if (!response.ok) {
-      throw new Error(`UniSat API 错误 ${response.status}: ${response.statusText}`)
+      throw new Error(`UniSat API 错误 ${response.status}: ${response.statusText}`);
     }
-    
-    const data = await response.json()
+
+    const data = await response.json();
     if (!data.code || data.code !== 0) {
-      throw new Error(data.msg || 'API 请求失败')
+      throw new Error(data.msg || 'API 请求失败');
     }
-    
-    return data.data as T
+
+    return data.data as T;
   }
 
   // 获取 BRC-20 余额列表
   async getBRC20BalanceList(address: string): Promise<BRC20Balance[]> {
-    return this.request<BRC20Balance[]>(`/address/${address}/brc20/summary`)
+    return this.request<BRC20Balance[]>(`/address/${address}/brc20/summary`);
   }
 
   // 获取指定 BRC-20 代币余额
   async getBRC20Balance(address: string, ticker: string): Promise<BRC20Balance> {
-    return this.request<BRC20Balance>(`/address/${address}/brc20/${ticker}`)
+    return this.request<BRC20Balance>(`/address/${address}/brc20/${ticker}`);
   }
 
   // 获取 BRC-20 交易历史
   async getBRC20History(address: string, ticker?: string) {
-    const endpoint = ticker 
+    const endpoint = ticker
       ? `/address/${address}/brc20/${ticker}/history`
-      : `/address/${address}/brc20/history`
-    return this.request(endpoint)
+      : `/address/${address}/brc20/history`;
+    return this.request(endpoint);
   }
 
   // 获取铭文列表
-  async getInscriptions(address: string, cursor?: number, size: number = 20): Promise<{
-    list: Inscription[]
-    total: number
+  async getInscriptions(
+    address: string,
+    cursor?: number,
+    size: number = 20,
+  ): Promise<{
+    list: Inscription[];
+    total: number;
   }> {
-    const params = new URLSearchParams()
-    if (cursor) params.append('cursor', cursor.toString())
-    params.append('size', size.toString())
-    
-    return this.request(`/address/${address}/inscriptions?${params}`)
+    const params = new URLSearchParams();
+    if (cursor) params.append('cursor', cursor.toString());
+    params.append('size', size.toString());
+
+    return this.request(`/address/${address}/inscriptions?${params}`);
   }
 
   // 获取交易历史
   async getTransactionHistory(address: string) {
-    return this.request(`/address/${address}/txs`)
+    return this.request(`/address/${address}/txs`);
   }
 
   // 获取 FB 余额（通过 UTXO）
   async getFBBalance(address: string): Promise<{
-    confirmed: number
-    unconfirmed: number
-    total: number
+    confirmed: number;
+    unconfirmed: number;
+    total: number;
   }> {
-    return this.request(`/address/${address}/balance`)
+    return this.request(`/address/${address}/balance`);
   }
 
   // 获取 BRC-20 代币信息
   async getBRC20Info(ticker: string) {
-    return this.request(`/brc20/${ticker}`)
+    return this.request(`/brc20/${ticker}`);
   }
 
   // 获取 BRC-20 持有者列表
   async getBRC20Holders(ticker: string, cursor?: number, size: number = 20) {
-    const params = new URLSearchParams()
-    if (cursor) params.append('cursor', cursor.toString())
-    params.append('size', size.toString())
-    
-    return this.request(`/brc20/${ticker}/holders?${params}`)
+    const params = new URLSearchParams();
+    if (cursor) params.append('cursor', cursor.toString());
+    params.append('size', size.toString());
+
+    return this.request(`/brc20/${ticker}/holders?${params}`);
   }
 }
 
-export const unisatAPI = new UniSatAPI()
+export const unisatAPI = new UniSatAPI();
 ```
 
 #### 1.5 UniSat 钱包类型定义
+
 创建 `src/web3/types/unisat.d.ts`:
 
 ```typescript
@@ -216,96 +230,97 @@ export const unisatAPI = new UniSatAPI()
 
 declare global {
   interface Window {
-    unisat?: UniSatWallet
+    unisat?: UniSatWallet;
   }
 }
 
 export interface UniSatWallet {
   // 账户相关
-  requestAccounts(): Promise<string[]>
-  getAccounts(): Promise<string[]>
-  
+  requestAccounts(): Promise<string[]>;
+  getAccounts(): Promise<string[]>;
+
   // 网络相关
-  getNetwork(): Promise<string>
-  switchNetwork(network: 'fractal_mainnet' | 'fractal_testnet' | string): Promise<void>
-  
+  getNetwork(): Promise<string>;
+  switchNetwork(network: 'fractal_mainnet' | 'fractal_testnet' | string): Promise<void>;
+
   // 余额相关
   getBalance(): Promise<{
-    confirmed: number
-    unconfirmed: number
-    total: number
-  }>
-  
+    confirmed: number;
+    unconfirmed: number;
+    total: number;
+  }>;
+
   // 地址相关
-  getPublicKey(): Promise<string>
-  
+  getPublicKey(): Promise<string>;
+
   // 签名相关
-  signMessage(message: string, type?: 'bip322-simple' | 'ecdsa'): Promise<string>
-  signPsbt(psbtHex: string, options?: SignPsbtOptions): Promise<string>
-  pushPsbt(psbtHex: string): Promise<string>
-  
+  signMessage(message: string, type?: 'bip322-simple' | 'ecdsa'): Promise<string>;
+  signPsbt(psbtHex: string, options?: SignPsbtOptions): Promise<string>;
+  pushPsbt(psbtHex: string): Promise<string>;
+
   // 交易相关
   sendBitcoin(
-    toAddress: string, 
-    satoshis: number, 
-    options?: { 
-      feeRate?: number
-      memo?: string
-    }
-  ): Promise<string>
-  
-  pushTx(rawTx: string): Promise<string>
-  
+    toAddress: string,
+    satoshis: number,
+    options?: {
+      feeRate?: number;
+      memo?: string;
+    },
+  ): Promise<string>;
+
+  pushTx(rawTx: string): Promise<string>;
+
   // 铭刻相关
   inscribe(
     content: string,
     options?: {
-      contentType?: string
-      feeRate?: number
-    }
+      contentType?: string;
+      feeRate?: number;
+    },
   ): Promise<{
-    inscriptionId: string
-    txid: string
-  }>
-  
+    inscriptionId: string;
+    txid: string;
+  }>;
+
   // 事件监听
-  on(event: 'accountsChanged', callback: (accounts: string[]) => void): void
-  on(event: 'networkChanged', callback: (network: string) => void): void
-  
-  removeListener(event: string, callback: Function): void
+  on(event: 'accountsChanged', callback: (accounts: string[]) => void): void;
+  on(event: 'networkChanged', callback: (network: string) => void): void;
+
+  removeListener(event: string, callback: Function): void;
 }
 
 export interface SignPsbtOptions {
-  autoFinalized?: boolean
+  autoFinalized?: boolean;
   toSignInputs: {
-    index: number
-    address?: string
-    publicKey?: string
-    sighashTypes?: number[]
-  }[]
+    index: number;
+    address?: string;
+    publicKey?: string;
+    sighashTypes?: number[];
+  }[];
 }
 ```
 
 ### 阶段二：UniSat 钱包连接（第 1 周）
 
 #### 2.1 UniSat 钱包 Hook
+
 创建 `src/web3/hooks/useUniSatWallet.ts`:
 
 ```typescript
-import { useState, useEffect, useCallback } from 'react'
-import type { UniSatWallet } from '../types/unisat'
-import { CURRENT_NETWORK } from '../config/network'
+import { useState, useEffect, useCallback } from 'react';
+import type { UniSatWallet } from '../types/unisat';
+import { CURRENT_NETWORK } from '../config/network';
 
 export interface UniSatWalletState {
-  address: string | null
-  publicKey: string | null
+  address: string | null;
+  publicKey: string | null;
   balance: {
-    confirmed: number
-    unconfirmed: number
-    total: number
-  }
-  network: string
-  isConnected: boolean
+    confirmed: number;
+    unconfirmed: number;
+    total: number;
+  };
+  network: string;
+  isConnected: boolean;
 }
 
 export const useUniSatWallet = () => {
@@ -315,48 +330,48 @@ export const useUniSatWallet = () => {
     balance: { confirmed: 0, unconfirmed: 0, total: 0 },
     network: '',
     isConnected: false,
-  })
-  
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // 检查 UniSat 是否安装
   const checkUniSatInstalled = useCallback(() => {
-    return typeof window !== 'undefined' && typeof window.unisat !== 'undefined'
-  }, [])
+    return typeof window !== 'undefined' && typeof window.unisat !== 'undefined';
+  }, []);
 
   // 获取 UniSat 实例
   const getUniSat = useCallback((): UniSatWallet | null => {
-    return window.unisat || null
-  }, [])
+    return window.unisat || null;
+  }, []);
 
   // 连接钱包
   const connect = useCallback(async () => {
     if (!checkUniSatInstalled()) {
-      setError('请先安装 UniSat 钱包')
-      window.open('https://unisat.io/download', '_blank')
-      return false
+      setError('请先安装 UniSat 钱包');
+      window.open('https://unisat.io/download', '_blank');
+      return false;
     }
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const unisat = getUniSat()!
-      
+      const unisat = getUniSat()!;
+
       // 请求账户
-      const accounts = await unisat.requestAccounts()
-      
+      const accounts = await unisat.requestAccounts();
+
       // 获取网络
-      const network = await unisat.getNetwork()
-      
+      const network = await unisat.getNetwork();
+
       // 获取余额
-      const balance = await unisat.getBalance()
-      
+      const balance = await unisat.getBalance();
+
       // 获取公钥（可选）
-      let publicKey = ''
+      let publicKey = '';
       try {
-        publicKey = await unisat.getPublicKey()
+        publicKey = await unisat.getPublicKey();
       } catch {
         // 某些情况下可能无法获取公钥
       }
@@ -367,16 +382,16 @@ export const useUniSatWallet = () => {
         balance,
         network,
         isConnected: true,
-      })
+      });
 
-      return true
+      return true;
     } catch (err: any) {
-      setError(err.message || '连接钱包失败')
-      return false
+      setError(err.message || '连接钱包失败');
+      return false;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [checkUniSatInstalled, getUniSat])
+  }, [checkUniSatInstalled, getUniSat]);
 
   // 断开连接
   const disconnect = useCallback(() => {
@@ -386,69 +401,69 @@ export const useUniSatWallet = () => {
       balance: { confirmed: 0, unconfirmed: 0, total: 0 },
       network: '',
       isConnected: false,
-    })
-    setError(null)
-  }, [])
+    });
+    setError(null);
+  }, []);
 
   // 切换到 FB 网络
   const switchToFractal = useCallback(async () => {
-    const unisat = getUniSat()
-    if (!unisat) return false
+    const unisat = getUniSat();
+    if (!unisat) return false;
 
     try {
-      const targetNetwork = CURRENT_NETWORK.unisatNetwork
-      await unisat.switchNetwork(targetNetwork)
-      
+      const targetNetwork = CURRENT_NETWORK.unisatNetwork;
+      await unisat.switchNetwork(targetNetwork);
+
       // 更新状态
-      const network = await unisat.getNetwork()
-      setState(prev => ({ ...prev, network }))
-      
-      return true
+      const network = await unisat.getNetwork();
+      setState((prev) => ({ ...prev, network }));
+
+      return true;
     } catch (err: any) {
-      setError('切换到 Fractal Bitcoin 失败: ' + err.message)
-      return false
+      setError('切换到 Fractal Bitcoin 失败: ' + err.message);
+      return false;
     }
-  }, [getUniSat])
+  }, [getUniSat]);
 
   // 刷新余额
   const refreshBalance = useCallback(async () => {
-    const unisat = getUniSat()
-    if (!unisat || !state.isConnected) return
+    const unisat = getUniSat();
+    if (!unisat || !state.isConnected) return;
 
     try {
-      const balance = await unisat.getBalance()
-      setState(prev => ({ ...prev, balance }))
+      const balance = await unisat.getBalance();
+      setState((prev) => ({ ...prev, balance }));
     } catch (err) {
-      console.error('刷新余额失败:', err)
+      console.error('刷新余额失败:', err);
     }
-  }, [getUniSat, state.isConnected])
+  }, [getUniSat, state.isConnected]);
 
   // 监听账户和网络变化
   useEffect(() => {
-    const unisat = getUniSat()
-    if (!unisat || !state.isConnected) return
+    const unisat = getUniSat();
+    if (!unisat || !state.isConnected) return;
 
     const handleAccountsChanged = (accounts: string[]) => {
       if (accounts.length === 0) {
-        disconnect()
+        disconnect();
       } else {
-        setState(prev => ({ ...prev, address: accounts[0] }))
-        refreshBalance()
+        setState((prev) => ({ ...prev, address: accounts[0] }));
+        refreshBalance();
       }
-    }
+    };
 
     const handleNetworkChanged = (network: string) => {
-      setState(prev => ({ ...prev, network }))
-    }
+      setState((prev) => ({ ...prev, network }));
+    };
 
-    unisat.on('accountsChanged', handleAccountsChanged)
-    unisat.on('networkChanged', handleNetworkChanged)
+    unisat.on('accountsChanged', handleAccountsChanged);
+    unisat.on('networkChanged', handleNetworkChanged);
 
     return () => {
-      unisat.removeListener('accountsChanged', handleAccountsChanged)
-      unisat.removeListener('networkChanged', handleNetworkChanged)
-    }
-  }, [getUniSat, state.isConnected, disconnect, refreshBalance])
+      unisat.removeListener('accountsChanged', handleAccountsChanged);
+      unisat.removeListener('networkChanged', handleNetworkChanged);
+    };
+  }, [getUniSat, state.isConnected, disconnect, refreshBalance]);
 
   return {
     ...state,
@@ -459,13 +474,14 @@ export const useUniSatWallet = () => {
     switchToFractal,
     refreshBalance,
     checkUniSatInstalled,
-  }
-}
+  };
+};
 
-export default useUniSatWallet
+export default useUniSatWallet;
 ```
 
 #### 2.2 UniSat 连接按钮组件
+
 创建 `src/web3/components/UniSatConnectButton.tsx`:
 
 ```typescript
@@ -473,17 +489,17 @@ import React from 'react'
 import { useUniSatWallet } from '../hooks/useUniSatWallet'
 
 export const UniSatConnectButton: React.FC = () => {
-  const { 
-    isConnected, 
-    address, 
-    balance, 
+  const {
+    isConnected,
+    address,
+    balance,
     network,
-    isLoading, 
-    error, 
-    connect, 
+    isLoading,
+    error,
+    connect,
     disconnect,
     switchToFractal,
-    checkUniSatInstalled 
+    checkUniSatInstalled
   } = useUniSatWallet()
 
   const formatBalance = (sats: number) => {
@@ -505,13 +521,13 @@ export const UniSatConnectButton: React.FC = () => {
           <span className="balance">{formatBalance(balance.total)} FB</span>
           {network && <span className="network">{network}</span>}
         </div>
-        
+
         {!isCorrectNetwork && (
           <button onClick={switchToFractal} className="switch-network-btn">
             切换到 FB
           </button>
         )}
-        
+
         <button onClick={disconnect} className="disconnect-btn">
           断开
         </button>
@@ -521,9 +537,9 @@ export const UniSatConnectButton: React.FC = () => {
 
   if (!checkUniSatInstalled()) {
     return (
-      <a 
-        href="https://unisat.io/download" 
-        target="_blank" 
+      <a
+        href="https://unisat.io/download"
+        target="_blank"
         rel="noopener noreferrer"
         className="install-wallet-btn"
       >
@@ -534,14 +550,14 @@ export const UniSatConnectButton: React.FC = () => {
 
   return (
     <div className="unisat-connect-container">
-      <button 
-        onClick={connect} 
+      <button
+        onClick={connect}
         disabled={isLoading}
         className="connect-btn"
       >
         {isLoading ? '连接中...' : '连接 UniSat'}
       </button>
-      
+
       {error && (
         <div className="error-message">
           ❌ {error}
@@ -557,61 +573,65 @@ export default UniSatConnectButton
 ### 阶段三：UniSat BRC-20 集成（第 2 周）
 
 #### 3.1 UniSat BRC-20 Hook
+
 创建 `src/web3/hooks/useUniSatBRC20.ts`:
 
 ```typescript
-import { useState, useCallback, useEffect } from 'react'
-import { unisatAPI, BRC20Balance } from '../services/unisatAPI'
+import { useState, useCallback, useEffect } from 'react';
+import { unisatAPI, BRC20Balance } from '../services/unisatAPI';
 
 export interface BRC20TokenWithPrice extends BRC20Balance {
-  floorPrice?: number
-  marketCap?: number
+  floorPrice?: number;
+  marketCap?: number;
 }
 
 export const useUniSatBRC20 = (address: string | null) => {
-  const [tokens, setTokens] = useState<BRC20Balance[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [tokens, setTokens] = useState<BRC20Balance[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // 获取 BRC-20 余额
   const fetchBRC20Balance = useCallback(async () => {
     if (!address) {
-      setTokens([])
-      return
+      setTokens([]);
+      return;
     }
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const data = await unisatAPI.getBRC20BalanceList(address)
-      setTokens(data || [])
+      const data = await unisatAPI.getBRC20BalanceList(address);
+      setTokens(data || []);
     } catch (err: any) {
-      setError(err.message || '获取 BRC-20 余额失败')
-      console.error('获取 BRC-20 余额失败:', err)
+      setError(err.message || '获取 BRC-20 余额失败');
+      console.error('获取 BRC-20 余额失败:', err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [address])
+  }, [address]);
 
   // 获取指定代币余额
-  const getTokenBalance = useCallback(async (ticker: string): Promise<BRC20Balance | null> => {
-    if (!address) return null
+  const getTokenBalance = useCallback(
+    async (ticker: string): Promise<BRC20Balance | null> => {
+      if (!address) return null;
 
-    try {
-      return await unisatAPI.getBRC20Balance(address, ticker)
-    } catch (err) {
-      console.error(`获取 ${ticker} 余额失败:`, err)
-      return null
-    }
-  }, [address])
+      try {
+        return await unisatAPI.getBRC20Balance(address, ticker);
+      } catch (err) {
+        console.error(`获取 ${ticker} 余额失败:`, err);
+        return null;
+      }
+    },
+    [address],
+  );
 
   // 自动刷新
   useEffect(() => {
     if (address) {
-      fetchBRC20Balance()
+      fetchBRC20Balance();
     }
-  }, [address, fetchBRC20Balance])
+  }, [address, fetchBRC20Balance]);
 
   return {
     tokens,
@@ -619,13 +639,14 @@ export const useUniSatBRC20 = (address: string | null) => {
     error,
     fetchBRC20Balance,
     getTokenBalance,
-  }
-}
+  };
+};
 
-export default useUniSatBRC20
+export default useUniSatBRC20;
 ```
 
 #### 3.2 BRC-20 列表组件
+
 创建 `src/web3/components/UniSatBRC20List.tsx`:
 
 ```typescript
@@ -705,121 +726,124 @@ export default UniSatBRC20List
 ### 阶段四：UniSat 铭刻功能（第 2-3 周）
 
 #### 4.1 UniSat 铭刻 Hook
+
 创建 `src/web3/hooks/useUniSatInscribe.ts`:
 
 ```typescript
-import { useState, useCallback } from 'react'
-import type { UniSatWallet } from '../types/unisat'
+import { useState, useCallback } from 'react';
+import type { UniSatWallet } from '../types/unisat';
 
 export interface InscribeGameStateParams {
-  version: string
-  daysSurvived: number
-  totalSurvivors: number
-  buildingsCount: number
-  resources: object
-  timestamp: number
+  version: string;
+  daysSurvived: number;
+  totalSurvivors: number;
+  buildingsCount: number;
+  resources: object;
+  timestamp: number;
 }
 
 export interface InscribeResult {
-  inscriptionId?: string
-  txid?: string
-  error?: string
+  inscriptionId?: string;
+  txid?: string;
+  error?: string;
 }
 
 export const useUniSatInscribe = (unisat: UniSatWallet | null) => {
-  const [isInscribing, setIsInscribing] = useState(false)
-  const [result, setResult] = useState<InscribeResult | null>(null)
+  const [isInscribing, setIsInscribing] = useState(false);
+  const [result, setResult] = useState<InscribeResult | null>(null);
 
   // 铭刻游戏状态
-  const inscribeGameState = useCallback(async (
-    gameState: InscribeGameStateParams
-  ): Promise<InscribeResult> => {
-    if (!unisat) {
-      return { error: '请先连接 UniSat 钱包' }
-    }
-
-    setIsInscribing(true)
-    setResult(null)
-
-    try {
-      // 构建铭刻内容
-      const content = JSON.stringify({
-        p: 'endless-winter',
-        op: 'game-save',
-        v: gameState.version,
-        data: {
-          days: gameState.daysSurvived,
-          survivors: gameState.totalSurvivors,
-          buildings: gameState.buildingsCount,
-          resources: gameState.resources,
-        },
-        ts: gameState.timestamp,
-      })
-
-      // 调用 UniSat 铭刻 API
-      const inscribeResult = await unisat.inscribe(content, {
-        contentType: 'application/json',
-      })
-
-      const successResult = {
-        inscriptionId: inscribeResult.inscriptionId,
-        txid: inscribeResult.txid,
+  const inscribeGameState = useCallback(
+    async (gameState: InscribeGameStateParams): Promise<InscribeResult> => {
+      if (!unisat) {
+        return { error: '请先连接 UniSat 钱包' };
       }
 
-      setResult(successResult)
-      return successResult
-    } catch (error: any) {
-      const errorResult = { error: error.message || '铭刻失败' }
-      setResult(errorResult)
-      return errorResult
-    } finally {
-      setIsInscribing(false)
-    }
-  }, [unisat])
+      setIsInscribing(true);
+      setResult(null);
+
+      try {
+        // 构建铭刻内容
+        const content = JSON.stringify({
+          p: 'endless-winter',
+          op: 'game-save',
+          v: gameState.version,
+          data: {
+            days: gameState.daysSurvived,
+            survivors: gameState.totalSurvivors,
+            buildings: gameState.buildingsCount,
+            resources: gameState.resources,
+          },
+          ts: gameState.timestamp,
+        });
+
+        // 调用 UniSat 铭刻 API
+        const inscribeResult = await unisat.inscribe(content, {
+          contentType: 'application/json',
+        });
+
+        const successResult = {
+          inscriptionId: inscribeResult.inscriptionId,
+          txid: inscribeResult.txid,
+        };
+
+        setResult(successResult);
+        return successResult;
+      } catch (error: any) {
+        const errorResult = { error: error.message || '铭刻失败' };
+        setResult(errorResult);
+        return errorResult;
+      } finally {
+        setIsInscribing(false);
+      }
+    },
+    [unisat],
+  );
 
   // 铭刻自定义内容
-  const inscribeCustom = useCallback(async (
-    content: string,
-    contentType: string = 'text/plain'
-  ): Promise<InscribeResult> => {
-    if (!unisat) {
-      return { error: '请先连接 UniSat 钱包' }
-    }
-
-    setIsInscribing(true)
-    setResult(null)
-
-    try {
-      const inscribeResult = await unisat.inscribe(content, { contentType })
-
-      const successResult = {
-        inscriptionId: inscribeResult.inscriptionId,
-        txid: inscribeResult.txid,
+  const inscribeCustom = useCallback(
+    async (content: string, contentType: string = 'text/plain'): Promise<InscribeResult> => {
+      if (!unisat) {
+        return { error: '请先连接 UniSat 钱包' };
       }
 
-      setResult(successResult)
-      return successResult
-    } catch (error: any) {
-      const errorResult = { error: error.message || '铭刻失败' }
-      setResult(errorResult)
-      return errorResult
-    } finally {
-      setIsInscribing(false)
-    }
-  }, [unisat])
+      setIsInscribing(true);
+      setResult(null);
+
+      try {
+        const inscribeResult = await unisat.inscribe(content, { contentType });
+
+        const successResult = {
+          inscriptionId: inscribeResult.inscriptionId,
+          txid: inscribeResult.txid,
+        };
+
+        setResult(successResult);
+        return successResult;
+      } catch (error: any) {
+        const errorResult = { error: error.message || '铭刻失败' };
+        setResult(errorResult);
+        return errorResult;
+      } finally {
+        setIsInscribing(false);
+      }
+    },
+    [unisat],
+  );
 
   return {
     isInscribing,
     result,
     inscribeGameState,
     inscribeCustom,
-  }
-}
+  };
+};
 
-export default useUniSatInscribe
+export default useUniSatInscribe;
 ```
 
 #### 4.2 铭刻面板组件
+
 创建 `src/web3/components/UniSatInscribePanel.tsx`:
 
 ```typescript
@@ -857,7 +881,7 @@ export const UniSatInscribePanel: React.FC<UniSatInscribePanelProps> = ({ gameSt
     <div className="inscribe-panel">
       <h3>链上存档</h3>
       <p>使用 UniSat 铭刻功能保存游戏状态到 FB</p>
-      
+
       <div className="game-state-preview">
         <h4>当前游戏状态:</h4>
         <ul>
@@ -866,9 +890,9 @@ export const UniSatInscribePanel: React.FC<UniSatInscribePanelProps> = ({ gameSt
           <li>建筑: {gameState.buildingsCount}</li>
         </ul>
       </div>
-      
-      <button 
-        onClick={handleInscribe} 
+
+      <button
+        onClick={handleInscribe}
         disabled={isInscribing}
         className="inscribe-btn"
       >
@@ -887,7 +911,7 @@ export const UniSatInscribePanel: React.FC<UniSatInscribePanelProps> = ({ gameSt
           <div className="inscription-details">
             <p>铭文 ID: {result.inscriptionId}</p>
             <p>交易 ID: {result.txid}</p>
-            <a 
+            <a
               href={`${CURRENT_NETWORK.explorer}/inscription/${result.inscriptionId}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -904,7 +928,7 @@ export const UniSatInscribePanel: React.FC<UniSatInscribePanelProps> = ({ gameSt
           <ul>
             {savedInscriptions.map((id, index) => (
               <li key={id}>
-                <a 
+                <a
                   href={`${CURRENT_NETWORK.explorer}/inscription/${id}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -935,16 +959,17 @@ export default UniSatInscribePanel
 ### 阶段五：GameManager 集成（第 3-4 周）
 
 #### 5.1 修改 GameManager
+
 更新 `src/game/GameManager.ts`:
 
 ```typescript
 // ... 现有导入
 
 export interface Web3GameState {
-  isWeb3Enabled: boolean
-  lastChainSaveTime?: number
-  inscriptionId?: string
-  network: 'fractal_mainnet' | 'fractal_testnet'
+  isWeb3Enabled: boolean;
+  lastChainSaveTime?: number;
+  inscriptionId?: string;
+  network: 'fractal_mainnet' | 'fractal_testnet';
 }
 
 export class GameManager {
@@ -952,7 +977,7 @@ export class GameManager {
   private web3State: Web3GameState = {
     isWeb3Enabled: false,
     network: import.meta.env.VITE_FB_NETWORK === 'mainnet' ? 'fractal_mainnet' : 'fractal_testnet',
-  }
+  };
 
   // 获取用于铭刻的游戏数据
   getInscriptionData() {
@@ -963,33 +988,33 @@ export class GameManager {
       buildingsCount: this.gameState.buildings.length,
       resources: this.summarizeResources(),
       timestamp: Date.now(),
-    }
+    };
   }
 
   // 资源摘要（减少铭刻数据大小）
   private summarizeResources() {
-    const resources = this.gameState.resources
+    const resources = this.gameState.resources;
     return {
       food: Math.floor(resources.food?.amount || 0),
       wood: Math.floor(resources.wood?.amount || 0),
       steel: Math.floor(resources.steel?.amount || 0),
       electricity: Math.floor(resources.electricity?.amount || 0),
       fuel: Math.floor(resources.fuel?.amount || 0),
-    }
+    };
   }
 
   // 从铭文恢复游戏
   restoreFromInscription(inscriptionData: any): boolean {
     try {
       if (!inscriptionData.data) {
-        throw new Error('无效的铭文数据')
+        throw new Error('无效的铭文数据');
       }
 
-      const data = inscriptionData.data
-      
+      const data = inscriptionData.data;
+
       // 验证版本
       if (inscriptionData.v !== '1.0.0') {
-        console.warn('铭文版本不兼容:', inscriptionData.v)
+        console.warn('铭文版本不兼容:', inscriptionData.v);
       }
 
       // 恢复游戏状态（简化版）
@@ -997,35 +1022,35 @@ export class GameManager {
         days: data.days,
         survivors: data.survivors,
         buildings: data.buildings,
-      })
+      });
 
-      this.web3State.lastChainSaveTime = inscriptionData.ts
-      return true
+      this.web3State.lastChainSaveTime = inscriptionData.ts;
+      return true;
     } catch (error) {
-      console.error('恢复游戏失败:', error)
-      return false
+      console.error('恢复游戏失败:', error);
+      return false;
     }
   }
 
   // 启用 Web3
   enableWeb3(): void {
-    this.web3State.isWeb3Enabled = true
+    this.web3State.isWeb3Enabled = true;
   }
 
   // 禁用 Web3
   disableWeb3(): void {
-    this.web3State.isWeb3Enabled = false
+    this.web3State.isWeb3Enabled = false;
   }
 
   // 获取 Web3 状态
   getWeb3State(): Web3GameState {
-    return { ...this.web3State }
+    return { ...this.web3State };
   }
 
   // 更新铭文 ID
   setInscriptionId(inscriptionId: string): void {
-    this.web3State.inscriptionId = inscriptionId
-    this.web3State.lastChainSaveTime = Date.now()
+    this.web3State.inscriptionId = inscriptionId;
+    this.web3State.lastChainSaveTime = Date.now();
   }
 
   // ... 其他现有方法
@@ -1033,6 +1058,7 @@ export class GameManager {
 ```
 
 #### 5.2 更新 App.tsx 集成 UniSat UI
+
 ```typescript
 import React, { useState, useEffect, useRef } from 'react'
 import { GameManager } from './game/GameManager'
@@ -1048,7 +1074,7 @@ function App() {
   const [gameManager] = useState(() => new GameManager())
   const [gameInfo, setGameInfo] = useState<any>(null)
   const [activeTab, setActiveTab] = useState<'local' | 'unisat'>('local')
-  
+
   const { isConnected, address } = useUniSatWallet()
   const phaserRef = useRef<IRefPhaserGame | null>(null)
 
@@ -1075,17 +1101,17 @@ function App() {
 
       <div className="game-container">
         {/* ... Phaser 游戏 */}
-        
+
         {showGameUI && (
           <div className="game-ui">
             <div className="ui-tabs">
-              <button 
+              <button
                 className={activeTab === 'local' ? 'active' : ''}
                 onClick={() => setActiveTab('local')}
               >
                 本地
               </button>
-              <button 
+              <button
                 className={activeTab === 'unisat' ? 'active' : ''}
                 onClick={() => setActiveTab('unisat')}
               >
@@ -1117,7 +1143,7 @@ function App() {
                 )}
               </div>
             )}
-            
+
             {/* ... 其他 UI */}
           </div>
         )}
@@ -1130,7 +1156,9 @@ function App() {
 ### 阶段六：环境配置
 
 #### 6.1 环境变量文件
+
 创建 `.env.example`:
+
 ```env
 # UniSat API Key（必需，从 https://developer.unisat.io 获取）
 VITE_UNISAT_API_KEY=your_unisat_api_key_here
@@ -1146,10 +1174,12 @@ VITE_GAME_PROTOCOL=endless-winter
 ```
 
 #### 6.2 更新 vite 配置
+
 更新 `vite/config.dev.mjs`:
+
 ```javascript
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   base: './',
@@ -1161,12 +1191,13 @@ export default defineConfig({
     'process.env': {},
     global: 'globalThis',
   },
-})
+});
 ```
 
 ### 阶段七：测试与优化（第 4 周）
 
 #### 7.1 UniSat 测试清单
+
 - [ ] UniSat Wallet Chrome 扩展安装
 - [ ] 钱包连接/断开功能
 - [ ] 网络切换（Fractal Bitcoin）
@@ -1176,6 +1207,7 @@ export default defineConfig({
 - [ ] 错误处理（余额不足、网络错误）
 
 #### 7.2 UniSat 钱包安装
+
 1. **安装 Chrome 扩展**:
    - 访问 https://unisat.io/download
    - 添加到 Chrome
@@ -1195,6 +1227,7 @@ export default defineConfig({
    - 或使用官方水龙头（如可用）
 
 #### 7.3 API Key 获取
+
 1. 访问 https://developer.unisat.io
 2. 注册开发者账号
 3. 创建新应用
@@ -1203,28 +1236,29 @@ export default defineConfig({
 
 ## 实施时间表
 
-| 阶段 | 时间 | 主要任务 | 产出物 |
-|------|------|----------|--------|
-| 阶段一 | 第 1 周 | UniSat 环境搭建、API 封装 | UniSatProvider、API 服务 |
-| 阶段二 | 第 1 周 | UniSat 钱包连接 | useUniSatWallet hook |
-| 阶段三 | 第 2 周 | UniSat BRC-20 集成 | useUniSatBRC20 hook + UI |
-| 阶段四 | 第 2-3 周 | UniSat 铭刻功能 | useUniSatInscribe hook + 面板 |
-| 阶段五 | 第 3-4 周 | GameManager 集成 | 完整的 UniSat 功能 |
-| 阶段六 | 全程 | 环境配置、文档 | 配置文件、文档 |
-| 阶段七 | 第 4 周 | FB 测试网测试 | 稳定的 UniSat 集成 |
+| 阶段   | 时间      | 主要任务                  | 产出物                        |
+| ------ | --------- | ------------------------- | ----------------------------- |
+| 阶段一 | 第 1 周   | UniSat 环境搭建、API 封装 | UniSatProvider、API 服务      |
+| 阶段二 | 第 1 周   | UniSat 钱包连接           | useUniSatWallet hook          |
+| 阶段三 | 第 2 周   | UniSat BRC-20 集成        | useUniSatBRC20 hook + UI      |
+| 阶段四 | 第 2-3 周 | UniSat 铭刻功能           | useUniSatInscribe hook + 面板 |
+| 阶段五 | 第 3-4 周 | GameManager 集成          | 完整的 UniSat 功能            |
+| 阶段六 | 全程      | 环境配置、文档            | 配置文件、文档                |
+| 阶段七 | 第 4 周   | FB 测试网测试             | 稳定的 UniSat 集成            |
 
 ## 预算估算
 
-| 项目 | 预估成本 | 说明 |
-|------|----------|------|
-| 开发工作量 | 3-4 周 | UniSat 专用集成 |
-| UniSat API | 免费-$100/月 | 免费版 10 req/s，付费版 100 req/s |
-| FB 测试网使用 | 免费 | 向 UniSat Discord 申请测试币 |
-| FB 主网铭刻 | ~$10-50/次 | 取决于铭文大小和网络拥堵 |
+| 项目          | 预估成本     | 说明                              |
+| ------------- | ------------ | --------------------------------- |
+| 开发工作量    | 3-4 周       | UniSat 专用集成                   |
+| UniSat API    | 免费-$100/月 | 免费版 10 req/s，付费版 100 req/s |
+| FB 测试网使用 | 免费         | 向 UniSat Discord 申请测试币      |
+| FB 主网铭刻   | ~$10-50/次   | 取决于铭文大小和网络拥堵          |
 
 ## 风险与应对
 
 ### 技术风险
+
 1. **UniSat API 限制**
    - 应对: 实现缓存机制、请求队列
 
@@ -1235,6 +1269,7 @@ export default defineConfig({
    - 应对: 费用估算、用户确认流程
 
 ### 业务风险
+
 1. **用户需安装 UniSat**
    - 应对: 详细安装教程、备选方案（OKX）
 

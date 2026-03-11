@@ -1,6 +1,6 @@
 ---
-name: "frontend-workflow-orchestrator"
-description: "Unified orchestrator for the project workflow, coordinating development, automation, and specialized expert skills. Invoke for project planning, task assignment, CI/CD guidance, and tool selection."
+name: 'frontend-workflow-orchestrator'
+description: 'Unified orchestrator for the project workflow, coordinating development, automation, and specialized expert skills. Invoke for project planning, task assignment, CI/CD guidance, and tool selection.'
 ---
 
 # Unified Project Workflow Orchestrator
@@ -10,7 +10,9 @@ This skill acts as the central nervous system for the Web3 SLG project, integrat
 ## 🔄 Core Workflow Cycle
 
 ### Phase 1: Planning & Architecture
+
 **Goal**: Define what to build and how.
+
 - **Skills**: `architect`, `web3-slg-project-manager`
 - **Actions**:
   - Define feature requirements and scope.
@@ -18,7 +20,9 @@ This skill acts as the central nervous system for the Web3 SLG project, integrat
   - Plan smart contract interactions.
 
 ### Phase 2: Task Assignment & Setup
+
 **Goal**: Prepare the environment and assign tools.
+
 - **Skills**: `task-scheduler`
 - **Setup Experts**: `vite-expert`, `typescript-expert`, `eslint-expert`, `prettier-expert`
 - **Actions**:
@@ -27,7 +31,9 @@ This skill acts as the central nervous system for the Web3 SLG project, integrat
   - Break down tasks into subtasks.
 
 ### Phase 3: Development & Implementation
+
 **Goal**: Write the code using specialized experts.
+
 - **Core Framework**: `react-expert`, `nextjs-expert`
 - **UI & Styling**: `chakra-ui-expert`, `emotion-expert`
 - **State & Logic**: `redux-toolkit-expert`, `tanstack-query-expert`, `immer-expert`
@@ -35,7 +41,9 @@ This skill acts as the central nervous system for the Web3 SLG project, integrat
 - **Web3 Integration**: `web3-developer`
 
 ### Phase 4: Quality Assurance & Testing
+
 **Goal**: Ensure reliability and correctness.
+
 - **Skills**: `cypress-expert`, `game-tester`
 - **Actions**:
   - Write unit tests (Vitest/Jest).
@@ -43,7 +51,9 @@ This skill acts as the central nervous system for the Web3 SLG project, integrat
   - Perform manual game logic verification.
 
 ### Phase 5: Automation & CI/CD (Integrated)
+
 **Goal**: Automate checks and deployment.
+
 - **Source**: Merged from `automation-workflow`.
 - **Git Flow**:
   - `main`: Production-ready code.
@@ -79,6 +89,7 @@ Use this matrix to determine which skill to invoke for specific tasks:
 ## 🚀 Usage Scenarios
 
 ### Scenario A: New Feature Development
+
 1.  **Plan**: Invoke `architect` to design the feature.
 2.  **Branch**: Create `feature/<name>` following Git Flow.
 3.  **Code**: Invoke specialized experts (e.g., `react-expert`, `redux-toolkit-expert`) to implement.
@@ -87,6 +98,7 @@ Use this matrix to determine which skill to invoke for specific tasks:
 6.  **Commit**: Follow Conventional Commits (e.g., `feat: add hero system`).
 
 ### Scenario B: CI/CD Setup
+
 1.  **Config**: Consult `automation-workflow` (integrated here) for pipeline structure.
 2.  **Scripting**: Use `vite-expert` to optimize build scripts.
 3.  **Quality**: Ensure `eslint-expert` and `prettier-expert` configs are strict.
@@ -98,5 +110,6 @@ Use this matrix to determine which skill to invoke for specific tasks:
 - **Release Strategy**: Semantic Versioning (Major.Minor.Patch).
 
 ---
-*Unified Skill Version: 2.0.0*
-*Integrates: frontend-workflow-orchestrator, automation-workflow*
+
+_Unified Skill Version: 2.0.0_
+_Integrates: frontend-workflow-orchestrator, automation-workflow_

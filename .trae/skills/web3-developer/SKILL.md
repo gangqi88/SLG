@@ -23,22 +23,22 @@ Web3开发技能负责以下工作：
 
 ### 职责边界
 
-| 包含 | 不包含 |
-|------|--------|
-| 钱包集成开发 | UI界面设计 |
+| 包含         | 不包含                   |
+| ------------ | ------------------------ |
+| 钱包集成开发 | UI界面设计               |
 | 智能合约交互 | 智能合约编写（预留接口） |
-| 链上数据处理 | 后端服务器开发 |
-| 资产NFT化 | 美术资源制作 |
+| 链上数据处理 | 后端服务器开发           |
+| 资产NFT化    | 美术资源制作             |
 
 ## 钱包集成规范
 
 ### 支持的钱包
 
-| 钱包 | 网络 | 支持状态 |
-|------|------|----------|
-| UniSat | Fractal Bitcoin | 首选 |
-| Xverse | Fractal Bitcoin | 待支持 |
-| Leather | Fractal Bitcoin | 待支持 |
+| 钱包    | 网络            | 支持状态 |
+| ------- | --------------- | -------- |
+| UniSat  | Fractal Bitcoin | 首选     |
+| Xverse  | Fractal Bitcoin | 待支持   |
+| Leather | Fractal Bitcoin | 待支持   |
 
 ### 连接流程
 
@@ -64,32 +64,32 @@ class WalletService {
     publicKey: null,
     network: 'testnet',
   };
-  
+
   async connect(): Promise<WalletState> {
     if (typeof window === 'undefined' || !window.unisat) {
       throw new Error('UniSat钱包未安装');
     }
-    
+
     try {
       const accounts = await window.unisat.requestAccounts();
       if (accounts.length === 0) {
         throw new Error('未找到钱包账户');
       }
-      
+
       this.state.address = accounts[0];
       this.state.connected = true;
-      
+
       // 获取公钥
       const publicKey = await window.unisat.getPublicKey();
       this.state.publicKey = publicKey;
-      
+
       return this.state;
     } catch (error) {
       console.error('钱包连接失败:', error);
       throw error;
     }
   }
-  
+
   async disconnect(): Promise<void> {
     this.state = {
       connected: false,
@@ -98,7 +98,7 @@ class WalletService {
       network: 'testnet',
     };
   }
-  
+
   getState(): WalletState {
     return { ...this.state };
   }
@@ -124,7 +124,7 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
   connected: false,
   address: null,
   balance: 0,
-  
+
   connect: async () => {
     const walletService = WalletService.getInstance();
     const state = await walletService.connect();
@@ -133,13 +133,13 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
       address: state.address,
     });
   },
-  
+
   disconnect: async () => {
     const walletService = WalletService.getInstance();
     await walletService.disconnect();
     set({ connected: false, address: null, balance: 0 });
   },
-  
+
   updateBalance: async () => {
     // 更新余额逻辑
   },
@@ -187,7 +187,7 @@ interface HeroNFT {
   name: string;
   quality: 'purple' | 'orange' | 'red';
   faction: 'human' | 'angel' | 'demon';
-  
+
   // 属性
   attributes: {
     command: number;
@@ -195,14 +195,14 @@ interface HeroNFT {
     intelligence: number;
     defense: number;
   };
-  
+
   // 稀有度属性
   rarity: {
     starLevel: number;
     skills: string[];
     passiveAbilities: string[];
   };
-  
+
   // 元数据
   metadata: {
     image: string;
@@ -221,8 +221,8 @@ function heroToNFTMetadata(hero: Hero): HeroNFT {
     attributes: hero.attributes,
     rarity: {
       starLevel: hero.starLevel,
-      skills: hero.skills.map(s => s.id),
-      passiveAbilities: hero.passiveSkills.map(s => s.id),
+      skills: hero.skills.map((s) => s.id),
+      passiveAbilities: hero.passiveSkills.map((s) => s.id),
     },
     metadata: {
       image: `https://assets.game.com/heroes/${hero.id}.png`,
@@ -237,11 +237,11 @@ function heroToNFTMetadata(hero: Hero): HeroNFT {
 
 ### 代币类型
 
-| 代币类型 | 用途 | 区块链 |
-|----------|------|--------|
-| 游戏代币 | 游戏内流通 | 链下 |
-| 治理代币 | DAO投票 | BRC-20 |
-| 收藏代币 | 限定NFT | Runes |
+| 代币类型 | 用途       | 区块链 |
+| -------- | ---------- | ------ |
+| 游戏代币 | 游戏内流通 | 链下   |
+| 治理代币 | DAO投票    | BRC-20 |
+| 收藏代币 | 限定NFT    | Runes  |
 
 ### 代币接口
 
@@ -271,14 +271,14 @@ interface EconomyConfig {
     battleWin: number;
     questComplete: number;
   };
-  
+
   // 代币消耗
   consumption: {
     heroUpgrade: number[];
     equipmentEnhance: number[];
     speedUp: number[];
   };
-  
+
   // 汇率
   rates: {
     usdToToken: number;
@@ -313,16 +313,16 @@ const economyConfig: EconomyConfig = {
 interface BlockchainService {
   // 获取地址余额
   getBalance(address: string): Promise<number>;
-  
+
   // 获取交易历史
   getTransactions(address: string, limit?: number): Promise<Transaction[]>;
-  
+
   // 获取NFT列表
   getNFTs(address: string): Promise<GameNFT[]>;
-  
+
   // 获取NFT详情
   getNFTDetail(tokenId: string): Promise<GameNFT>;
-  
+
   // 验证交易
   verifyTransaction(txId: string): Promise<TransactionStatus>;
 }
@@ -345,23 +345,23 @@ interface Transaction {
 class ChainDataSync {
   private syncInterval: number = 60000; // 1分钟
   private timer?: number;
-  
+
   async syncNFTs(address: string): Promise<void> {
     const blockchainService = BlockchainService.getInstance();
     const nfts = await blockchainService.getNFTs(address);
-    
+
     // 更新本地状态
     const localNFTs = this.loadLocalNFTs();
     const mergedNFTs = this.mergeNFTs(localNFTs, nfts);
     this.saveLocalNFTs(mergedNFTs);
   }
-  
+
   startAutoSync(address: string): void {
     this.timer = window.setInterval(() => {
       this.syncNFTs(address);
     }, this.syncInterval);
   }
-  
+
   stopAutoSync(): void {
     if (this.timer) {
       clearInterval(this.timer);
@@ -415,7 +415,7 @@ function handleWeb3Error(error: any): Web3Error {
       details: error,
     };
   }
-  
+
   if (error.message?.includes('Insufficient funds')) {
     return {
       code: Web3ErrorCode.INSUFFICIENT_BALANCE,
@@ -423,7 +423,7 @@ function handleWeb3Error(error: any): Web3Error {
       details: error,
     };
   }
-  
+
   return {
     code: Web3ErrorCode.TRANSACTION_FAILED,
     message: '交易失败，请重试',
@@ -454,6 +454,7 @@ function handleWeb3Error(error: any): Web3Error {
 
 ```markdown
 协作点：
+
 - Web3代码需要遵循代码规范
 - 类型定义需要符合项目标准
 
@@ -464,6 +465,7 @@ function handleWeb3Error(error: any): Web3Error {
 
 ```markdown
 协作点：
+
 - Web3功能需要完整测试覆盖
 - 钱包兼容性需要测试验证
 
@@ -474,6 +476,7 @@ function handleWeb3Error(error: any): Web3Error {
 
 ```markdown
 协作点：
+
 - Web3架构需要符合整体架构设计
 - 数据结构需要与系统对接
 
@@ -482,10 +485,10 @@ function handleWeb3Error(error: any): Web3Error {
 
 ---
 
-*技能版本: 1.0.0*
-*创建日期: 2026-03-06*
-*相关文档: 
-  - fullstack-code-standards/SKILL.md
-  - game-tester/SKILL.md
-  - architect/SKILL.md*
-*遵守规范: .trae/rules/project-rules/SKILL.md*
+_技能版本: 1.0.0_
+_创建日期: 2026-03-06_ \*相关文档:
+
+- fullstack-code-standards/SKILL.md
+- game-tester/SKILL.md
+- architect/SKILL.md\*
+  _遵守规范: .trae/rules/project-rules/SKILL.md_

@@ -1,6 +1,6 @@
 ---
-name: "cypress-expert"
-description: "Provides expert guidance on end-to-end testing using Cypress. Invoke when the user asks about writing tests, selectors, or debugging in Cypress."
+name: 'cypress-expert'
+description: 'Provides expert guidance on end-to-end testing using Cypress. Invoke when the user asks about writing tests, selectors, or debugging in Cypress.'
 ---
 
 # Cypress Expert
@@ -18,6 +18,7 @@ This skill provides expert knowledge and assistance for Cypress based on the off
 ## When to Use
 
 Invoke this skill when the user:
+
 - Asks how to write end-to-end tests for web applications.
 - Needs help with interacting with the DOM or making assertions.
 - Enters queries about `cy` commands, plugins, or CI integration.

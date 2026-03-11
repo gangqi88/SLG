@@ -1,6 +1,6 @@
 ---
-name: "vite-expert"
-description: "Provides expert guidance on using Vite for frontend tooling. Invoke when the user asks about Vite configuration, plugins, bundling, or dev server."
+name: 'vite-expert'
+description: 'Provides expert guidance on using Vite for frontend tooling. Invoke when the user asks about Vite configuration, plugins, bundling, or dev server.'
 ---
 
 # Vite Expert
@@ -18,6 +18,7 @@ This skill provides expert knowledge and assistance for Vite based on the offici
 ## When to Use
 
 Invoke this skill when the user:
+
 - Asks how to configure Vite for a project.
 - Needs help with environment variables, aliases, or proxy settings.
 - Enters queries about build performance or output generation.

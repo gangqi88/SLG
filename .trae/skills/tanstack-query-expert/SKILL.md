@@ -1,6 +1,6 @@
 ---
-name: "tanstack-query-expert"
-description: "Provides expert guidance on data fetching and state management using TanStack Query (React Query). Invoke when the user asks about fetching, caching, or mutations."
+name: 'tanstack-query-expert'
+description: 'Provides expert guidance on data fetching and state management using TanStack Query (React Query). Invoke when the user asks about fetching, caching, or mutations.'
 ---
 
 # TanStack Query Expert
@@ -18,6 +18,7 @@ This skill provides expert knowledge and assistance for TanStack Query (formerly
 ## When to Use
 
 Invoke this skill when the user:
+
 - Asks how to fetch data in React (or other frameworks supported by TanStack Query).
 - Needs help with caching, loading states, or error handling.
 - Enters queries about `useQuery`, `useMutation`, or `useInfiniteQuery`.

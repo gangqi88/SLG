@@ -1,6 +1,6 @@
 ---
-name: "immer-expert"
-description: "Provides expert guidance on managing immutable state updates using Immer. Invoke when the user asks about state mutation, Redux reducers, or nested state updates."
+name: 'immer-expert'
+description: 'Provides expert guidance on managing immutable state updates using Immer. Invoke when the user asks about state mutation, Redux reducers, or nested state updates.'
 ---
 
 # Immer Expert
@@ -18,6 +18,7 @@ This skill provides expert knowledge and assistance for Immer based on the offic
 ## When to Use
 
 Invoke this skill when the user:
+
 - Asks how to update complex nested state in JavaScript/React.
 - Needs help with simplifying reducer logic.
 - Enters queries about `produce`, drafts, or patches.

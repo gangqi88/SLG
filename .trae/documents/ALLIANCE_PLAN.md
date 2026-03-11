@@ -9,38 +9,40 @@
 
 ## 修订记录 (Revision History)
 
-| 版本 | 日期 | 作者 | 变更内容 |
-|------|------|------|----------|
-| 1.0.0 | 2026-02-18 | 系统 | 初始版本，仅包含签到、交易、议事厅、联盟商店 |
+| 版本  | 日期       | 作者   | 变更内容                                                            |
+| ----- | ---------- | ------ | ------------------------------------------------------------------- |
+| 1.0.0 | 2026-02-18 | 系统   | 初始版本，仅包含签到、交易、议事厅、联盟商店                        |
 | 2.0.0 | 2026-03-10 | AI助手 | 全面升级，对齐Web3游戏项目-SLG.md，新增联盟科技、联盟战、Web3集成等 |
 
 ---
 
 ## 术语表 (Glossary)
 
-| 术语 | 定义 | i18n Key |
-|------|------|----------|
-| Alliance | 联盟，玩家组成的社交团体 | alliance.title |
-| Contribution | 贡献点，联盟内流通的积分货币 | alliance.contribution |
-| Alliance Tech | 联盟科技，全员属性增益系统 | alliance.tech |
-| Alliance War | 联盟战，联盟间的PVP战斗系统 | alliance.war |
-| Treasury | 联盟国库，链上资金/资产存储 | alliance.treasury |
-| Check-in | 签到，每日福利领取 | alliance.checkin |
-| Chat Hall | 议事厅，联盟内即时通讯 | alliance.chat |
-| Shop | 联盟商店，贡献点兑换系统 | alliance.shop |
-| Trade | 联盟交易，成员间资源/英雄互换 | alliance.trade |
+| 术语          | 定义                          | i18n Key              |
+| ------------- | ----------------------------- | --------------------- |
+| Alliance      | 联盟，玩家组成的社交团体      | alliance.title        |
+| Contribution  | 贡献点，联盟内流通的积分货币  | alliance.contribution |
+| Alliance Tech | 联盟科技，全员属性增益系统    | alliance.tech         |
+| Alliance War  | 联盟战，联盟间的PVP战斗系统   | alliance.war          |
+| Treasury      | 联盟国库，链上资金/资产存储   | alliance.treasury     |
+| Check-in      | 签到，每日福利领取            | alliance.checkin      |
+| Chat Hall     | 议事厅，联盟内即时通讯        | alliance.chat         |
+| Shop          | 联盟商店，贡献点兑换系统      | alliance.shop         |
+| Trade         | 联盟交易，成员间资源/英雄互换 | alliance.trade        |
 
 ---
 
 ## 依赖接口 (Dependency Interfaces)
 
 ### 内部接口
+
 - `ResourceManager`: 资源管理（木材、石料、粮食、铜币）
 - `HeroManager`: 英雄管理（获取、养成、阵容）
 - `BattleManager`: 战斗系统（战斗计算、战报生成）
 - `GameManager`: 游戏主控（状态同步、事件总线）
 
 ### 外部接口（Web3）
+
 - `IAllianceNFT`: 联盟NFT合约接口
 - `ITreasuryContract`: 国库合约接口
 - `IRandomOracle`: 随机数预言机接口
@@ -50,13 +52,15 @@
 ## 风险与合规 (Risk & Compliance)
 
 ### 风险识别
-| 风险项 | 等级 | 缓解措施 |
-|--------|------|----------|
-| 联盟资金被盗 | 高 | 多签机制、冷却期、额度限制 |
-| 联盟战恶意宣战 | 中 | 宣战CD、保证金制度 |
-| Web3钱包兼容 | 中 | 多钱包支持（UniSat/Fractal） |
+
+| 风险项         | 等级 | 缓解措施                     |
+| -------------- | ---- | ---------------------------- |
+| 联盟资金被盗   | 高   | 多签机制、冷却期、额度限制   |
+| 联盟战恶意宣战 | 中   | 宣战CD、保证金制度           |
+| Web3钱包兼容   | 中   | 多钱包支持（UniSat/Fractal） |
 
 ### 合规检查清单
+
 - [ ] KYC/AML合规（玩家身份验证）
 - [ ] 数据隐私（GDPR/CCPA）
 - [ ] 智能合约审计
@@ -68,16 +72,19 @@
 ## 1. 目标 (Objectives)
 
 ### 1.1 业务目标
+
 - 构建玩家社交核心载体，提升留存与付费
 - 实现联盟NFT化，支持链上确权与交易
 - 建立联盟贡献循环，促进生态活跃
 
 ### 1.2 技术目标
+
 - 链上联盟数据存储（国库、智能合约）
 - 前端实时同步（WebSocket/轮询）
 - 智能合约Gas优化（<500K per tx）
 
 ### 1.3 设计目标
+
 - 对齐Web3游戏项目-SLG.md:10.5联盟系统规范
 - 支持30名英雄、3族阵营的联盟加成
 - 赛季制联盟战（S1/S2/S3）
@@ -87,24 +94,27 @@
 ## 2. 规则 (Rules)
 
 ### 2.1 联盟创建与加入
+
 - **创建条件**: 消耗 `10,000` 铜币，无联盟可创建
 - **加入条件**: 联盟人数 < 上限，盟主/官员审批
 - **退出条件**: 提前24小时申请，离盟扣除50%贡献点
 - **解散条件**: 盟主手动解散，7天无成员自动解散
 
 ### 2.2 联盟等级与规模
-| 等级 | 成员上限 | 升级成本(铜币) | 解锁功能 |
-|------|----------|----------------|----------|
-| 1 | 10 | 0 | 基础聊天 |
-| 2 | 15 | 50,000 | 签到、交易 |
-| 3 | 20 | 150,000 | 联盟商店 |
-| 4 | 30 | 400,000 | 联盟科技Lv1 |
-| 5 | 50 | 1,000,000 | 联盟战 |
-| 6 | 80 | 2,500,000 | 联盟科技Lv2 |
-| 7 | 100 | 5,000,000 | 联盟科技Lv3 |
-| 8 | 150 | 10,000,000 | 联盟战高级 |
+
+| 等级 | 成员上限 | 升级成本(铜币) | 解锁功能    |
+| ---- | -------- | -------------- | ----------- |
+| 1    | 10       | 0              | 基础聊天    |
+| 2    | 15       | 50,000         | 签到、交易  |
+| 3    | 20       | 150,000        | 联盟商店    |
+| 4    | 30       | 400,000        | 联盟科技Lv1 |
+| 5    | 50       | 1,000,000      | 联盟战      |
+| 6    | 80       | 2,500,000      | 联盟科技Lv2 |
+| 7    | 100      | 5,000,000      | 联盟科技Lv3 |
+| 8    | 150      | 10,000,000     | 联盟战高级  |
 
 ### 2.3 联盟贡献度
+
 - **获取途径**:
   - 资源捐赠: 1资源 = 1贡献点（基础）
   - 英雄捐赠: 紫将=500, 橙将=2000, 红将=10000
@@ -117,15 +127,17 @@
   - 解锁联盟建筑
 
 ### 2.4 联盟科技
-| 科技名称 | 效果 | 满级 | 每级成本(贡献点) | 升级时间 |
-|----------|------|------|------------------|----------|
-| 资源增产 | 全资源+5%/级 | 5级 | 500 | 1小时 |
-| 训练加速 | 征兵速度+8%/级 | 5级 | 800 | 2小时 |
-| 防御强化 | 城防+10%/级 | 5级 | 1000 | 3小时 |
-| 攻击强化 | 野战伤害+8%/级 | 5级 | 1000 | 3小时 |
-| 采集增益 | 采集速度+15%/级 | 3级 | 1500 | 6小时 |
+
+| 科技名称 | 效果            | 满级 | 每级成本(贡献点) | 升级时间 |
+| -------- | --------------- | ---- | ---------------- | -------- |
+| 资源增产 | 全资源+5%/级    | 5级  | 500              | 1小时    |
+| 训练加速 | 征兵速度+8%/级  | 5级  | 800              | 2小时    |
+| 防御强化 | 城防+10%/级     | 5级  | 1000             | 3小时    |
+| 攻击强化 | 野战伤害+8%/级  | 5级  | 1000             | 3小时    |
+| 采集增益 | 采集速度+15%/级 | 3级  | 1500             | 6小时    |
 
 ### 2.5 联盟战规则
+
 - **宣战条件**: 联盟等级≥5，宣战令×1
 - **宣战CD**: 48小时冷却
 - **保证金**: 双方各押50,000铜币
@@ -138,38 +150,41 @@
 ## 3. 数值 (Numerical Parameters)
 
 ### 3.1 联盟升级成本（铜币）
+
 ```
 LevelCost(lvl) = base * (growthRate ^ (lvl - 1))
 - base = 50000
 - growthRate = 1.8
 ```
 
-| 等级 | 升级成本 | 累计成本 |
-|------|----------|----------|
-| 1→2 | 50,000 | 50,000 |
-| 2→3 | 90,000 | 140,000 |
-| 3→4 | 162,000 | 302,000 |
-| 3→5 | 291,600 | 593,600 |
-| 5→6 | 524,880 | 1,118,480 |
-| 6→7 | 944,784 | 2,063,264 |
-| 7→8 | 1,700,611 | 3,763,875 |
+| 等级 | 升级成本  | 累计成本  |
+| ---- | --------- | --------- |
+| 1→2  | 50,000    | 50,000    |
+| 2→3  | 90,000    | 140,000   |
+| 3→4  | 162,000   | 302,000   |
+| 3→5  | 291,600   | 593,600   |
+| 5→6  | 524,880   | 1,118,480 |
+| 6→7  | 944,784   | 2,063,264 |
+| 7→8  | 1,700,611 | 3,763,875 |
 
 ### 3.2 签到奖励池（每日释放）
+
 - **总池**: 100,000贡献点/日
 - **分配规则**: 按联盟活跃度加权
 - **个人上限**: 200贡献点/日
 
 ### 3.3 联盟商店物品
-| 物品ID | 名称 | 价格(贡献点) | 库存/周 |
-|--------|------|--------------|----------|
-| hero_purple | 将魂(紫)×100 | 500 | 20 |
-| hero_orange | 将魂(橙)×100 | 2000 | 5 |
-| resource_wood | 木材×10,000 | 100 | 100 |
-| resource_stone | 石料×10,000 | 100 | 100 |
-| resource_food | 粮食×10,000 | 100 | 100 |
-| resource_gold | 铜币×1,000 | 200 | 50 |
-| speedup_1h | 加速×1小时 | 300 | 30 |
-| speedup_24h | 加速×24小时 | 5000 | 5 |
+
+| 物品ID         | 名称         | 价格(贡献点) | 库存/周 |
+| -------------- | ------------ | ------------ | ------- |
+| hero_purple    | 将魂(紫)×100 | 500          | 20      |
+| hero_orange    | 将魂(橙)×100 | 2000         | 5       |
+| resource_wood  | 木材×10,000  | 100          | 100     |
+| resource_stone | 石料×10,000  | 100          | 100     |
+| resource_food  | 粮食×10,000  | 100          | 100     |
+| resource_gold  | 铜币×1,000   | 200          | 50      |
+| speedup_1h     | 加速×1小时   | 300          | 30      |
+| speedup_24h    | 加速×24小时  | 5000         | 5       |
 
 ---
 
@@ -181,9 +196,9 @@ LevelCost(lvl) = base * (growthRate ^ (lvl - 1))
 // src/types/Alliance.ts
 
 export enum AllianceRole {
-  LEADER = 'leader',      // 盟主
-  OFFICER = 'officer',    // 官员
-  MEMBER = 'member'       // 成员
+  LEADER = 'leader', // 盟主
+  OFFICER = 'officer', // 官员
+  MEMBER = 'member', // 成员
 }
 
 export interface Alliance {
@@ -298,37 +313,37 @@ class AllianceManager {
   joinAlliance(id: string): Promise<void>;
   leaveAlliance(): Promise<void>;
   updateAnnouncement(content: string): Promise<void>;
-  
+
   // ============ 签到系统 ============
-  checkIn(): Promise<{contribution: number, resources: ResourceAmount}>;
-  getCheckInStatus(): {available: boolean, streak: number};
-  
+  checkIn(): Promise<{ contribution: number; resources: ResourceAmount }>;
+  getCheckInStatus(): { available: boolean; streak: number };
+
   // ============ 聊天系统 ============
   sendChatMessage(content: string): Promise<ChatMessage>;
   getChatHistory(offset?: number, limit?: number): Promise<ChatMessage[]>;
-  
+
   // ============ 商店系统 ============
   getShopItems(): Promise<ShopItem[]>;
   buyShopItem(itemId: string, quantity: number): Promise<boolean>;
-  
+
   // ============ 交易系统 ============
   createTradeRequest(offer: TradeOffer, request: TradeRequest): Promise<TradeRequest>;
   acceptTradeRequest(tradeId: string): Promise<boolean>;
   cancelTradeRequest(tradeId: string): Promise<void>;
-  
+
   // ============ 广告系统 ============
   placeAdBid(amount: number): Promise<AdBid>;
   getAdInfo(): Promise<AdSpace | null>;
-  
+
   // ============ 科技系统 ============
   upgradeTech(techId: string): Promise<boolean>;
   getTechInfo(): Promise<AllianceTech[]>;
-  
+
   // ============ 联盟战 ============
   declareWar(targetAllianceId: string): Promise<AllianceWar>;
   getWarInfo(): Promise<AllianceWar | null>;
   submitWarScore(score: number): Promise<void>;
-  
+
   // ============ 持久化 ============
   save(): Promise<boolean>;
   load(): Promise<boolean>;
@@ -370,19 +385,19 @@ interface IAllianceEvents {
         address indexed creator,
         uint256 timestamp
     );
-    
+
     event MemberJoined(
         uint256 indexed allianceId,
         address indexed member,
         uint256 timestamp
     );
-    
+
     event MemberLeft(
         uint256 indexed allianceId,
         address indexed member,
         uint256 timestamp
     );
-    
+
     event ContributionReceived(
         uint256 indexed allianceId,
         address indexed member,
@@ -390,7 +405,7 @@ interface IAllianceEvents {
         uint256 totalContribution,
         uint256 timestamp
     );
-    
+
     event ShopPurchase(
         uint256 indexed allianceId,
         address indexed buyer,
@@ -399,7 +414,7 @@ interface IAllianceEvents {
         uint256 totalPaid,
         uint256 timestamp
     );
-    
+
     event TechUpgraded(
         uint256 indexed allianceId,
         string techName,
@@ -407,7 +422,7 @@ interface IAllianceEvents {
         uint256 upgradeCost,
         uint256 timestamp
     );
-    
+
     event WarDeclared(
         uint256 indexed attackerId,
         uint256 indexed defenderId,
@@ -416,14 +431,14 @@ interface IAllianceEvents {
         uint256 attackerDeposit,
         uint256 defenderDeposit
     );
-    
+
     event WarEnded(
         uint256 indexed warId,
         uint256 indexed winnerId,
         uint256 loserReward,
         uint256 timestamp
     );
-    
+
     event TreasuryDeposit(
         uint256 indexed allianceId,
         address indexed depositor,
@@ -431,7 +446,7 @@ interface IAllianceEvents {
         uint256 newBalance,
         uint256 timestamp
     );
-    
+
     event TreasuryWithdraw(
         uint256 indexed allianceId,
         address indexed recipient,
@@ -444,17 +459,17 @@ interface IAllianceEvents {
 
 ### 5.2 Gas估算
 
-| 操作 | 预估Gas | 条件 |
-|------|---------|------|
-| 创建联盟 | 350,000 | 首次部署NFT |
-| 加入联盟 | 80,000 | 状态更新 |
-| 签到 | 60,000 | 贡献点写入 |
-| 捐赠资源 | 100,000 | 链上记录 |
-| 科技升级 | 200,000 | 状态+事件 |
-| 商店购买 | 120,000 | 库存校验 |
-| 宣战 | 180,000 | 保证金锁定 |
-| 国库存款 | 50,000 | ETH transfer |
-| 国库取款 | 80,000 | 多签验证 |
+| 操作     | 预估Gas | 条件         |
+| -------- | ------- | ------------ |
+| 创建联盟 | 350,000 | 首次部署NFT  |
+| 加入联盟 | 80,000  | 状态更新     |
+| 签到     | 60,000  | 贡献点写入   |
+| 捐赠资源 | 100,000 | 链上记录     |
+| 科技升级 | 200,000 | 状态+事件    |
+| 商店购买 | 120,000 | 库存校验     |
+| 宣战     | 180,000 | 保证金锁定   |
+| 国库存款 | 50,000  | ETH transfer |
+| 国库取款 | 80,000  | 多签验证     |
 
 ### 5.3 前端事件监听示例
 
@@ -486,11 +501,14 @@ export const useAllianceEvents = (allianceId: string) => {
     // 显示购买成功提示
   }, []);
 
-  const handleTechUpgrade = useCallback((event: AllianceEvent & { techName: string; newLevel: number }) => {
-    console.log('Tech upgraded:', event);
-    // 刷新科技界面
-    // 显示升级成功动画
-  }, []);
+  const handleTechUpgrade = useCallback(
+    (event: AllianceEvent & { techName: string; newLevel: number }) => {
+      console.log('Tech upgraded:', event);
+      // 刷新科技界面
+      // 显示升级成功动画
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!provider || !contracts.alliance) return;
@@ -540,28 +558,28 @@ interface IAlliance is IERC721 {
     function createAlliance(string calldata name) external returns (uint256);
     function joinAlliance(uint256 allianceId) external;
     function leaveAlliance(uint256 allianceId) external;
-    
+
     function contribute(uint256 allianceId, uint256 amount) external;
     function checkIn(uint256 allianceId) external returns (uint256 reward);
-    
+
     function purchaseShopItem(
         uint256 allianceId,
         uint256 itemId,
         uint256 quantity
     ) external returns (bool);
-    
+
     function upgradeTech(
         uint256 allianceId,
         string calldata techName
     ) external returns (bool);
-    
+
     function declareWar(
         uint256 attackerId,
         uint256 defenderId
     ) external payable returns (uint256 warId);
-    
+
     function resolveWar(uint256 warId) external;
-    
+
     // 国库功能
     function depositToTreasury(uint256 allianceId) external payable;
     function withdrawFromTreasury(
@@ -583,33 +601,33 @@ interface IAlliance is IERC721 {
 
 ### 6.1 功能验收
 
-| 功能 | 验收条件 | 测试方法 |
-|------|----------|----------|
-| 创建联盟 | 铜币扣除，NFT minted，盟主权限正确 | 创建后查询链上数据 |
-| 加入/离开 | 成员列表更新，贡献点正确处理 | 多账号测试 |
-| 签到 | 贡献点增加，冷却时间正确 | 连续签到测试 |
-| 商店购买 | 库存减少，贡献点扣除，物品发放 | 购买后查询 |
-| 科技升级 | 等级提升，属性加成生效 | 战斗测试验证 |
-| 联盟战 | 宣战、战斗、结算流程完整 | 模拟对战 |
-| 国库 | 存取款正确，多签生效 | 存取测试 |
+| 功能      | 验收条件                           | 测试方法           |
+| --------- | ---------------------------------- | ------------------ |
+| 创建联盟  | 铜币扣除，NFT minted，盟主权限正确 | 创建后查询链上数据 |
+| 加入/离开 | 成员列表更新，贡献点正确处理       | 多账号测试         |
+| 签到      | 贡献点增加，冷却时间正确           | 连续签到测试       |
+| 商店购买  | 库存减少，贡献点扣除，物品发放     | 购买后查询         |
+| 科技升级  | 等级提升，属性加成生效             | 战斗测试验证       |
+| 联盟战    | 宣战、战斗、结算流程完整           | 模拟对战           |
+| 国库      | 存取款正确，多签生效               | 存取测试           |
 
 ### 6.2 性能验收
 
-| 指标 | 目标值 | 测试方法 |
-|------|--------|----------|
-| 链上交易确认 | <30秒 | 计时测试 |
-| 前端响应 | <200ms | 性能分析 |
-| 内存占用 | <100MB | 内存分析 |
-| 离线同步 | 7天内数据不丢失 | 模拟离线 |
+| 指标         | 目标值          | 测试方法 |
+| ------------ | --------------- | -------- |
+| 链上交易确认 | <30秒           | 计时测试 |
+| 前端响应     | <200ms          | 性能分析 |
+| 内存占用     | <100MB          | 内存分析 |
+| 离线同步     | 7天内数据不丢失 | 模拟离线 |
 
 ### 6.3 安全验收
 
-| 检查项 | 验收条件 |
-|--------|----------|
-| 权限控制 | 非盟主无法执行管理操作 |
-| 金额限制 | 单次操作不超过上限 |
+| 检查项   | 验收条件                        |
+| -------- | ------------------------------- |
+| 权限控制 | 非盟主无法执行管理操作          |
+| 金额限制 | 单次操作不超过上限              |
 | 重入保护 | 遵循Checks-Effects-Interactions |
-| 整数溢出 | 使用SafeMath或Solidity 0.8+ |
+| 整数溢出 | 使用SafeMath或Solidity 0.8+     |
 
 ---
 
@@ -642,7 +660,7 @@ export const allianceKeys = {
   'alliance.create': '创建联盟',
   'alliance.join': '加入联盟',
   'alliance.leave': '离开联盟',
-  
+
   // 功能
   'alliance.checkin': '签到',
   'alliance.checkin.success': '签到成功，获得 {amount} 贡献点',
@@ -652,28 +670,28 @@ export const allianceKeys = {
   'alliance.trade': '交易',
   'alliance.tech': '联盟科技',
   'alliance.war': '联盟战',
-  
+
   // 贡献
   'alliance.contribution': '贡献点',
   'alliance.contribution.total': '总贡献',
   'alliance.contribution.weekly': '本周贡献',
-  
+
   // 商店
   'alliance.shop.buy': '购买',
   'alliance.shop.soldout': '已售罄',
   'alliance.shop.insufficient': '贡献点不足',
-  
+
   // 科技
   'alliance.tech.upgrade': '升级',
   'alliance.tech.max': '已满级',
   'alliance.tech.unlock': '解锁条件：联盟等级 {level}',
-  
+
   // 联盟战
   'alliance.war.declare': '宣战',
   'alliance.war.join': '参战',
   'alliance.war.victory': '胜利',
   'alliance.war.defeat': '战败',
-  
+
   // 合规
   'alliance.compliance.kyc': 'KYC验证',
   'alliance.compliance.restricted': '您所在的地区无法使用联盟功能',
@@ -695,4 +713,4 @@ export const allianceKeys = {
 
 ---
 
-*文档结束*
+_文档结束_

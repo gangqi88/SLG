@@ -1,6 +1,6 @@
 ---
-name: "nextjs-expert"
-description: "Provides expert guidance on Next.js development, features, and best practices. Invoke when the user asks about Next.js configuration, routing, rendering, or specific features from the Next.js repository."
+name: 'nextjs-expert'
+description: 'Provides expert guidance on Next.js development, features, and best practices. Invoke when the user asks about Next.js configuration, routing, rendering, or specific features from the Next.js repository.'
 ---
 
 # Next.js Expert
@@ -18,6 +18,7 @@ This skill provides expert knowledge and assistance for Next.js development base
 ## When to Use
 
 Invoke this skill when the user:
+
 - Asks how to implement a feature in Next.js.
 - Needs help with Next.js configuration or setup.
 - Enters queries about specific Next.js APIs or components.

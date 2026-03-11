@@ -1,6 +1,6 @@
 ---
-name: "react-hook-form-expert"
-description: "Provides expert guidance on building forms in React using React Hook Form. Invoke when the user asks about form validation, inputs, or handling form state."
+name: 'react-hook-form-expert'
+description: 'Provides expert guidance on building forms in React using React Hook Form. Invoke when the user asks about form validation, inputs, or handling form state.'
 ---
 
 # React Hook Form Expert
@@ -18,6 +18,7 @@ This skill provides expert knowledge and assistance for React Hook Form based on
 ## When to Use
 
 Invoke this skill when the user:
+
 - Asks how to build or manage forms in React.
 - Needs help with validation rules, error handling, or submission.
 - Enters queries about `register`, `handleSubmit`, or `Controller`.

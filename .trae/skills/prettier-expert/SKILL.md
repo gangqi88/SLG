@@ -1,6 +1,6 @@
 ---
-name: "prettier-expert"
-description: "Provides expert guidance on code formatting using Prettier. Invoke when the user asks about code style, formatting rules, or Prettier configuration."
+name: 'prettier-expert'
+description: 'Provides expert guidance on code formatting using Prettier. Invoke when the user asks about code style, formatting rules, or Prettier configuration.'
 ---
 
 # Prettier Expert
@@ -18,6 +18,7 @@ This skill provides expert knowledge and assistance for Prettier based on the of
 ## When to Use
 
 Invoke this skill when the user:
+
 - Asks how to set up automatic code formatting.
 - Needs help with configuring Prettier options.
 - Enters queries about code style enforcement or editor integration.
