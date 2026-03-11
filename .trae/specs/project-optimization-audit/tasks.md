@@ -1,14 +1,14 @@
 # Tasks
 
-- [ ] Task 1: Architecture Audit & Setup: Review and refactor project structure for scalability.
-  - [ ] SubTask 1.1: Analyze current directory structure and dependencies.
-  - [ ] SubTask 1.2: Refactor `src` to Feature-Based structure (e.g., `features/auth`, `features/city`).
-  - [ ] SubTask 1.3: Update `tsconfig.json` paths for cleaner imports.
+- [x] Task 1: Architecture Audit & Setup: Review and refactor project structure for scalability.
+  - [x] SubTask 1.1: Analyze current directory structure and dependencies.
+  - [x] SubTask 1.2: Refactor `src` to Feature-Based structure (e.g., `features/auth`, `features/city`).
+  - [x] SubTask 1.3: Update `tsconfig.json` paths for cleaner imports.
 
-- [ ] Task 2: Linting & Formatting Enforcement: Ensure code quality and consistency.
-  - [ ] SubTask 2.1: Update ESLint configuration with strict rules (React Hooks, A11y).
-  - [ ] SubTask 2.2: Install and configure `stylelint` for CSS/SCSS files.
-  - [ ] SubTask 2.3: Configure Prettier and ensure EditorConfig consistency.
+- [x] Task 2: Linting & Formatting Enforcement: Ensure code quality and consistency.
+  - [x] SubTask 2.1: Update ESLint configuration with strict rules (React Hooks, A11y).
+  - [x] SubTask 2.2: Install and configure `stylelint` for CSS/SCSS files.
+  - [x] SubTask 2.3: Configure Prettier and ensure EditorConfig consistency.
 
 - [ ] Task 3: Routing Implementation: Replace manual view switching with React Router.
   - [ ] SubTask 3.1: Install `react-router-dom`.
