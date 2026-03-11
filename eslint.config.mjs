@@ -21,15 +21,12 @@ export default tseslint.config(
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
-      'prettier': prettierPlugin,
+      prettier: prettierPlugin,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
-      
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+
       // Prettier
       'prettier/prettier': 'error',
 
@@ -38,8 +35,8 @@ export default tseslint.config(
       'no-debugger': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'eqeqeq': ['error', 'always'],
-      'curly': 'error',
+      eqeqeq: ['error', 'always'],
+      curly: 'error',
     },
   },
   prettierConfig,
