@@ -29,17 +29,22 @@ interface AllianceEvent {
   timestamp: number;
 }
 
+import MockAllianceService from './MockAllianceService';
+import { WithdrawalRequest } from '../../contracts/ITreasuryContract';
+
 class AllianceManager {
   private static instance: AllianceManager;
   private state: AllianceState;
   private listeners: Set<(event: AllianceEvent) => void> = new Set();
   private playerId: string;
   private playerName: string;
+  private web3Service: MockAllianceService;
 
   private constructor() {
     this.playerId = `player_${Date.now()}`;
     this.playerName = 'Player';
     this.state = this.loadState();
+    this.web3Service = MockAllianceService.getInstance();
   }
 
   public static getInstance(): AllianceManager {
@@ -194,6 +199,11 @@ class AllianceManager {
     this.saveState();
     this.emit('alliance', alliance);
 
+    // Sync with Web3
+    this.web3Service.createAlliance(name).then(tx => {
+      console.log('Alliance created on-chain:', tx);
+    });
+
     return alliance;
   }
 
@@ -213,6 +223,11 @@ class AllianceManager {
 
     this.state.applications.push(application);
     this.saveState();
+
+    // Sync with Web3
+    this.web3Service.joinAlliance(allianceId).then(tx => {
+      console.log('Joined alliance on-chain:', tx);
+    });
 
     return true;
   }
@@ -244,6 +259,13 @@ class AllianceManager {
 
     this.saveState();
     this.emit('member', { action: 'leave', playerId: this.playerId });
+
+    // Sync with Web3
+    if (this.state.currentAlliance) {
+      this.web3Service.leaveAlliance(this.state.currentAlliance.id).then(tx => {
+        console.log('Left alliance on-chain:', tx);
+      });
+    }
 
     return true;
   }
@@ -315,6 +337,11 @@ class AllianceManager {
 
     this.saveState();
     this.emit('contribution', { contribution: reward, streak: this.state.checkInStreak });
+
+    // Sync with Web3
+    this.web3Service.checkIn(this.state.currentAlliance.id).then(tx => {
+      console.log('Checked in on-chain:', tx);
+    });
 
     return { contribution: reward, streak: this.state.checkInStreak };
   }
@@ -392,6 +419,13 @@ class AllianceManager {
 
     this.saveState();
     this.emit('shop', { itemId, quantity });
+
+    // Sync with Web3
+    if (this.state.currentAlliance) {
+      this.web3Service.purchaseShopItem(this.state.currentAlliance.id, itemId, quantity).then(tx => {
+        console.log('Purchased shop item on-chain:', tx);
+      });
+    }
 
     return true;
   }
@@ -526,6 +560,11 @@ class AllianceManager {
     this.saveState();
     this.emit('tech', { techId, newLevel: currentLevel + 1 });
 
+    // Sync with Web3
+    this.web3Service.upgradeTech(this.state.currentAlliance.id, techId).then(tx => {
+      console.log('Upgraded tech on-chain:', tx);
+    });
+
     return true;
   }
 
@@ -579,6 +618,11 @@ class AllianceManager {
     this.saveState();
     this.emit('war', war);
 
+    // Sync with Web3
+    this.web3Service.declareWar(this.state.currentAlliance.id, targetAllianceId).then(tx => {
+      console.log('Declared war on-chain:', tx);
+    });
+
     return war;
   }
 
@@ -625,6 +669,11 @@ class AllianceManager {
 
     this.saveState();
     this.emit('war', war);
+
+    // Sync with Web3
+    this.web3Service.resolveWar(war.id).then(tx => {
+      console.log('Resolved war on-chain:', tx);
+    });
 
     return war;
   }
@@ -688,7 +737,59 @@ class AllianceManager {
     this.saveState();
     this.emit('contribution', { type, amount: contribution });
 
+    // Sync with Web3
+    if (this.state.currentAlliance) {
+      this.web3Service.contribute(this.state.currentAlliance.id, contribution.toString()).then(tx => {
+        console.log('Contributed on-chain:', tx);
+      });
+    }
+
     return contribution;
+  }
+
+  public async depositToTreasury(amount: number): Promise<boolean> {
+    if (!this.state.currentAlliance) {
+      return false;
+    }
+
+    if (this.state.playerContribution < amount) {
+      return false;
+    }
+
+    this.state.playerContribution -= amount;
+    
+    // Sync with Web3
+    await this.web3Service.deposit(this.state.currentAlliance.id, amount.toString());
+    
+    this.saveState();
+    this.emit('contribution', { type: 'gold', amount }); // Treat deposit as contribution
+    
+    return true;
+  }
+
+  public async requestWithdrawFromTreasury(amount: number, recipient: string): Promise<boolean> {
+    if (!this.state.currentAlliance || this.state.playerRole !== 'leader') {
+      return false;
+    }
+
+    // Sync with Web3
+    await this.web3Service.requestWithdraw(this.state.currentAlliance.id, amount.toString(), recipient);
+    
+    return true;
+  }
+
+  public async getTreasuryBalance(): Promise<string> {
+    if (!this.state.currentAlliance) {
+      return '0';
+    }
+    return await this.web3Service.getBalance(this.state.currentAlliance.id);
+  }
+
+  public async getPendingWithdrawals(): Promise<WithdrawalRequest[]> {
+    if (!this.state.currentAlliance) {
+      return [];
+    }
+    return await this.web3Service.getPendingWithdrawals(this.state.currentAlliance.id);
   }
 
   public async save(): Promise<boolean> {
