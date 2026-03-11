@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import HeroList from './components/HeroList';
-import BattleView from './components/BattleView';
-import CityView from './components/CityView';
-import TaskView from './components/TaskView';
-import GachaView from './components/GachaView';
-import LootBoxView from './components/LootBoxView';
-import GatheringView from './components/GatheringView';
-import TowerDefenseView from './components/TowerDefenseView';
-import CookingView from './components/CookingView';
-import SiegeView from './components/SiegeView';
-import WalletConnect from './components/WalletConnect';
-import { humanHeroes } from './data/humanHeroes';
-import { demonHeroes } from './data/demonHeroes';
-import { WalletAccount } from './utils/web3';
+import HeroList from '@/features/hero/components/HeroList';
+import BattleView from '@/features/battle/components/BattleView';
+import CityView from '@/features/city/components/CityView';
+import TaskView from '@/features/task/components/TaskView';
+import GachaView from '@/features/gacha/components/GachaView';
+import LootBoxView from '@/features/gacha/components/LootBoxView';
+import GatheringView from '@/features/resource/components/GatheringView';
+import TowerDefenseView from '@/features/battle/components/TowerDefenseView';
+import CookingView from '@/features/resource/components/CookingView';
+import SiegeView from '@/features/battle/components/SiegeView';
+import WalletConnect from '@/shared/components/WalletConnect';
+import { humanHeroes } from '@/features/hero/data/humanHeroes';
+import { demonHeroes } from '@/features/hero/data/demonHeroes';
+import { WalletAccount } from '@/shared/utils/web3';
 
 const App: React.FC = () => {
   const [view, setView] = useState<'heroList' | 'battle' | 'city' | 'tasks' | 'gacha' | 'gathering' | 'lootbox' | 'towerDefense' | 'cooking' | 'siege'>('heroList');

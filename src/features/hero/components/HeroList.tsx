@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Hero, Quality, Race } from '../types/Hero';
-import { allHeroes } from '../data/heroes';
+import { Hero, Quality, Race } from '@/features/hero/types/Hero';
+import { allHeroes } from '@/features/hero/data/heroes';
 import HeroDetail from './HeroDetail';
 
 const HeroList: React.FC = () => {

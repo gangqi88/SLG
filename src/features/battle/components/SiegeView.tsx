@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Phaser from 'phaser';
-import { SiegeManager, SiegePhase } from '../game/logic/SiegeManager';
-import { SneakAttackScene } from '../game/scenes/SneakAttackScene';
-import { DemolitionScene } from '../game/scenes/DemolitionScene';
-import { SiegeBattleScene } from '../game/scenes/SiegeBattleScene';
-import { HUMAN_HEROES } from '../data/humanHeroes';
+import { SiegeManager, SiegePhase } from '@/features/battle/logic/SiegeManager';
+import { SneakAttackScene } from '@/features/battle/scenes/SneakAttackScene';
+import { DemolitionScene } from '@/features/battle/scenes/DemolitionScene';
+import { SiegeBattleScene } from '@/features/battle/scenes/SiegeBattleScene';
+import { HUMAN_HEROES } from '@/features/hero/data/humanHeroes';
 
 interface SiegeViewProps {
   onExit: () => void;

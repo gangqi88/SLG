@@ -1,4 +1,4 @@
-import { Hero, Race, Quality, TroopType } from '../types/Hero';
+import { Hero, Race, Quality, TroopType } from '@/features/hero/types/Hero';
 
 export const WALL_HERO: Hero = {
   id: 'wall_01',

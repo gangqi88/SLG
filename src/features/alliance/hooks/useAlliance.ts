@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import AllianceManager from '../game/logic/AllianceManager';
+import AllianceManager from '@/features/alliance/logic/AllianceManager';
 import {
   Alliance,
   AllianceMember,

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAlliance } from '../../hooks/useAlliance';
-import { AllianceRole } from '../../types/Alliance';
+import { useAlliance } from '@/features/alliance/hooks/useAlliance';
+import { AllianceRole } from '@/features/alliance/types/Alliance';
 import styles from './AllianceMemberList.module.css';
 
 export const AllianceMemberList: React.FC = () => {

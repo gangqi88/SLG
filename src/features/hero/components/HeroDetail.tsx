@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Hero, Quality } from '../types/Hero';
-import { HeroLogic } from '../game/logic/HeroLogic';
+import { Hero, Quality } from '@/features/hero/types/Hero';
+import { HeroLogic } from '@/features/hero/logic/HeroLogic';
 import HeroDevelopmentView from './HeroDevelopmentView';
 
 interface HeroDetailProps {

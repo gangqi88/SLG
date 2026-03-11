@@ -1,4 +1,4 @@
-import { InventoryItem, LootBox, ITEMS_DB } from '../../types/LootBox';
+import { InventoryItem, LootBox, ITEMS_DB } from '@/features/gacha/types/LootBox';
 
 class InventoryManager {
   private static instance: InventoryManager;

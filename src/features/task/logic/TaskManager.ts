@@ -1,4 +1,4 @@
-import { Hero } from '../../types/Hero';
+import { Hero } from '@/features/hero/types/Hero';
 
 export enum TaskType {
   MAIN = 'Main',

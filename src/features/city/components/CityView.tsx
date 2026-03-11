@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
-import { PreloadScene } from '../game/scenes/PreloadScene';
-import { CityScene } from '../game/scenes/CityScene';
-import { BattleScene } from '../game/scenes/BattleScene';
+import { PreloadScene } from '@/shared/scenes/PreloadScene';
+import { CityScene } from '@/features/city/scenes/CityScene';
+import { BattleScene } from '@/features/battle/scenes/BattleScene';
 
 interface CityViewProps {
   onExit: () => void;

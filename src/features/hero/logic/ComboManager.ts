@@ -1,5 +1,5 @@
-import { Hero, Race } from '../../types/Hero';
-import { BattleUnit, BattleEvent, Buff } from '../../types/BattleTypes';
+import { Hero, Race } from '@/features/hero/types/Hero';
+import { BattleUnit, BattleEvent, Buff } from '@/features/battle/types/BattleTypes';
 
 export interface ComboSkill {
   id: string;

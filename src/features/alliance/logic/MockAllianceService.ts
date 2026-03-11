@@ -1,6 +1,6 @@
-import { IAllianceNFT, AllianceOnChainData, MemberOnChainData, AllianceContractEvents } from '../../contracts/IAllianceNFT';
-import { ITreasuryContract, WithdrawalRequest, TreasuryContractEvents } from '../../contracts/ITreasuryContract';
-import { dispatchMockEvent } from '../../hooks/useAllianceEvents';
+import { IAllianceNFT, AllianceOnChainData, MemberOnChainData, AllianceContractEvents } from '@/features/alliance/contracts/IAllianceNFT';
+import { ITreasuryContract, WithdrawalRequest, TreasuryContractEvents } from '@/features/city/contracts/ITreasuryContract';
+import { dispatchMockEvent } from '@/features/alliance/hooks/useAllianceEvents';
 
 // Mock Web3 Service to simulate blockchain interactions
 class MockAllianceService implements IAllianceNFT, ITreasuryContract {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShopItem as ShopItemType } from '../../types/MainCity';
+import { ShopItem as ShopItemType } from '@/features/city/types/MainCity';
 import styles from './ShopItem.module.css';
 
 interface ShopItemProps {

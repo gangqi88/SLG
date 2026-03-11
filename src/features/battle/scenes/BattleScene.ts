@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
 import { BattleSystem } from '../logic/BattleSystem';
-import { BattleUnit, BattleEvent } from '../../types/BattleTypes';
-import { Hero } from '../../types/Hero';
-import { VisualUnit } from '../visuals/VisualUnit';
-import { EffectManager } from '../visuals/EffectManager';
-import { PerformanceMonitor } from '../visuals/PerformanceMonitor';
+import { BattleUnit, BattleEvent } from '@/features/battle/types/BattleTypes';
+import { Hero } from '@/features/hero/types/Hero';
+import { VisualUnit } from '@/shared/visuals/VisualUnit';
+import { EffectManager } from '@/shared/visuals/EffectManager';
+import { PerformanceMonitor } from '@/shared/visuals/PerformanceMonitor';
 
 export class BattleScene extends Phaser.Scene {
   private battleSystem!: BattleSystem;

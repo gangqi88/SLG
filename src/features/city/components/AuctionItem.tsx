@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { AuctionItem as AuctionItemType } from '../../types/MainCity';
-import { useMainCity } from '../../hooks/useMainCity';
+import { AuctionItem as AuctionItemType } from '@/features/city/types/MainCity';
+import { useMainCity } from '@/features/city/hooks/useMainCity';
 import styles from './AuctionItem.module.css';
 
 interface AuctionItemProps {

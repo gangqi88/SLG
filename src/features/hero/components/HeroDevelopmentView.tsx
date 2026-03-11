@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Hero } from '../types/Hero';
-import { HeroLogic } from '../game/logic/HeroLogic';
-import InventoryManager from '../game/logic/InventoryManager';
-import { InventoryItem } from '../types/LootBox';
+import { Hero } from '@/features/hero/types/Hero';
+import { HeroLogic } from '@/features/hero/logic/HeroLogic';
+import InventoryManager from '@/features/resource/logic/InventoryManager';
+import { InventoryItem } from '@/features/gacha/types/LootBox';
 
 interface HeroDevelopmentViewProps {
   hero: Hero;

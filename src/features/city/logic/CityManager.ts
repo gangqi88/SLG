@@ -1,6 +1,6 @@
-import { ResourceManager, ResourceType } from './ResourceManager';
+import { ResourceManager, ResourceType } from '@/features/resource/logic/ResourceManager';
 import { BuildingManager } from './BuildingManager';
-import { Hero } from '../../types/Hero';
+import { Hero } from '@/features/hero/types/Hero';
 
 export class CityManager {
   public resourceManager: ResourceManager;

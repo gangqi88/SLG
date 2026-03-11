@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
-import { PreloadScene } from '../game/scenes/PreloadScene';
-import { GatheringScene } from '../game/scenes/GatheringScene';
+import { PreloadScene } from '@/shared/scenes/PreloadScene';
+import { GatheringScene } from '@/features/resource/scenes/GatheringScene';
 
 interface GatheringViewProps {
   onExit: () => void;

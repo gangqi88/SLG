@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMainCity } from '../../hooks/useMainCity';
+import { useMainCity } from '@/features/city/hooks/useMainCity';
 import styles from './AdBillboard.module.css';
 
 export const AdBillboard: React.FC = () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building, BuildingUpgradeCost } from '../../types/MainCity';
+import { Building, BuildingUpgradeCost } from '@/features/city/types/MainCity';
 import styles from './BuildingUpgrade.module.css';
 
 interface BuildingUpgradeProps {

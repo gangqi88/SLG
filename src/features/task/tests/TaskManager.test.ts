@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { TaskManager, TaskState } from '../game/logic/TaskManager';
+import { TaskManager, TaskState } from '@/features/task/logic/TaskManager';
 
 describe('TaskManager', () => {
   let taskManager: TaskManager;

@@ -1,4 +1,4 @@
-import { Hero, Bond } from '../../types/Hero';
+import { Hero, Bond } from '@/features/hero/types/Hero';
 import { BattleUnit } from './BattleSystem';
 
 export class BondManager {

@@ -19,7 +19,7 @@ import {
   WAR_DECLARE_DEPOSIT,
   WAR_DURATION,
 } from '../../types/Alliance';
-import { STORAGE_KEY, getUpgradeCost, getMaxMembers } from '../../config/alliance';
+import { STORAGE_KEY, getUpgradeCost, getMaxMembers } from '@/features/alliance/config/alliance';
 
 type AllianceEventType = 'chat' | 'contribution' | 'war' | 'shop' | 'tech' | 'member' | 'alliance';
 
@@ -30,7 +30,7 @@ interface AllianceEvent {
 }
 
 import MockAllianceService from './MockAllianceService';
-import { WithdrawalRequest } from '../../contracts/ITreasuryContract';
+import { WithdrawalRequest } from '@/features/city/contracts/ITreasuryContract';
 
 class AllianceManager {
   private static instance: AllianceManager;

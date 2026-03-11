@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { GachaManager, GachaResult } from '../game/logic/GachaManager';
-import { Quality } from '../types/Hero';
+import { GachaManager, GachaResult } from '@/features/gacha/logic/GachaManager';
+import { Quality } from '@/features/hero/types/Hero';
 
 const GachaView: React.FC = () => {
   // Singleton hack

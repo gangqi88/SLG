@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { EventBus } from '../EventBus';
+import { EventBus } from '@/shared/logic/EventBus';
 
 export class SneakAttackScene extends Phaser.Scene {
   private score: number = 0;

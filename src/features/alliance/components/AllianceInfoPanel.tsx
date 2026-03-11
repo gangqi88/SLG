@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAlliance } from '../../hooks/useAlliance';
+import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import styles from './AllianceInfoPanel.module.css';
 
 export const AllianceInfoPanel: React.FC = () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMainCity } from '../../hooks/useMainCity';
+import { useMainCity } from '@/features/city/hooks/useMainCity';
 import { ShopItemCard } from './ShopItem';
 import styles from './OfficialShop.module.css';
 

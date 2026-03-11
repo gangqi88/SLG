@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAlliance } from '../../hooks/useAlliance';
+import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import styles from './AllianceTech.module.css';
 
 export const AllianceTech: React.FC = () => {

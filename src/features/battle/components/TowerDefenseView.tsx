@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
-import { TowerDefenseScene } from '../game/scenes/TowerDefenseScene';
+import { TowerDefenseScene } from '@/features/battle/scenes/TowerDefenseScene';
 
 interface TowerDefenseViewProps {
   onExit: () => void;

@@ -1,6 +1,6 @@
-import { Hero, Quality, Race } from '../../types/Hero';
-import { allHeroes } from '../../data/heroes';
-import { newTroopHeroes } from '../../data/newHeroes';
+import { Hero, Quality, Race } from '@/features/hero/types/Hero';
+import { allHeroes } from '@/features/hero/data/heroes';
+import { newTroopHeroes } from '@/features/hero/data/newHeroes';
 
 export interface GachaPool {
   id: string;

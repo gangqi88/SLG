@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Building } from '../../types/MainCity';
+import { Building } from '@/features/city/types/MainCity';
 import { BuildingUpgrade } from './BuildingUpgrade';
-import { useMainCity } from '../../hooks/useMainCity';
+import { useMainCity } from '@/features/city/hooks/useMainCity';
 import styles from './BuildingCard.module.css';
 
 interface BuildingCardProps {

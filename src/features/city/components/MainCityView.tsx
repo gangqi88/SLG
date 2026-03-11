@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMainCity } from '../../hooks/useMainCity';
+import { useMainCity } from '@/features/city/hooks/useMainCity';
 import { BuildingCard } from './BuildingCard';
 import { AdBillboard } from './AdBillboard';
 import styles from './MainCity.module.css';

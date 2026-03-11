@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TaskManager, Task } from '../game/logic/TaskManager';
+import { TaskManager, Task } from '@/features/task/logic/TaskManager';
 
 const TaskView: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);

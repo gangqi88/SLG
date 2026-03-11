@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Web3Manager, WalletAccount } from '../utils/web3';
+import { Web3Manager, WalletAccount } from '@/shared/utils/web3';
 
 interface WalletConnectProps {
   onConnect: (account: WalletAccount) => void;

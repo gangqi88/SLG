@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Phaser from 'phaser';
-import { PreloadScene } from '../game/scenes/PreloadScene';
-import { CookingScene } from '../game/scenes/CookingScene';
+import { PreloadScene } from '@/shared/scenes/PreloadScene';
+import { CookingScene } from '@/features/resource/scenes/CookingScene';
 
 interface CookingViewProps {
   onExit: () => void;

@@ -43,7 +43,7 @@ if (typeof window === 'undefined') {
   };
 }
 
-import AllianceManager from '../game/logic/AllianceManager';
+import AllianceManager from '@/features/alliance/logic/AllianceManager';
 
 const runTests = async () => {
   console.log('Starting Alliance System Tests...');

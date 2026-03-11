@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
-import { PreloadScene } from '../game/scenes/PreloadScene';
-import { BattleScene } from '../game/scenes/BattleScene';
-import { Hero } from '../types/Hero';
+import { PreloadScene } from '@/shared/scenes/PreloadScene';
+import { BattleScene } from '@/features/battle/scenes/BattleScene';
+import { Hero } from '@/features/hero/types/Hero';
 
 interface BattleViewProps {
   attackerHeroes: Hero[];

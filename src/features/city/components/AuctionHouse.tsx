@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMainCity } from '../../hooks/useMainCity';
+import { useMainCity } from '@/features/city/hooks/useMainCity';
 import { AuctionItemCard } from './AuctionItem';
 import styles from './AuctionHouse.module.css';
 

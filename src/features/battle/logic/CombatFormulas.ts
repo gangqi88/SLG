@@ -1,4 +1,4 @@
-import { Race, HeroStats, TroopType } from '../../types/Hero';
+import { Race, HeroStats, TroopType } from '@/features/hero/types/Hero';
 
 // Damage Constants
 const NORMAL_ATTACK_COEFF = 0.8;

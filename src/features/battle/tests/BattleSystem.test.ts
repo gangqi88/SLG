@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { BattleSystem } from '../game/logic/BattleSystem';
-import { humanHeroes } from '../data/humanHeroes';
-import { demonHeroes } from '../data/demonHeroes';
+import { BattleSystem } from '@/features/battle/logic/BattleSystem';
+import { humanHeroes } from '@/features/hero/data/humanHeroes';
+import { demonHeroes } from '@/features/hero/data/demonHeroes';
 
 describe('BattleSystem Animation Integration', () => {
   let battleSystem: BattleSystem;

@@ -1,4 +1,4 @@
-import { Hero, Quality, Race, TroopType } from '../types/Hero';
+import { Hero, Quality, Race, TroopType } from '@/features/hero/types/Hero';
 
 // Helper to create heroes
 const createHero = (
