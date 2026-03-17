@@ -26,6 +26,13 @@
 
 ## 技能文档审查
 
+### 统一治理一致性审查
+
+- 是否引用 `R6-change-safety.md` 并体现可执行要求
+- 是否说明中高风险改动的灰度、观测、回滚或前向恢复
+- 是否说明接口或数据结构变更的兼容策略
+- 是否避免在技能文档重复粘贴全局规则正文
+
 ### 审查维度
 
 技能文档的审查从六个维度进行：职责定义、流程完整性、规范准确性、示例有效性、可操作性和时效性。每个维度有具体的审查标准和评分规则。
@@ -92,6 +99,13 @@
 | 规范准确性 | 引用的规范是否与项目规范一致     | 15%  |
 | 示例有效性 | 示例代码是否准确、可运行         | 15%  |
 | 时效性     | 文档是否与当前项目状态一致       | 10%  |
+
+### 否决条件
+
+- 中高风险改动文档缺少灰度放量方案
+- 缺少关键观测指标或日志验证路径
+- 缺少回滚路径且未提供前向恢复方案
+- 接口或数据结构变更缺少兼容说明
 
 ## 项目文档审查
 
@@ -275,9 +289,9 @@ Markdown文档可以使用markdownlint进行格式检查。检查规则包括标
 
 ---
 
-_技能版本：1.0.1_
+_技能版本：1.1.0_
 _创建日期：2026-03-05_
-_最后更新：2026-03-06_
+_最后更新：2026-03-17_
 _适用项目：Web3 SLG Game_
-_相关文档：web3-slg-project-manager, fullstack-code-standards, game-tester, automation-workflow_
+_相关文档：web3-slg-project-manager, fullstack-code-standards, game-tester, .trae/rules/project-rules/R5-review.md, .trae/rules/project-rules/R6-change-safety.md_
 _遵守规范：.trae/rules/project-rules/SKILL.md_

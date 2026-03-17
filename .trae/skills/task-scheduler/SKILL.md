@@ -40,12 +40,14 @@
 - 从任务描述中提取目标（功能 / 架构 / 测试 / 文档 / 工程）
 - 判断是单技能任务还是复合任务
 - 生成主技能 + 协作技能列表
+- 按 `R6-change-safety.md` 评估风险级别（低 / 中 / 高）
 
 ### 2) 分发策略
 
 - **单技能任务**：直接分发到主技能
 - **复合任务**：按“主技能先行，协作技能跟进”执行
 - **冲突任务**：先交 `document-reviewer` 做规则一致性审查，再继续执行
+- **中高风险任务**：必须附带灰度方案、观测指标、回滚或前向恢复说明
 
 ### 3) 协作模式
 
@@ -60,15 +62,23 @@ interface DispatchInput {
   goal: string;
   scope: 'single' | 'composite';
   priority: 'P0' | 'P1' | 'P2' | 'P3';
+  riskLevel: 'low' | 'medium' | 'high';
 }
 
 interface DispatchOutput {
   ownerSkill: string;
   supportSkills: string[];
   mode: 'serial' | 'parallel' | 'loop';
+  releaseGuard: string[];
   handoff: string;
 }
 ```
+
+## 发布门禁
+
+- 低风险：要求基础验证与最小化改动说明
+- 中风险：要求特性开关、灰度路径、回滚方案
+- 高风险：要求设计评审、契约测试、灰度放量、回滚或前向恢复演练
 
 ## 维护规则
 
@@ -78,6 +88,6 @@ interface DispatchOutput {
 
 ---
 
-_技能版本：2.0.0_  
+_技能版本：2.1.0_  
 _最后更新：2026-03-17_  
-_相关文档：project-rules/SKILL.md, frontend-workflow-orchestrator/SKILL.md_
+_相关文档：project-rules/SKILL.md, project-rules/R6-change-safety.md, frontend-workflow-orchestrator/SKILL.md_

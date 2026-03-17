@@ -7,6 +7,7 @@
 - 调度入口统一使用 `task-scheduler/SKILL.md`
 - `frontend-workflow-orchestrator/SKILL.md` 仅作为兼容入口
 - 具体执行由各领域技能文档负责
+- 中高风险任务统一遵循 `project-rules/R6-change-safety.md`
 
 ## 核心技能清单
 
@@ -36,5 +37,5 @@
 
 ---
 
-_版本: 1.0.0_  
+_版本: 1.1.0_  
 _最后更新: 2026-03-17_
