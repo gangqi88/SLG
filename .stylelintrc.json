@@ -1,3 +1,21 @@
 {
-  "extends": ["stylelint-config-standard"]
+  "extends": ["stylelint-config-standard"],
+  "ignoreFiles": ["dist/**/*.css"],
+  "overrides": [
+    {
+      "files": ["**/*.module.css"],
+      "rules": {
+        "alpha-value-notation": null,
+        "color-function-alias-notation": null,
+        "color-function-notation": null,
+        "color-hex-length": null,
+        "declaration-block-no-redundant-longhand-properties": null,
+        "declaration-property-value-keyword-no-deprecated": null,
+        "no-descending-specificity": null,
+        "rule-empty-line-before": null,
+        "selector-class-pattern": null,
+        "shorthand-property-no-redundant-values": null
+      }
+    }
+  ]
 }

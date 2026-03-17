@@ -17,9 +17,14 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
+    // Phaser is intentionally isolated as a vendor chunk and exceeds Vite's default 500 kB warning limit.
+    chunkSizeWarningLimit: 1600,
     rollupOptions: {
       output: {
         manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'router-vendor': ['react-router-dom'],
+          'state-vendor': ['react-redux', '@reduxjs/toolkit'],
           phaser: ['phaser'],
         },
       },
