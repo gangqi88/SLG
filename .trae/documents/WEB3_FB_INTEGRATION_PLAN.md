@@ -1,5 +1,9 @@
 # Web3 集成实施方案（Fractal Bitcoin - UniSat 优先）
 
+> **当前归类**: Web3 专题规划方案  
+> **使用边界**: 该文档描述的是 Fractal Bitcoin / UniSat 的目标实施路径，其中大量目录、服务层与运行时能力尚未在主前端完整落地。  
+> **现行真源**: `docs/web3/unisat-integration.md`、实际代码、`docs/README.md`
+
 ## 概述
 
 本项目将集成 Fractal Bitcoin (FB) 二层网络，**使用 UniSat 作为主要技术栈**，实现游戏状态铭刻、BRC-20 代币经济系统。

@@ -1,5 +1,9 @@
 # Web3 SLG 游戏项目开发计划
 
+> **当前归类**: 历史项目计划  
+> **使用边界**: 文中包含早期目录结构、阶段划分与待办清单，已与当前 feature-based 实现产生偏差，不应作为现行开发指南。  
+> **现行真源**: `README.md`、`docs/README.md`、实际代码结构
+
 本文档基于 `Web3游戏项目-SLG.md` 制定，旨在构建一个基于 Phaser 3 + React + TypeScript 的 Web3 SLG 游戏。
 
 ## 项目概述

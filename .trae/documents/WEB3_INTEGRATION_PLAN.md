@@ -1,5 +1,9 @@
 # Web3 集成实施方案
 
+> **当前归类**: 历史方案（与现行实现不一致）  
+> **使用边界**: 本文档基于 wagmi / RainbowKit / EVM 路线设计，和当前主前端以 UniSat / `window.unisat` 为主的实现不一致，仅可作为历史技术路线参考。  
+> **现行真源**: `docs/web3/unisat-integration.md`、实际代码、`README.md`
+
 ## 概述
 
 本项目将集成 Web3 功能，实现游戏状态上链、资产 NFT 化、代币经济系统。
