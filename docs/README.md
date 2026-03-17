@@ -7,11 +7,12 @@
 1. [快速开始](quick-start.md)
 2. [架构概览](architecture/overview.md)
 3. [开发流程](development/workflow.md)
-4. [编码规范](development/coding-standards.md)
-5. [测试说明](development/testing.md)
-6. [质量门说明](development/quality-gates.md)
-7. [部署与运行说明](deployment/overview.md)
-8. [UniSat Web3 接入说明](web3/unisat-integration.md)
+4. [素材接入工作流](development/game-assets-workflow.md)
+5. [编码规范](development/coding-standards.md)
+6. [测试说明](development/testing.md)
+7. [质量门说明](development/quality-gates.md)
+8. [部署与运行说明](deployment/overview.md)
+9. [UniSat Web3 接入说明](web3/unisat-integration.md)
 
 ## 文档分层
 
@@ -27,6 +28,7 @@
 
 - `quick-start.md`：本地启动与常用命令
 - `development/workflow.md`：日常开发流程、最小验证与文档同步要求
+- `development/game-assets-workflow.md`：游戏素材目录、清单、校验与回退策略
 - `development/coding-standards.md`：与实际工具配置对齐的编码规范
 - `development/testing.md`：Vitest、Cypress、Hardhat 测试说明
 - `development/quality-gates.md`：质量检查命令与当前状态

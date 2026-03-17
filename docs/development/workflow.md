@@ -42,6 +42,7 @@
 | 改动类型 | 最小验证建议 |
 | --- | --- |
 | 文档改动 | 检查链接、路径、命令与代码事实是否一致 |
+| 素材清单/资源改动 | `npm run assets:check`，并本地验证目标场景 |
 | 组件/逻辑改动 | 优先运行相关单元测试，再视情况补 `npx vitest run` |
 | 路由/页面改动 | 本地手动验证页面入口，必要时补 Cypress |
 | 构建相关改动 | `npm run build` |
@@ -77,6 +78,7 @@
 
 - `README.md`
 - `docs/README.md`
+- `docs/development/game-assets-workflow.md`
 - 对应专题文档
 
 ## 协作边界
