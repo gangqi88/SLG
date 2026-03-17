@@ -1,115 +1,43 @@
 ---
 name: 'frontend-workflow-orchestrator'
-description: 'Unified orchestrator for the project workflow, coordinating development, automation, and specialized expert skills. Invoke for project planning, task assignment, CI/CD guidance, and tool selection.'
+description: '前端流程编排兼容入口。实际调度统一委托 task-scheduler，规则统一遵循 project-rules。'
 ---
 
-# Unified Project Workflow Orchestrator
+# 前端工作流编排器（兼容层）
 
-This skill acts as the central nervous system for the Web3 SLG project, integrating development workflows, automation standards, and specialized expert skills into a unified scheduling and assignment system.
+> 本文档保留为兼容入口，避免历史调用失效。当前不再维护独立路由逻辑，统一转发到任务调度器。
 
-## 🔄 Core Workflow Cycle
+## 技能概述
 
-### Phase 1: Planning & Architecture
+- **职责**: 历史入口兼容、前端流程编排说明
+- **适用场景**: 旧任务或旧提示词仍调用 `frontend-workflow-orchestrator` 时
+- **边界**: 不维护独立技能矩阵，不重复项目规则
 
-**Goal**: Define what to build and how.
+## 统一调度规则
 
-- **Skills**: `architect`, `web3-slg-project-manager`
-- **Actions**:
-  - Define feature requirements and scope.
-  - Design component hierarchy and data flow.
-  - Plan smart contract interactions.
+所有任务按如下顺序处理：
 
-### Phase 2: Task Assignment & Setup
+1. 读取项目规则：`.trae/rules/project-rules/SKILL.md`
+2. 调用统一调度器：`.trae/skills/task-scheduler/SKILL.md`
+3. 由调度器再分发到具体技能（架构、开发、测试、工程等）
 
-**Goal**: Prepare the environment and assign tools.
+## 兼容转发映射
 
-- **Skills**: `task-scheduler`
-- **Setup Experts**: `vite-expert`, `typescript-expert`, `eslint-expert`, `prettier-expert`
-- **Actions**:
-  - Initialize project structure.
-  - Configure build tools and linting rules.
-  - Break down tasks into subtasks.
+| 历史场景       | 新处理方式                                                                      |
+| -------------- | ------------------------------------------------------------------------------- |
+| 计划与架构阶段 | 转发给 `task-scheduler`，主技能通常为 `architect` 或 `web3-slg-project-manager` |
+| 开发实现阶段   | 转发给 `task-scheduler`，主技能通常为 `fullstack-code-standards`                |
+| 质量保障阶段   | 转发给 `task-scheduler`，主技能通常为 `game-tester`                             |
+| 构建与发布阶段 | 转发给 `task-scheduler`，主技能通常为 `vite-expert` / `eslint-expert`           |
 
-### Phase 3: Development & Implementation
+## 维护说明
 
-**Goal**: Write the code using specialized experts.
-
-- **Core Framework**: `react-expert`, `nextjs-expert`
-- **UI & Styling**: `chakra-ui-expert`, `emotion-expert`
-- **State & Logic**: `redux-toolkit-expert`, `tanstack-query-expert`, `immer-expert`
-- **Forms & Routing**: `react-hook-form-expert`, `react-router-expert`
-- **Web3 Integration**: `web3-developer`
-
-### Phase 4: Quality Assurance & Testing
-
-**Goal**: Ensure reliability and correctness.
-
-- **Skills**: `cypress-expert`, `game-tester`
-- **Actions**:
-  - Write unit tests (Vitest/Jest).
-  - Write end-to-end tests (Cypress).
-  - Perform manual game logic verification.
-
-### Phase 5: Automation & CI/CD (Integrated)
-
-**Goal**: Automate checks and deployment.
-
-- **Source**: Merged from `automation-workflow`.
-- **Git Flow**:
-  - `main`: Production-ready code.
-  - `develop`: Integration branch.
-  - `feature/*`: New features (e.g., `feature/hero-system`).
-  - `fix/*`: Bug fixes.
-- **CI Pipeline**:
-  1.  **Lint**: `eslint-expert` (Check code style).
-  2.  **Type Check**: `typescript-expert` (Validate types).
-  3.  **Test**: Run unit and E2E tests.
-  4.  **Build**: `vite-expert` (Production build).
-- **Deployment**:
-  - Automatic deployment to staging on merge to `develop`.
-  - Production release on tag creation.
-
-## 🛠 Skill Assignment Matrix
-
-Use this matrix to determine which skill to invoke for specific tasks:
-
-| Task Category | Primary Skill | Secondary Skill |
-| form | | |
-| **Project Management** | `web3-slg-project-manager` | `task-scheduler` |
-| **Architecture** | `architect` | - |
-| **UI Development** | `chakra-ui-expert` | `emotion-expert` |
-| **State Management** | `redux-toolkit-expert` | `immer-expert` |
-| **Data Fetching** | `tanstack-query-expert` | - |
-| **Routing** | `react-router-expert` | - |
-| **Forms** | `react-hook-form-expert` | - |
-| **Testing** | `cypress-expert` | `game-tester` |
-| **Build & Tooling** | `vite-expert` | `eslint-expert`, `prettier-expert` |
-| **Web3 / Blockchain** | `web3-developer` | - |
-
-## 🚀 Usage Scenarios
-
-### Scenario A: New Feature Development
-
-1.  **Plan**: Invoke `architect` to design the feature.
-2.  **Branch**: Create `feature/<name>` following Git Flow.
-3.  **Code**: Invoke specialized experts (e.g., `react-expert`, `redux-toolkit-expert`) to implement.
-4.  **Verify**: Invoke `eslint-expert` and `typescript-expert` to check quality.
-5.  **Test**: Invoke `cypress-expert` to create tests.
-6.  **Commit**: Follow Conventional Commits (e.g., `feat: add hero system`).
-
-### Scenario B: CI/CD Setup
-
-1.  **Config**: Consult `automation-workflow` (integrated here) for pipeline structure.
-2.  **Scripting**: Use `vite-expert` to optimize build scripts.
-3.  **Quality**: Ensure `eslint-expert` and `prettier-expert` configs are strict.
-
-## 📋 Automation Standards (Legacy `automation-workflow`)
-
-- **Commit Message**: `<type>(<scope>): <description>`
-- **Quality Gates**: 0 lint errors, 0 type errors, >70% coverage.
-- **Release Strategy**: Semantic Versioning (Major.Minor.Patch).
+- 新增流程规则只更新 `task-scheduler/SKILL.md`
+- 本文件仅维护“入口兼容”与“转发关系”
+- 若未来停用兼容入口，需先全局替换调用点后再归档
 
 ---
 
-_Unified Skill Version: 2.0.0_
-_Integrates: frontend-workflow-orchestrator, automation-workflow_
+_技能版本: 3.0.0_  
+_最后更新: 2026-03-17_  
+_相关文档: task-scheduler/SKILL.md, ../rules/project-rules/SKILL.md_
