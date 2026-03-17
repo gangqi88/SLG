@@ -1,302 +1,100 @@
-# AGENTS.md - 项目开发指南
-
-> **AI 助手技能体系**: 本项目采用职责分离的技能配置，根据任务类型智能分配到对应的技能处理。
-
-## 技能体系概览
-
-| 技能文件                                         | 职责             | 使用场景                         |
-| ------------------------------------------------ | ---------------- | -------------------------------- |
-| `.trae/skills/task-scheduler/SKILL.md`           | **任务调度**     | 任务分类、技能路由、协作编排     |
-| `.trae/skills/web3-slg-project-manager/SKILL.md` | **项目管理**     | 任务规划、进度跟踪、风险管理     |
-| `.trae/skills/architect/SKILL.md`                | **架构设计**     | 系统架构、技术选型、性能规划     |
-| `.trae/skills/web3-developer/SKILL.md`           | **Web3开发**     | 钱包集成、NFT/代币、链上数据     |
-| `.trae/skills/fullstack-code-standards/SKILL.md` | **代码规范**     | 编写英雄系统、战斗系统、Web3代码 |
-| `.trae/skills/game-tester/SKILL.md`              | **测试规范**     | 测试设计、缺陷发现、质量保障     |
-| `.trae/skills/automation-workflow/SKILL.md`      | **自动化工作流** | CI/CD、构建部署、脚本开发        |
-| `.trae/skills/art-resources/SKILL.md`            | **美术资源**     | 资源生成、资产管理、质量把控     |
-| `.trae/skills/document-reviewer/SKILL.md`        | **文档审查**     | 审查代码质量、文档审核           |
-
-### 任务分配流程
-
-```
-用户任务 → task-scheduler → 关键字识别 → 技能匹配 → 执行 → 结果返回
-```
-
-- 任务输入后由任务调度器分析
-- 通过关键字识别任务类型（开发/项目/测试/基础设施/文档）
-- 根据任务类型路由到对应的技能处理
-- 复杂任务触发多技能协作链
-
-## 项目概述
-
-基于 **React 19 + TypeScript 5.7 + Phaser 3.90** 的末日生存SLG游戏。包含：
-
-- 生存模拟经营（资源、建造、幸存者）
-- SLG英雄系统（30名英雄、三族阵营、战斗）
-- Web3 NFT集成（UniSat钱包、Fractal Bitcoin）
-
-## Build Commands
-
-| Command               | Description                   |
-| --------------------- | ----------------------------- |
-| `npm install`         | 安装项目依赖                  |
-| `npm run dev`         | 启动开发服务器 localhost:8080 |
-| `npm run build`       | 生产构建，输出到 `dist/`      |
-| `npm run dev-nolog`   | 启动开发服务器（无匿名日志）  |
-| `npm run build-nolog` | 生产构建（无匿名日志）        |
-
-### 代码检查（必须执行）
-
-- **ESLint**: `npx eslint src/` (ESLint v9 flat config)
-- **ESLint修复**: `npx eslint src/ --fix`
-- **单文件检查**: `npx eslint src/systems/HeroSystem.ts`
-- **TypeScript**: `npx tsc --noEmit`
-
-### 测试
-
-- **状态**: 当前未配置测试框架
-
-## 代码风格指南
-
-### 项目结构
-
-```
-src/
-├── constants/              # 集中常量定义
-│   ├── game.constants.ts  # 游戏常量
-│   ├── hero.constants.ts  # 英雄常量
-│   ├── battle.constants.ts# 战斗常量
-│   └── index.ts          # 统一导出
-├── utils/                  # 工具函数
-│   ├── helpers.ts         # 通用工具
-│   ├── hero.utils.ts      # 英雄工具
-│   ├── battle.utils.ts    # 战斗工具
-│   └── index.ts          # 统一导出
-├── systems/               # 游戏系统（Facade模式 + 单一职责服务）
-│   ├── heroes/           # 英雄系统服务
-│   │   ├── HeroDataManager.ts
-│   │   ├── HeroUpgradeService.ts
-│   │   ├── HeroPowerCalculator.ts
-│   │   ├── HeroRepository.ts
-│   │   └── index.ts
-│   ├── cities/           # 城市系统服务
-│   ├── battle/           # 战斗系统服务
-│   ├── skills/           # 技能系统服务
-│   ├── teams/            # 队伍系统服务
-│   └── *.ts             # Facade层
-├── components/            # React组件
-├── types/                 # TypeScript类型
-├── hooks/                # 自定义Hooks
-├── config/               # 配置数据
-│   └── heroes/          # 英雄配置
-├── game/                # Phaser游戏引擎
-│   └── scenes/          # 游戏场景
-└── web3/                # Web3集成
-```
-
-### 单一职责原则
-
-- 每个系统文件专注单一功能
-- 工具函数集中管理在 `utils/`
-- 常量集中管理在 `constants/`
-- 避免在系统文件中定义常量
-
-### TypeScript 配置 (tsconfig.json)
-
-- **Target**: ES2020
-- **Strict mode**: enabled
-- **noUnusedLocals**: true
-- **noUnusedParameters**: true
-- **Module**: ESNext (bundler mode)
-- **jsx**: react-jsx
-
-### 命名规范
-
-| 类型      | 规则                                  | 示例                                |
-| --------- | ------------------------------------- | ----------------------------------- |
-| 组件/类   | PascalCase                            | `ResourcePanel`, `GameManager`      |
-| 接口/类型 | PascalCase                            | `ResourceType`, `IProps`            |
-| 函数/变量 | camelCase                             | `handleSaveGame`, `gameState`       |
-| 常量      | UPPER_SNAKE_CASE                      | `GAME_CONSTANTS`                    |
-| 文件      | PascalCase（组件）, camelCase（工具） | `ResourcePanel.ts`, `formatDate.ts` |
-
-### Import 顺序
-
-```typescript
-// 1. React
-import React, { useState, useEffect } from 'react';
-// 2. 第三方库
-import { Game } from 'phaser';
-// 3. 绝对路径项目导入
-import { GameManager } from './game/GameManager';
-import type { ResourceType } from './types/game.types';
-// 4. 相对路径
-import ResourcePanel from './components/UI/ResourcePanel';
-```
+# AGENTS.md
 
-### Formatting Rules
+本文件用于说明 **AI / 自动化代理在本仓库中的工作方式**。它不是项目完整开发手册；项目说明、开发规范与架构信息请优先查看 `README.md` 与 `docs/`。
 
-- **Braces**: Same line (K&R)
-- **Indentation**: 4 spaces
-- **Quotes**: Single quotes
-- **Semicolons**: Required
-- **Line endings**: LF (EditorConfig: `crlf` on Windows, `lf` on Unix)
+## 信息优先级
 
-### EditorConfig (.editorconfig)
+当多个信息源冲突时，按以下优先级判断：
 
-- indent_style: space
-- indent_size: 4
-- charset: utf-8
+1. 实际代码与目录结构
+2. 工具配置文件（`package.json`、`tsconfig.json`、`eslint.config.mjs`、`.editorconfig`、`.prettierrc` 等）
+3. `docs/` 下当前有效文档
+4. `.trae/rules/project-rules/` 规则文档
+5. `.trae/skills/` skill 文档
+6. `.trae/documents/` 与 `.trae/specs/` 中的历史规划或过程文档
 
-### React Patterns
+## AI 协作目标
 
-- Functional components with hooks
-- Use `forwardRef` for ref forwarding
-- Destructure props in parameters
-- CSS-in-JS via inline `<style>` tags
-- Event handlers: `handle` prefix
+AI 在本仓库中的职责是：
 
-### Error Handling
+- 基于代码事实分析问题
+- 在修改前核对真实实现与配置
+- 优先复用现有结构与约定
+- 修改后执行最小必要验证
+- 避免将历史规划误写成当前事实
 
-- Use TypeScript strict types
-- Validate game state before operations
-- Use optional chaining (`?.`) and nullish coalescing (`??`)
-- Return boolean for save/load operations
+## 主要入口
 
-### ESLint 配置 (.eslintrc.cjs)
+- `README.md`：项目入口与总览
+- `docs/README.md`：当前有效文档索引
+- `.trae/rules/project-rules/SKILL.md`：规则真源索引
+- `.trae/skills/SKILL.md`：skill 索引
+- `test/README.md`：Hardhat 子项目说明
 
-- **Env**: browser, es2020
-- **Parser**: @typescript-eslint/parser
-- **Plugins**: react-refresh
-- **Extends**: eslint:recommended, @typescript-eslint/recommended, react-hooks/recommended
-- **Key Rules**:
-  - `react-refresh/only-export-components`: warn (allowConstantExport: true)
-  - 忽略: dist, .eslintrc.cjs
+## 当前项目事实（高层）
 
-## 文件组织
+- 前端主栈：React 19 + TypeScript 5.7 + Vite 6 + Phaser 3.90
+- 源码结构：`src/features` + `src/shared` + `src/store`
+- 当前已配置 Vitest、Cypress；`test/` 为独立 Hardhat 子项目
+- 当前 Web3 接入以 UniSat / `window.unisat` 为主
 
-```
-src/
-├── components/UI/     # React UI 组件
-├── game/              # Phaser 游戏逻辑
-│   ├── scenes/        # Phaser 场景
-│   ├── EventBus.ts    # 事件总线
-│   ├── GameManager.ts # 游戏管理器
-│   └── main.ts        # 游戏初始化
-├── systems/           # 游戏系统（资源、建筑等）
-├── types/             # TypeScript 类型定义
-├── hooks/             # 自定义 React Hooks
-└── utils/             # 工具函数和常量
-```
+## 与 rules / skills 的边界
 
-## 开发注意事项
+### rules
 
-- 开发服务器: localhost:8080
-- Phaser 配置: `src/game/main.ts`
-- 游戏状态: localStorage 持久化
-- 热重载: Vite 自动处理
+`.trae/rules/project-rules/` 用于定义稳定规则，例如：
 
-## 架构设计（前后端分离 + 性能优化 + 联机储备）
+- 语言与输出约定
+- 代码格式与规范
+- 协作与评审要求
 
-详见 `.trae/rules/architecture-design.md`
+AI 应引用这些规则，而不是在多个文档中重复复制它们。
 
-### 前后端分离原则
+### skills
 
-- **前端**: 本地计算、状态管理、UI渲染
-- **后端预留**: 数据校验、状态同步、防作弊
-- 关键战斗计算需支持服务器校验
+`.trae/skills/` 用于定义“如何完成某类任务”，例如：
 
-### 性能优化
+- 任务调度
+- 架构设计
+- 文档审查
+- 测试执行
+- Web3 开发
 
-- 避免热路径装箱，使用对象池
-- 严格类型，避免 `any`
-- 模块化导入，只导入需要的部分
+skill 是任务方法，不是规则真源。
 
-### 联机同步储备
+## 工作流程建议
 
-- 帧同步结构预留 (`BattleFrame`)
-- 乐观更新 + 状态回滚
-- 断线重连支持 (`Syncable` 接口)
+1. 先读相关代码与配置
+2. 再读 `docs/` 与 `.trae/rules/`
+3. 如涉及专项任务，再进入对应 skill / spec / planning 文档
+4. 修改后运行最小必要验证
+5. 输出中明确：
+   - 改了什么
+   - 为什么改
+   - 验证了什么
+   - 仍有哪些风险或待确认事项
 
-### 性能指标
+## 推荐验证命令
 
-- 首屏加载 < 3秒
-- 交互响应 < 100ms
-- 战斗计算 < 16ms (60fps)
+- `npm run lint`
+- `npx tsc --noEmit`
+- `npx vitest run`
+- `npm run build`
+- `npm run lint:style`
 
-## Web3 集成（UniSat - Fractal Bitcoin）
+> 注意：是否“通过”必须以实际执行结果为准，不要沿用旧文档中的静态状态描述。
 
-详见完整版 AGENTS.md 或 `WEB3_FB_INTEGRATION_PLAN.md`
+## 文档维护原则
 
-### 核心原则
+- `README.md` 负责入口，不负责承载全部规范
+- `docs/` 负责当前有效的人类可读文档
+- `.trae/rules/` 负责规则真源
+- `.trae/skills/` 负责任务执行说明
+- `.trae/documents/` 与 `.trae/specs/` 默认视为规划/过程文档
 
-- Hook 命名: `useUniSat` 前缀
-- 优先使用 `window.unisat` API
-- BRC-20 / Runes 资产标准
-- 地址格式: Taproot（bc1p...）
+## 禁止事项
 
-### 环境变量
-
-```env
-VITE_UNISAT_API_KEY=your_api_key
-VITE_FB_NETWORK=mainnet  # 或 testnet
-```
-
-### UniSat 资源
-
-- 钱包: https://unisat.io/download
-- 文档: https://docs.unisat.io
-- API: https://api.unisat.io/query-v4
-
-## 常用操作
-
-### 开发服务器
-
-- 开发: `npm run dev` → localhost:8080
-- 无日志开发: `npm run dev-nolog`
-- 热重载: Vite 自动处理
-
-### 代码检查与构建
-
-- **全量 lint**: `npx eslint src/`
-- **全量 lint 修复**: `npx eslint src/ --fix`
-- **单文件 lint**: `npx eslint src/systems/ResourceSystem.ts`
-- **单文件 lint 修复**: `npx eslint src/systems/ResourceSystem.ts --fix`
-- **TypeScript 检查**: `npx tsc --noEmit`
-- **生产构建**: `npm run build`
-
-### 关键文件
-
-- Phaser 配置: `src/game/main.ts`
-- 游戏状态: localStorage 持久化
-
-## 剩余工作任务
-
-### Phase 3.3: 跨链和扩展
-
-- [ ] 多钱包支持
-- [ ] 跨链资产转移
-- [ ] 社交功能集成
-- [ ] 移动端适配
-
-### Phase 3.4: 优化发布
-
-- [ ] 性能优化
-- [ ] 安全审计
-- [ ] 生产部署
-- [ ] 用户培训
-
-### 其他待办
-
-- 智能合约设计和部署（预留，未来可选）
-
-## 代码质量状态
-
-### ESLint v9 配置
-
-- 配置文件: `eslint.config.mjs` (flat config)
-- 状态: ✅ 0 errors, 11 warnings
-
-### TypeScript
-
-- 状态: ✅ 通过 (0 errors)
+- 不要把旧模板结构写成当前结构
+- 不要引用不存在的脚本、目录或 skill
+- 不要把历史方案写成现行实现
+- 不要在未验证的情况下声称 lint / typecheck / tests 已全部通过
