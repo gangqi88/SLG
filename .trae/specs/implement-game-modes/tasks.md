@@ -1,5 +1,9 @@
 # Implementation Tasks for Game Modes
 
+> **当前归类**: 已完成实现过程文档  
+> **使用边界**: 勾选状态反映当时实现拆解与交付记录，不替代当前功能验收或回归测试结果。  
+> **现行真源**: `src/router.tsx`、实际代码
+
 ## Development Mode (养成模式)
 
 - [x] Task 1: **Implement Early Stage - Side-Scrolling Resource Gathering** ("割草")

@@ -1,5 +1,9 @@
 # Game Modes Implementation Checklist
 
+> **当前归类**: 已完成实现过程文档  
+> **使用边界**: 本清单用于回溯当次玩法实现验收，不应直接视为当前所有模式仍处于完全通过状态。  
+> **现行真源**: 实际代码、`docs/architecture/overview.md`
+
 ## Development Mode (养成模式)
 
 - [x] **Task 1: Resource Gathering**

@@ -1,5 +1,9 @@
 # Tasks
 
+> **当前归类**: 历史审计记录  
+> **使用边界**: 本任务清单记录的是一次优化审计的执行过程，不应直接作为当前待办清单。  
+> **现行真源**: 实际代码、`docs/README.md`
+
 - [x] Task 1: Architecture Audit & Setup: Review and refactor project structure for scalability.
   - [x] SubTask 1.1: Analyze current directory structure and dependencies.
   - [x] SubTask 1.2: Refactor `src` to Feature-Based structure (e.g., `features/auth`, `features/city`).

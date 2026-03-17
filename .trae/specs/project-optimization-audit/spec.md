@@ -1,5 +1,9 @@
 # Project Optimization Audit Spec
 
+> **当前归类**: 历史审计记录（部分结论已失效）  
+> **使用边界**: 用于回溯某轮优化审计；其中部分建议已落地，部分结论已被后续代码演进或真实验证结果覆盖。  
+> **现行真源**: 实际代码、`README.md`、`docs/development/quality-gates.md`
+
 ## Why
 
 The current project architecture relies on manual state management (Singleton Managers) and conditional rendering for routing. This approach is difficult to scale, hard to debug, and lacks standard tooling for a modern complex SLG web application. To ensure long-term maintainability, performance, and user experience, a comprehensive audit and refactoring is required.

@@ -1,5 +1,9 @@
 # Game Modes Implementation Spec
 
+> **当前归类**: 已完成实现过程文档  
+> **使用边界**: 用于回溯玩法实现拆解；文中任务完成状态不等于当前所有玩法都已达到长期稳定标准。  
+> **现行真源**: `src/router.tsx`、实际代码、`docs/architecture/overview.md`
+
 ## Why
 
 Implementation of core game modes (Development & Siege) as defined in `GAME_MODES.md` to establish the "Three-Stage Experience Rocket" for player retention and engagement.

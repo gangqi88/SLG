@@ -1,5 +1,9 @@
 # 联盟系统实现规格文档 (Alliance System Implementation Spec)
 
+> **当前归类**: 任务过程文档（部分结果已落地，部分 Web3 / 测试验收项未完成）  
+> **使用边界**: 用于回溯联盟系统实现过程，不作为当前功能完整性、测试覆盖率或最终验收状态的唯一依据。  
+> **现行真源**: 实际代码、`docs/README.md`、`docs/architecture/overview.md`
+
 ## 1. 概述
 
 本文档基于 `ALLIANCE_PLAN.md` 详细规划，完整实现联盟系统的所有功能模块、接口规范与业务逻辑。

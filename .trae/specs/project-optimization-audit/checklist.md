@@ -1,5 +1,9 @@
 # Checklist
 
+> **当前归类**: 历史审计记录（部分勾选结论已失效）  
+> **使用边界**: 其中部分勾选项与当前仓库真实状态并不一致，例如 lint / typecheck / E2E / Storybook 等，不可直接视为当前验收结果。  
+> **现行真源**: 实际代码、`README.md`、`docs/development/quality-gates.md`
+
 - [x] Directory structure follows Feature-Based or modular architecture.
 - [ ] Dependencies are optimized (no unused packages in package.json).
 - [ ] Build configuration (Vite) uses code splitting and minification.
