@@ -7,15 +7,20 @@ import allianceReducer, {
 } from '../model/allianceSlice';
 import { AllianceRole } from '../types/Alliance';
 
+const createTestStore = () =>
+  configureStore({
+    reducer: {
+      alliance: allianceReducer,
+    },
+  });
+
+type TestStore = ReturnType<typeof createTestStore>;
+
 describe('allianceSlice', () => {
-  let store: any;
+  let store: TestStore;
 
   beforeEach(() => {
-    store = configureStore({
-      reducer: {
-        alliance: allianceReducer,
-      },
-    });
+    store = createTestStore();
   });
 
   it('should handle initial state', () => {

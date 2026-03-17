@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Hero } from '@/features/hero/types/Hero';
 import { HeroLogic } from '@/features/hero/logic/HeroLogic';
 import InventoryManager from '@/features/resource/logic/InventoryManager';
@@ -14,16 +14,29 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
   const [stats, setStats] = useState(HeroLogic.getStats(hero));
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
 
-  const updateData = () => {
+  const updateData = useCallback(() => {
     setStats(HeroLogic.getStats(hero));
     setInventory(InventoryManager.getItems());
+  }, [hero]);
+
+  const handleOverlayKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onClose();
+    }
+  };
+
+  const handleOverlayClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      onClose();
+    }
   };
 
   useEffect(() => {
     updateData();
     const unsubscribe = InventoryManager.subscribe(updateData);
     return unsubscribe;
-  }, [hero]);
+  }, [updateData]);
 
   const handleLevelUp = () => {
     if (HeroLogic.levelUp(hero)) {
@@ -65,7 +78,11 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
         alignItems: 'center',
         zIndex: 1100,
       }}
-      onClick={onClose}
+      onClick={handleOverlayClick}
+      onKeyDown={handleOverlayKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label="Close hero development"
     >
       <div
         style={{
@@ -78,7 +95,9 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
           border: '1px solid #555',
           boxShadow: '0 0 20px rgba(0,0,0,0.8)',
         }}
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        tabIndex={-1}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
           <h2>{hero.name} Development</h2>

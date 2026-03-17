@@ -57,7 +57,6 @@ class InventoryManager {
     const current = this.items.get(itemId) || 0;
     this.items.set(itemId, current + quantity);
     this.save();
-    console.log(`Added ${quantity} x ${ITEMS_DB[itemId].name}`);
   }
 
   public removeItem(itemId: string, quantity: number): boolean {

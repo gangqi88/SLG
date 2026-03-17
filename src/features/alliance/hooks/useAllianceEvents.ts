@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 // Mock event listener type
 export interface Web3Event {
   eventName: string;
-  data: any;
+  data: unknown;
   blockNumber: number;
   transactionHash: string;
 }
@@ -18,7 +18,6 @@ export const useAllianceEvents = (allianceId: string | null) => {
       // In a real Web3 app, we would filter by contract address/topic
       // For now, we simulate filtering by allianceId in the data if applicable
       setLastEvent(event.detail);
-      console.log(`[Web3 Event] ${event.detail.eventName}:`, event.detail.data);
     };
 
     // Listen to global window events dispatched by our mock service
@@ -33,7 +32,7 @@ export const useAllianceEvents = (allianceId: string | null) => {
 };
 
 // Helper to dispatch mock events (to be used by MockAllianceService)
-export const dispatchMockEvent = (eventName: string, data: any) => {
+export const dispatchMockEvent = (eventName: string, data: unknown) => {
   const event = new CustomEvent('web3-alliance-event', {
     detail: {
       eventName,

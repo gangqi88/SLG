@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { TaskManager, Task } from '@/features/task/logic/TaskManager';
 
+type TaskWindow = Window & {
+  _taskManager?: TaskManager;
+};
+
 const TaskView: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   // Use a singleton instance or context in real app. Here we create one or reuse global if available.
@@ -9,9 +13,13 @@ const TaskView: React.FC = () => {
   // Let's assume we use a singleton for now to keep it simple across re-renders if we move it out.
 
   // Quick singleton hack for demo persistence
-  const [manager] = useState(
-    () => (window as any)._taskManager || ((window as any)._taskManager = new TaskManager()),
-  );
+  const [manager] = useState(() => {
+    const globalWindow = window as TaskWindow;
+    if (!globalWindow._taskManager) {
+      globalWindow._taskManager = new TaskManager();
+    }
+    return globalWindow._taskManager;
+  });
 
   useEffect(() => {
     manager.subscribe(setTasks);

@@ -1,8 +1,8 @@
 :root {
   --color-bg-dark: #1a1a1a;
   --color-bg-card: #2a2a2a;
-  --color-text-primary: rgba(255, 255, 255, 0.87);
-  --color-text-secondary: rgba(255, 255, 255, 0.6);
+  --color-text-primary: rgb(255 255 255 / 87%);
+  --color-text-secondary: rgb(255 255 255 / 60%);
   --color-accent-human: #4caf50;
   --color-accent-angel: #29b6f6;
   --color-accent-demon: #ef5350;
@@ -12,7 +12,7 @@
 body {
   margin: 0;
   font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    -apple-system, BlinkMacSystemFont, "Segoe UI", roboto, oxygen, ubuntu, cantarell,
     'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -49,32 +49,37 @@ button:active {
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: #222;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #555;
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #666;
 }
 
 /* Animations */
-@keyframes fadeIn {
+@keyframes fade-in {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 
-@keyframes slideIn {
+@keyframes slide-in {
   from {
     transform: translateY(20px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -82,11 +87,11 @@ button:active {
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
+  animation: fade-in 0.3s ease-out;
 }
 
 .animate-slide-in {
-  animation: slideIn 0.3s ease-out;
+  animation: slide-in 0.3s ease-out;
 }
 
 /* Mobile Responsiveness Removed */

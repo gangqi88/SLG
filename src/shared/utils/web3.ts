@@ -1,7 +1,13 @@
+interface UniSatProvider {
+  requestAccounts: () => Promise<string[]>;
+  getPublicKey: () => Promise<string>;
+  signMessage: (message: string) => Promise<string>;
+}
+
 // Extend Window interface to support UniSat wallet
 declare global {
   interface Window {
-    unisat: any;
+    unisat?: UniSatProvider;
   }
 }
 
@@ -16,14 +22,16 @@ export class Web3Manager {
   }
 
   static async connectWallet(): Promise<WalletAccount | null> {
-    if (!this.isUniSatInstalled()) {
+    const unisat = window.unisat;
+
+    if (!unisat) {
       alert('Please install UniSat Wallet!');
       return null;
     }
 
     try {
-      const accounts = await window.unisat.requestAccounts();
-      const publicKey = await window.unisat.getPublicKey();
+      const accounts = await unisat.requestAccounts();
+      const publicKey = await unisat.getPublicKey();
 
       if (accounts && accounts.length > 0) {
         return {
@@ -38,10 +46,12 @@ export class Web3Manager {
   }
 
   static async signMessage(message: string): Promise<string | null> {
-    if (!this.isUniSatInstalled()) return null;
+    const unisat = window.unisat;
+
+    if (!unisat) return null;
 
     try {
-      const signature = await window.unisat.signMessage(message);
+      const signature = await unisat.signMessage(message);
       return signature;
     } catch (e) {
       console.error('Signing failed:', e);

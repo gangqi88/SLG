@@ -27,6 +27,19 @@ const HeroDetail: React.FC<HeroDetailProps> = ({ hero, onClose }) => {
 
   const stats = HeroLogic.getStats(hero);
 
+  const handleOverlayKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onClose();
+    }
+  };
+
+  const handleOverlayClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
     <div
       className="hero-detail-overlay animate-fade-in"
@@ -42,7 +55,11 @@ const HeroDetail: React.FC<HeroDetailProps> = ({ hero, onClose }) => {
         alignItems: 'center',
         zIndex: 1000,
       }}
-      onClick={onClose}
+      onClick={handleOverlayClick}
+      onKeyDown={handleOverlayKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label="Close hero detail"
     >
       <div
         className="hero-detail-card animate-slide-in"
@@ -57,7 +74,9 @@ const HeroDetail: React.FC<HeroDetailProps> = ({ hero, onClose }) => {
           border: `2px solid ${getQualityColor(hero.quality)}`,
           boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
         }}
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        tabIndex={-1}
       >
         <div
           style={{

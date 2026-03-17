@@ -1,12 +1,35 @@
+/* eslint-disable no-console */
+
 // Mock environment
-declare let global: any;
-const globalAny: any = global;
+class MockCustomEvent<T = unknown> extends Event implements CustomEvent<T> {
+  detail: T;
+
+  constructor(type: string, options?: CustomEventInit<T>) {
+    super(type, options);
+    this.detail = options?.detail as T;
+  }
+
+  initCustomEvent(type: string, bubbles?: boolean, cancelable?: boolean, detail?: T): void {
+    this.initEvent(type, bubbles ?? false, cancelable ?? false);
+    this.detail = detail as T;
+  }
+}
+
+const globalObject = globalThis as typeof globalThis & {
+  localStorage?: Storage;
+  window?: Window;
+  CustomEvent?: typeof CustomEvent;
+};
 
 // Mock localStorage
 if (typeof localStorage === 'undefined' || localStorage === null) {
   const store: Record<string, string> = {};
-  globalAny.localStorage = {
+  globalObject.localStorage = {
+    get length() {
+      return Object.keys(store).length;
+    },
     getItem: (key: string) => store[key] || null,
+    key: (index: number) => Object.keys(store)[index] ?? null,
     setItem: (key: string, value: string) => {
       store[key] = value;
     },
@@ -21,32 +44,33 @@ if (typeof localStorage === 'undefined' || localStorage === null) {
 
 // Mock window for events
 if (typeof window === 'undefined') {
-  const listeners: Record<string, Function[]> = {};
-  globalAny.window = {
-    addEventListener: (event: string, cb: Function) => {
+  const listeners: Record<string, EventListenerOrEventListenerObject[]> = {};
+  const mockWindow = {
+    addEventListener: (event: string, cb: EventListenerOrEventListenerObject) => {
       if (!listeners[event]) listeners[event] = [];
       listeners[event].push(cb);
     },
-    removeEventListener: (event: string, cb: Function) => {
+    removeEventListener: (event: string, cb: EventListenerOrEventListenerObject) => {
       if (!listeners[event]) return;
       listeners[event] = listeners[event].filter((l) => l !== cb);
     },
-    dispatchEvent: (event: any) => {
+    dispatchEvent: (event: Event) => {
       const type = event.type;
       if (listeners[type]) {
-        listeners[type].forEach((cb) => cb(event));
+        listeners[type].forEach((cb) => {
+          if (typeof cb === 'function') {
+            cb(event);
+          } else {
+            cb.handleEvent(event);
+          }
+        });
       }
       return true;
     },
-  };
-  globalAny.CustomEvent = class CustomEvent {
-    type: string;
-    detail: any;
-    constructor(type: string, options: any) {
-      this.type = type;
-      this.detail = options.detail;
-    }
-  };
+  } as unknown as Window & typeof globalThis;
+
+  globalObject.window = mockWindow;
+  globalObject.CustomEvent = MockCustomEvent as typeof CustomEvent;
 }
 
 import AllianceManager from '@/features/alliance/logic/AllianceManager';

@@ -84,8 +84,6 @@ export class BondManager {
             }
           }
         });
-
-        console.log(`Applied Bond: ${bond.name} (${bond.effect})`);
       }
     });
   }

@@ -28,13 +28,11 @@ export class NFTManager {
     };
   }
 
-  static async mintHero(hero: Hero, address: string): Promise<boolean> {
-    console.log(`Minting Hero NFT for ${hero.name} to ${address}...`);
+  static async mintHero(_hero: Hero, _address: string): Promise<boolean> {
     // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // In a real app, this would call a contract or an API
-    console.log('Minting successful! (Simulated)');
     return true;
   }
 }

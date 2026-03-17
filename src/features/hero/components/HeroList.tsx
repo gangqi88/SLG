@@ -7,6 +7,13 @@ const HeroList: React.FC = () => {
   const [selectedHero, setSelectedHero] = useState<Hero | null>(null);
   const [filterRace, setFilterRace] = useState<string>('All');
 
+  const handleHeroCardKeyDown = (event: React.KeyboardEvent<HTMLDivElement>, hero: Hero) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      setSelectedHero(hero);
+    }
+  };
+
   const filteredHeroes =
     filterRace === 'All' ? allHeroes : allHeroes.filter((h) => h.race === filterRace);
 
@@ -41,7 +48,10 @@ const HeroList: React.FC = () => {
           <div
             key={hero.id}
             onClick={() => setSelectedHero(hero)}
+            onKeyDown={(event) => handleHeroCardKeyDown(event, hero)}
             className="animate-fade-in"
+            role="button"
+            tabIndex={0}
             style={{
               border: '1px solid #444',
               borderRadius: '8px',

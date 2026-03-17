@@ -2,18 +2,18 @@ import React, { useState } from 'react';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import styles from './AllianceTrade.module.css';
 
+type ResourceType = 'wood' | 'stone' | 'food' | 'gold';
+
 export const AllianceTrade: React.FC = () => {
   const { tradeRequests, createTradeRequest, acceptTradeRequest } = useAlliance();
 
   const [showCreate, setShowCreate] = useState(false);
   const [offerType, setOfferType] = useState<'resource' | 'hero'>('resource');
   const [offerAmount, setOfferAmount] = useState(1000);
-  const [offerResource, setOfferResource] = useState<'wood' | 'stone' | 'food' | 'gold'>('wood');
+  const [offerResource, setOfferResource] = useState<ResourceType>('wood');
   const [requestType, setRequestType] = useState<'resource' | 'hero'>('resource');
   const [requestAmount, setRequestAmount] = useState(1000);
-  const [requestResource, setRequestResource] = useState<'wood' | 'stone' | 'food' | 'gold'>(
-    'gold',
-  );
+  const [requestResource, setRequestResource] = useState<ResourceType>('gold');
 
   const handleCreate = async () => {
     createTradeRequest(
@@ -60,7 +60,7 @@ export const AllianceTrade: React.FC = () => {
               {offerType === 'resource' && (
                 <select
                   value={offerResource}
-                  onChange={(e) => setOfferResource(e.target.value as any)}
+                  onChange={(e) => setOfferResource(e.target.value as ResourceType)}
                 >
                   <option value="wood">Wood</option>
                   <option value="stone">Stone</option>
@@ -89,7 +89,7 @@ export const AllianceTrade: React.FC = () => {
               {requestType === 'resource' && (
                 <select
                   value={requestResource}
-                  onChange={(e) => setRequestResource(e.target.value as any)}
+                  onChange={(e) => setRequestResource(e.target.value as ResourceType)}
                 >
                   <option value="wood">Wood</option>
                   <option value="stone">Stone</option>

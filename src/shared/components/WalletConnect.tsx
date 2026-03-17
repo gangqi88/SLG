@@ -27,8 +27,8 @@ const WalletConnect: React.FC<WalletConnectProps> = ({ onConnect, onDisconnect }
       } else {
         setError('Connection failed or rejected.');
       }
-    } catch (e: any) {
-      setError(e.message || 'Connection error');
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'Connection error');
     } finally {
       setIsConnecting(false);
     }

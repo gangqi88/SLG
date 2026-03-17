@@ -200,8 +200,8 @@ class AllianceManager {
     this.emit('alliance', alliance);
 
     // Sync with Web3
-    this.web3Service.createAlliance(name).then((tx) => {
-      console.log('Alliance created on-chain:', tx);
+    this.web3Service.createAlliance(name).catch(() => {
+      // Errors are handled by the mock service call chain when needed.
     });
 
     return alliance;
@@ -225,8 +225,8 @@ class AllianceManager {
     this.saveState();
 
     // Sync with Web3
-    this.web3Service.joinAlliance(allianceId).then((tx) => {
-      console.log('Joined alliance on-chain:', tx);
+    this.web3Service.joinAlliance(allianceId).catch(() => {
+      // Errors are handled by the mock service call chain when needed.
     });
 
     return true;
@@ -262,8 +262,8 @@ class AllianceManager {
 
     // Sync with Web3
     if (this.state.currentAlliance) {
-      this.web3Service.leaveAlliance(this.state.currentAlliance.id).then((tx) => {
-        console.log('Left alliance on-chain:', tx);
+      this.web3Service.leaveAlliance(this.state.currentAlliance.id).catch(() => {
+        // Errors are handled by the mock service call chain when needed.
       });
     }
 
@@ -339,8 +339,8 @@ class AllianceManager {
     this.emit('contribution', { contribution: reward, streak: this.state.checkInStreak });
 
     // Sync with Web3
-    this.web3Service.checkIn(this.state.currentAlliance.id).then((tx) => {
-      console.log('Checked in on-chain:', tx);
+    this.web3Service.checkIn(this.state.currentAlliance.id).catch(() => {
+      // Errors are handled by the mock service call chain when needed.
     });
 
     return { contribution: reward, streak: this.state.checkInStreak };
@@ -427,8 +427,8 @@ class AllianceManager {
     if (this.state.currentAlliance) {
       this.web3Service
         .purchaseShopItem(this.state.currentAlliance.id, itemId, quantity)
-        .then((tx) => {
-          console.log('Purchased shop item on-chain:', tx);
+        .catch(() => {
+          // Errors are handled by the mock service call chain when needed.
         });
     }
 
@@ -566,8 +566,8 @@ class AllianceManager {
     this.emit('tech', { techId, newLevel: currentLevel + 1 });
 
     // Sync with Web3
-    this.web3Service.upgradeTech(this.state.currentAlliance.id, techId).then((tx) => {
-      console.log('Upgraded tech on-chain:', tx);
+    this.web3Service.upgradeTech(this.state.currentAlliance.id, techId).catch(() => {
+      // Errors are handled by the mock service call chain when needed.
     });
 
     return true;
@@ -624,8 +624,8 @@ class AllianceManager {
     this.emit('war', war);
 
     // Sync with Web3
-    this.web3Service.declareWar(this.state.currentAlliance.id, targetAllianceId).then((tx) => {
-      console.log('Declared war on-chain:', tx);
+    this.web3Service.declareWar(this.state.currentAlliance.id, targetAllianceId).catch(() => {
+      // Errors are handled by the mock service call chain when needed.
     });
 
     return war;
@@ -676,8 +676,8 @@ class AllianceManager {
     this.emit('war', war);
 
     // Sync with Web3
-    this.web3Service.resolveWar(war.id).then((tx) => {
-      console.log('Resolved war on-chain:', tx);
+    this.web3Service.resolveWar(war.id).catch(() => {
+      // Errors are handled by the mock service call chain when needed.
     });
 
     return war;
@@ -748,8 +748,8 @@ class AllianceManager {
     if (this.state.currentAlliance) {
       this.web3Service
         .contribute(this.state.currentAlliance.id, contribution.toString())
-        .then((tx) => {
-          console.log('Contributed on-chain:', tx);
+        .catch(() => {
+          // Errors are handled by the mock service call chain when needed.
         });
     }
 

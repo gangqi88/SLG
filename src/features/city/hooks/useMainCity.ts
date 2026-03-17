@@ -297,12 +297,9 @@ export const useMainCity = (): UseMainCityReturn => {
     [buildings],
   );
 
-  const placeBid = useCallback(() => {
-    console.log('Place bid clicked');
-  }, []);
+  const placeBid = useCallback(() => {}, []);
 
   const purchaseItem = useCallback((itemId: string, quantity: number) => {
-    console.log('Purchase item:', itemId, quantity);
     setShopItems((prev) =>
       prev.map((item) =>
         item.id === itemId ? { ...item, soldThisWeek: item.soldThisWeek + quantity } : item,
@@ -311,7 +308,6 @@ export const useMainCity = (): UseMainCityReturn => {
   }, []);
 
   const placeBidAuction = useCallback((auctionId: string, amount: number) => {
-    console.log('Place auction bid:', auctionId, amount);
     setAuctionItems((prev) =>
       prev.map((item) =>
         item.id === auctionId
@@ -328,7 +324,6 @@ export const useMainCity = (): UseMainCityReturn => {
   }, []);
 
   const buyout = useCallback((auctionId: string) => {
-    console.log('Buyout auction:', auctionId);
     setAuctionItems((prev) =>
       prev.map((item) => (item.id === auctionId ? { ...item, status: 'ended' as const } : item)),
     );

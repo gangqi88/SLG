@@ -1,8 +1,8 @@
+/* eslint-disable react-refresh/only-export-components */
+
 import React, { Suspense } from 'react';
 import { createBrowserRouter, useNavigate } from 'react-router-dom';
 import Layout from './components/Layout';
-import { humanHeroes } from '@/features/hero/data/humanHeroes';
-import { demonHeroes } from '@/features/hero/data/demonHeroes';
 
 // Lazy load components
 const HeroList = React.lazy(() => import('@/features/hero/components/HeroList'));
@@ -14,34 +14,17 @@ const LootBoxView = React.lazy(() => import('@/features/gacha/components/LootBox
 const TowerDefenseView = React.lazy(() => import('@/features/battle/components/TowerDefenseView'));
 const CookingView = React.lazy(() => import('@/features/resource/components/CookingView'));
 const SiegeView = React.lazy(() => import('@/features/battle/components/SiegeView'));
-const BattleView = React.lazy(() => import('@/features/battle/components/BattleView'));
+const BattleRoute = React.lazy(() => import('@/features/battle/components/BattleRoute'));
 const StyleGuide = React.lazy(() => import('@/shared/components/StyleGuide'));
 
-// Wrapper to handle onExit
-const WithExit = ({
-  Component,
-  ...props
-}: {
-  Component: React.ComponentType<any>;
-  [key: string]: any;
-}) => {
-  const navigate = useNavigate();
-  return <Component {...props} onExit={() => navigate('/')} />;
+type ExitProps = {
+  onExit: () => void;
 };
 
-// Wrapper for BattleView to provide props
-const BattleWrapper = () => {
+// Wrapper to handle onExit
+const WithExit = ({ Component }: { Component: React.ComponentType<ExitProps> }) => {
   const navigate = useNavigate();
-  const attackerHeroes = humanHeroes.slice(0, 3);
-  const defenderHeroes = demonHeroes.slice(0, 3);
-
-  return (
-    <BattleView
-      attackerHeroes={attackerHeroes}
-      defenderHeroes={defenderHeroes}
-      onExit={() => navigate('/')}
-    />
-  );
+  return <Component onExit={() => navigate('/')} />;
 };
 
 const Loading = () => <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>;
@@ -127,7 +110,7 @@ export const router = createBrowserRouter([
         path: 'battle',
         element: (
           <Suspense fallback={<Loading />}>
-            <BattleWrapper />
+            <BattleRoute />
           </Suspense>
         ),
       },

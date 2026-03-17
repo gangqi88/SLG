@@ -82,8 +82,8 @@ export class DemolitionScene extends Phaser.Scene {
     }
 
     // Cleanup rocks
-    this.rocks.children.each((rock: any) => {
-      if (rock.y > 600) {
+    this.rocks.children.each((rock) => {
+      if (rock instanceof Phaser.Physics.Arcade.Sprite && rock.y > 600) {
         rock.destroy();
       }
       return true;
@@ -98,7 +98,22 @@ export class DemolitionScene extends Phaser.Scene {
     rock.setAngularVelocity(Phaser.Math.Between(-100, 100));
   }
 
-  private hitRock(player: any, _rock: any) {
+  private hitRock(
+    player:
+      | Phaser.Physics.Arcade.Body
+      | Phaser.Physics.Arcade.StaticBody
+      | Phaser.Types.Physics.Arcade.GameObjectWithBody
+      | Phaser.Tilemaps.Tile,
+    _rock:
+      | Phaser.Physics.Arcade.Body
+      | Phaser.Physics.Arcade.StaticBody
+      | Phaser.Types.Physics.Arcade.GameObjectWithBody
+      | Phaser.Tilemaps.Tile,
+  ) {
+    if (!(player instanceof Phaser.Physics.Arcade.Sprite)) {
+      return;
+    }
+
     this.physics.pause();
     player.setTint(0xff0000);
     this.gameOver = true;

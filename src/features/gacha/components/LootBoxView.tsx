@@ -40,6 +40,19 @@ const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
     }, 1500); // 1.5s animation
   };
 
+  const handleSelectBox = (box: InventoryItem) => {
+    if (!isOpening) {
+      setSelectedBox(box);
+    }
+  };
+
+  const handleBoxKeyDown = (event: React.KeyboardEvent<HTMLDivElement>, box: InventoryItem) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleSelectBox(box);
+    }
+  };
+
   const boxes = inventory.filter((i) => i.item.type === 'box');
   const otherItems = inventory.filter((i) => i.item.type !== 'box');
 
@@ -65,7 +78,10 @@ const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
                   ...styles.itemCard,
                   borderColor: selectedBox?.item.id === box.item.id ? '#ffd700' : '#444',
                 }}
-                onClick={() => !isOpening && setSelectedBox(box)}
+                onClick={() => handleSelectBox(box)}
+                onKeyDown={(event) => handleBoxKeyDown(event, box)}
+                role="button"
+                tabIndex={isOpening ? -1 : 0}
               >
                 <div style={styles.icon}>🎁</div>
                 <div>{box.item.name}</div>

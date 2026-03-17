@@ -26,7 +26,7 @@ export interface Skill {
   description: string;
   type: 'Active' | 'Passive' | 'Talent';
   cooldown?: number; // In seconds, only for Active skills
-  effect?: any; // To be defined later for actual implementation
+  effect?: unknown; // To be defined later for actual implementation
 }
 
 export interface Bond {

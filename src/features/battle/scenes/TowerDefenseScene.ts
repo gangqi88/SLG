@@ -114,17 +114,17 @@ export class TowerDefenseScene extends Phaser.Scene {
     }
 
     // Move Enemies towards NPC
-    this.enemyGroup.children.iterate((enemy: any) => {
-      if (enemy && enemy.active) {
+    this.enemyGroup.children.iterate((enemy) => {
+      if (enemy instanceof Phaser.GameObjects.Container && enemy.active) {
         this.physics.moveToObject(enemy, this.npc, 100);
       }
       return true; // Keep iterating
     });
 
     // Cleanup projectiles
-    this.projectiles.children.iterate((proj: any) => {
+    this.projectiles.children.iterate((proj) => {
       if (
-        proj &&
+        proj instanceof Phaser.GameObjects.Rectangle &&
         (proj.x < 0 || proj.x > this.scale.width || proj.y < 0 || proj.y > this.scale.height)
       ) {
         proj.destroy();
@@ -140,8 +140,8 @@ export class TowerDefenseScene extends Phaser.Scene {
     let nearestEnemy: Phaser.GameObjects.Container | null = null;
     let minDist = Infinity;
 
-    this.enemyGroup.children.iterate((enemy: any) => {
-      if (enemy.active) {
+    this.enemyGroup.children.iterate((enemy) => {
+      if (enemy instanceof Phaser.GameObjects.Container && enemy.active) {
         const dist = Phaser.Math.Distance.Between(this.hero.x, this.hero.y, enemy.x, enemy.y);
         if (dist < minDist) {
           minDist = dist;
@@ -210,16 +210,45 @@ export class TowerDefenseScene extends Phaser.Scene {
     this.enemyGroup.add(enemy);
   }
 
-  private handleProjectileHitEnemy(projectile: any, enemy: any) {
-    projectile.destroy();
-    enemy.destroy();
+  private handleProjectileHitEnemy(
+    projectile:
+      | Phaser.Physics.Arcade.Body
+      | Phaser.Physics.Arcade.StaticBody
+      | Phaser.Types.Physics.Arcade.GameObjectWithBody
+      | Phaser.Tilemaps.Tile,
+    enemy:
+      | Phaser.Physics.Arcade.Body
+      | Phaser.Physics.Arcade.StaticBody
+      | Phaser.Types.Physics.Arcade.GameObjectWithBody
+      | Phaser.Tilemaps.Tile,
+  ) {
+    if (projectile instanceof Phaser.GameObjects.Rectangle) {
+      projectile.destroy();
+    }
+
+    if (enemy instanceof Phaser.GameObjects.Container) {
+      enemy.destroy();
+    }
 
     this.score += 10;
     this.scoreText.setText(`Score: ${this.score}`);
   }
 
-  private handleEnemyHitNpc(enemy: any, _npc: any) {
-    enemy.destroy();
+  private handleEnemyHitNpc(
+    enemy:
+      | Phaser.Physics.Arcade.Body
+      | Phaser.Physics.Arcade.StaticBody
+      | Phaser.Types.Physics.Arcade.GameObjectWithBody
+      | Phaser.Tilemaps.Tile,
+    _npc:
+      | Phaser.Physics.Arcade.Body
+      | Phaser.Physics.Arcade.StaticBody
+      | Phaser.Types.Physics.Arcade.GameObjectWithBody
+      | Phaser.Tilemaps.Tile,
+  ) {
+    if (enemy instanceof Phaser.GameObjects.Container) {
+      enemy.destroy();
+    }
 
     this.npcHp -= 10;
     this.npcHpText.setText(`HP: ${this.npcHp}`);

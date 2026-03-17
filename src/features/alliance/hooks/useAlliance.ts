@@ -99,8 +99,7 @@ export const useAlliance = (): UseAllianceReturn => {
 
     syncState();
 
-    const unsubscribe = manager.subscribe((event) => {
-      console.log('Alliance event:', event);
+    const unsubscribe = manager.subscribe((_event) => {
       syncState();
     });
 
