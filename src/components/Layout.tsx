@@ -9,11 +9,12 @@ const Layout: React.FC = () => {
 
   const getLinkStyle = ({ isActive }: { isActive: boolean }) => ({
     backgroundColor: isActive ? '#555' : undefined,
-    borderColor: isActive ? '#888' : undefined,
     color: 'white',
     textDecoration: 'none',
     padding: '8px 16px',
-    border: '1px solid transparent',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: isActive ? '#888' : 'transparent',
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '14px',

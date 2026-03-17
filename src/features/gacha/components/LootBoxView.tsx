@@ -210,7 +210,9 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   itemCard: {
     backgroundColor: '#333',
-    border: '2px solid #444',
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    borderColor: '#444',
     borderRadius: '8px',
     padding: '10px',
     width: '100px',
