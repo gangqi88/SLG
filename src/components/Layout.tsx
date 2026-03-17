@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import WalletConnect from '@/shared/components/WalletConnect';
-import { WalletAccount } from '@/shared/utils/web3';
+import type { WalletAccount } from '@/shared/utils/web3';
+
+const WalletConnect = React.lazy(() => import('@/shared/components/WalletConnect'));
 
 const Layout: React.FC = () => {
   const [wallet, setWallet] = useState<WalletAccount | null>(null);
@@ -20,7 +21,22 @@ const Layout: React.FC = () => {
 
   return (
     <div className="container">
-      <WalletConnect onConnect={(acc) => setWallet(acc)} onDisconnect={() => setWallet(null)} />
+      <Suspense
+        fallback={
+          <div
+            style={{
+              padding: '10px',
+              backgroundColor: '#333',
+              borderRadius: '8px',
+              color: '#fff',
+              marginBottom: '20px',
+              minHeight: '58px',
+            }}
+          />
+        }
+      >
+        <WalletConnect onConnect={(acc) => setWallet(acc)} onDisconnect={() => setWallet(null)} />
+      </Suspense>
 
       <div
         style={{

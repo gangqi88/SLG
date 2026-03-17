@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
 import { PreloadScene } from '@/shared/scenes/PreloadScene';
 import { CityScene } from '@/features/city/scenes/CityScene';
-import { BattleScene } from '@/features/battle/scenes/BattleScene';
 
 interface CityViewProps {
   onExit: () => void;
@@ -26,7 +25,7 @@ const CityView: React.FC<CityViewProps> = ({ onExit }) => {
           debug: false,
         },
       },
-      scene: [PreloadScene, CityScene, BattleScene],
+      scene: [PreloadScene, CityScene],
     };
 
     const game = new Phaser.Game(config);
