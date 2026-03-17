@@ -95,7 +95,7 @@ export class CookingScene extends Phaser.Scene {
     this.input.on(
       'drag',
       (
-        pointer: Phaser.Input.Pointer,
+        _pointer: Phaser.Input.Pointer,
         gameObject: Phaser.GameObjects.Container,
         dragX: number,
         dragY: number,
@@ -108,7 +108,7 @@ export class CookingScene extends Phaser.Scene {
     this.input.on(
       'drop',
       (
-        pointer: Phaser.Input.Pointer,
+        _pointer: Phaser.Input.Pointer,
         gameObject: Phaser.GameObjects.Container,
         dropZone: Phaser.GameObjects.Zone,
       ) => {
@@ -132,7 +132,7 @@ export class CookingScene extends Phaser.Scene {
     this.input.on(
       'dragend',
       (
-        pointer: Phaser.Input.Pointer,
+        _pointer: Phaser.Input.Pointer,
         gameObject: Phaser.GameObjects.Container,
         dropped: boolean,
       ) => {
@@ -155,8 +155,8 @@ export class CookingScene extends Phaser.Scene {
     const y = 250;
 
     // Visuals
-    const circle = this.add.circle(x, y, 80, 0x555555);
-    const label = this.add.text(x, y, 'POT', { fontSize: '20px', color: '#fff' }).setOrigin(0.5);
+    this.add.circle(x, y, 80, 0x555555);
+    this.add.text(x, y, 'POT', { fontSize: '20px', color: '#fff' }).setOrigin(0.5);
 
     // Drop Zone
     this.add.zone(x, y, 160, 160).setRectangleDropZone(160, 160);

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { BattleSystem } from '../logic/BattleSystem';
 import { BattleUnit, BattleEvent } from '@/features/battle/types/BattleTypes';
-import { Hero } from '@/features/hero/types/Hero';
+import { Hero, TroopType } from '@/features/hero/types/Hero';
 import { VisualUnit } from '@/shared/visuals/VisualUnit';
 import { EffectManager } from '@/shared/visuals/EffectManager';
 import { PerformanceMonitor } from '@/shared/visuals/PerformanceMonitor';
@@ -50,7 +50,7 @@ export class SiegeBattleScene extends Phaser.Scene {
     this.performanceMonitor = new PerformanceMonitor(this);
 
     // Create unit visuals
-    this.battleSystem.units.forEach((unit, index) => {
+    this.battleSystem.units.forEach((unit) => {
       this.createVisualUnit(unit);
     });
 
@@ -66,7 +66,7 @@ export class SiegeBattleScene extends Phaser.Scene {
     // Exit Button
     this.add
       .text(this.scale.width - 100, 40, 'Retreat', {
-        fill: '#f00',
+        color: '#f00',
         backgroundColor: '#333',
         padding: { x: 5, y: 5 },
       })
@@ -147,7 +147,7 @@ export class SiegeBattleScene extends Phaser.Scene {
     const color = unit.side === 'attacker' ? 0x0000ff : 0xff0000;
 
     // Special visual for Wall
-    const name = unit.troopType === 'Structure' ? 'WALL' : unit.name;
+    const name = unit.troopType === TroopType.STRUCTURE ? 'WALL' : unit.name;
 
     const visualUnit = new VisualUnit(this, x, y, color, name);
     if (unit.side === 'defender') {
@@ -158,7 +158,7 @@ export class SiegeBattleScene extends Phaser.Scene {
       if (text) text.setScale(-1, 1);
     }
 
-    if (unit.troopType === 'Structure') {
+    if (unit.troopType === TroopType.STRUCTURE) {
       // Make wall bigger
       visualUnit.container.setScale(2);
     }
@@ -217,12 +217,12 @@ export class SiegeBattleScene extends Phaser.Scene {
     }
   }
 
-  private handleSkillEvent(event: BattleEvent) {
+  private handleSkillEvent(_event: BattleEvent) {
     // Simplified
     this.isProcessingEvent = false;
   }
 
-  private handleHealEvent(event: BattleEvent) {
+  private handleHealEvent(_event: BattleEvent) {
     // Simplified
     this.isProcessingEvent = false;
   }
@@ -236,7 +236,7 @@ export class SiegeBattleScene extends Phaser.Scene {
         this.isProcessingEvent = false;
 
         // Check if Wall died
-        if (targetUnit && targetUnit.troopType === 'Structure' && !this.wallBroken) {
+        if (targetUnit && targetUnit.troopType === TroopType.STRUCTURE && !this.wallBroken) {
           this.triggerPhase2();
         }
       });

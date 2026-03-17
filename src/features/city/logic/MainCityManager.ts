@@ -13,7 +13,7 @@ import {
   AuctionItemInput,
   INITIAL_BUILDINGS,
   BUILDING_MAX_LEVELS,
-} from '../../types/MainCity';
+} from '../types/MainCity';
 
 const STORAGE_KEY = 'main_city_manager_data';
 

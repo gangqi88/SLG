@@ -7,7 +7,6 @@ export class SneakAttackScene extends Phaser.Scene {
   private scoreText!: Phaser.GameObjects.Text;
   private timeText!: Phaser.GameObjects.Text;
   private spies: Phaser.GameObjects.Sprite[] = [];
-  private spawnTimer!: Phaser.Time.TimerEvent;
 
   constructor() {
     super('SneakAttackScene');
@@ -29,7 +28,7 @@ export class SneakAttackScene extends Phaser.Scene {
     this.timeText = this.add.text(600, 16, 'Time: 30', { fontSize: '32px', color: '#ffffff' });
 
     // Spawn Timer
-    this.spawnTimer = this.time.addEvent({
+    this.time.addEvent({
       delay: 1000,
       callback: this.spawnSpy,
       callbackScope: this,

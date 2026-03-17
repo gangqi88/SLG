@@ -36,8 +36,8 @@ export class BattleScene extends Phaser.Scene {
     this.performanceMonitor = new PerformanceMonitor(this);
 
     // Create unit visuals
-    this.battleSystem.units.forEach((unit, index) => {
-      this.createVisualUnit(unit, index);
+    this.battleSystem.units.forEach((unit) => {
+      this.createVisualUnit(unit);
     });
 
     // UI for Battle Log
@@ -52,7 +52,7 @@ export class BattleScene extends Phaser.Scene {
     // Pause/Resume Button
     const pauseBtn = this.add
       .text(this.scale.width - 100, 10, 'Pause', {
-        fill: '#0f0',
+        color: '#0f0',
         backgroundColor: '#333',
         padding: { x: 5, y: 5 },
       })
@@ -65,7 +65,7 @@ export class BattleScene extends Phaser.Scene {
     // Exit Button
     this.add
       .text(this.scale.width - 100, 40, 'Exit', {
-        fill: '#f00',
+        color: '#f00',
         backgroundColor: '#333',
         padding: { x: 5, y: 5 },
       })
@@ -114,7 +114,7 @@ export class BattleScene extends Phaser.Scene {
     }
   }
 
-  private createVisualUnit(unit: BattleUnit, index: number) {
+  private createVisualUnit(unit: BattleUnit) {
     const x = unit.x;
     const y = unit.y;
     const color = unit.side === 'attacker' ? 0x0000ff : 0xff0000;

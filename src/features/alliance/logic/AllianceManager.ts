@@ -18,7 +18,7 @@ import {
   WAR_DECLARE_REQUIRED_LEVEL,
   WAR_DECLARE_DEPOSIT,
   WAR_DURATION,
-} from '../../types/Alliance';
+} from '../types/Alliance';
 import { STORAGE_KEY, getUpgradeCost, getMaxMembers } from '@/features/alliance/config/alliance';
 
 type AllianceEventType = 'chat' | 'contribution' | 'war' | 'shop' | 'tech' | 'member' | 'alliance';

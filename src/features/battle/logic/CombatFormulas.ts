@@ -5,11 +5,9 @@ const NORMAL_ATTACK_COEFF = 0.8;
 const SKILL_HEALING_COEFF = 1.2;
 const BASE_CRIT_RATE = 0.05;
 const BASE_CRIT_DAMAGE = 1.5;
-const MAX_CRIT_RATE = 0.6;
-const MAX_CRIT_DAMAGE = 3.0;
 
 // Restraint Bonuses (Race)
-const RACE_RESTRAINT_BONUS = {
+const RACE_RESTRAINT_BONUS: Partial<Record<Race, Partial<Record<Race, number>>>> = {
   [Race.DEMON]: { [Race.HUMAN]: 0.25 },
   [Race.HUMAN]: { [Race.ANGEL]: 0.2 },
   [Race.ANGEL]: { [Race.DEMON]: 0.3 },
@@ -18,7 +16,7 @@ const RACE_RESTRAINT_BONUS = {
 // Restraint Bonuses (Troop Type)
 // Infantry > Cavalry > Archer > Infantry
 // Mage > Siege > Flying > Mage
-const TROOP_RESTRAINT_BONUS = {
+const TROOP_RESTRAINT_BONUS: Partial<Record<TroopType, Partial<Record<TroopType, number>>>> = {
   [TroopType.INFANTRY]: { [TroopType.CAVALRY]: 0.2 },
   [TroopType.CAVALRY]: { [TroopType.ARCHER]: 0.2 },
   [TroopType.ARCHER]: { [TroopType.INFANTRY]: 0.2, [TroopType.FLYING]: 0.4 }, // Archers counter Flying heavily

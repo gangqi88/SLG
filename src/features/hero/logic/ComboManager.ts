@@ -80,7 +80,7 @@ export class ComboManager {
             id: buffId,
             name: 'Divine Light',
             duration: 10,
-            effect: (u) => {},
+            effect: () => {},
             onRemove: (u) => {
               u.currentStats.strength /= 1.2;
               u.currentStats.strategy /= 1.2;
@@ -122,7 +122,7 @@ export class ComboManager {
             id: buffId,
             name: 'Hellfire',
             duration: 10,
-            effect: (u) => {},
+            effect: () => {},
             onRemove: (u) => {
               u.lifesteal = (u.lifesteal || 0) - 0.2;
               u.attackSpeed = (u.attackSpeed || 1.0) - 0.2;

@@ -3,10 +3,13 @@ import { GachaManager, GachaResult } from '@/features/gacha/logic/GachaManager';
 import { Quality } from '@/features/hero/types/Hero';
 
 const GachaView: React.FC = () => {
-  // Singleton hack
-  const [manager] = useState(
-    () => (window as any)._gachaManager || ((window as any)._gachaManager = new GachaManager()),
-  );
+  const [manager] = useState<GachaManager>(() => {
+    const globalWindow = window as Window & { _gachaManager?: GachaManager };
+    if (!globalWindow._gachaManager) {
+      globalWindow._gachaManager = new GachaManager();
+    }
+    return globalWindow._gachaManager;
+  });
   const [results, setResults] = useState<GachaResult[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
 
@@ -22,8 +25,8 @@ const GachaView: React.FC = () => {
       try {
         const res = manager.draw(poolId, count);
         setResults(res);
-      } catch (e) {
-        alert(e);
+      } catch (error) {
+        alert(error instanceof Error ? error.message : String(error));
       }
       setIsDrawing(false);
     }, 1000);

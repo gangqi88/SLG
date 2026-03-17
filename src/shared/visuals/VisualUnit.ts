@@ -8,11 +8,9 @@ export class VisualUnit {
   public weapon: Phaser.GameObjects.Shape; // Weapon visual
   private scene: Phaser.Scene;
   private state: AnimationState = 'idle';
-  private originalPos: { x: number; y: number };
 
   constructor(scene: Phaser.Scene, x: number, y: number, color: number, name: string) {
     this.scene = scene;
-    this.originalPos = { x, y };
 
     this.container = scene.add.container(x, y);
 
@@ -85,7 +83,7 @@ export class VisualUnit {
       duration: 100,
       yoyo: true,
       onUpdate: (tween) => {
-        const val = Math.floor(tween.getValue());
+        const val = Math.floor(tween.getValue() ?? 0);
         const color = Phaser.Display.Color.Interpolate.ColorWithColor(
           Phaser.Display.Color.ValueToColor(0xffffff),
           Phaser.Display.Color.ValueToColor(this.body.fillColor),

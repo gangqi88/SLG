@@ -17,7 +17,7 @@ export class PerformanceMonitor {
       .setDepth(1000); // Ensure it's on top
   }
 
-  public update(time: number, delta: number) {
+  public update(time: number, _delta: number) {
     if (this.lastTime === 0) {
       this.lastTime = time;
       return;

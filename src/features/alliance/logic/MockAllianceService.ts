@@ -31,7 +31,7 @@ class MockAllianceService implements IAllianceNFT, ITreasuryContract {
 
   // --- IAllianceNFT Implementation ---
 
-  async balanceOf(owner: string): Promise<string> {
+  async balanceOf(_owner: string): Promise<string> {
     // Simulate reading balance
     return '1000'; // Mock token balance
   }
@@ -230,7 +230,7 @@ class MockAllianceService implements IAllianceNFT, ITreasuryContract {
     return `0xTxHash_RequestWithdraw_${allianceTokenId}`;
   }
 
-  async approveWithdraw(allianceTokenId: string, requestId: string): Promise<string> {
+  async approveWithdraw(_allianceTokenId: string, requestId: string): Promise<string> {
     await this.simulateDelay();
     return `0xTxHash_ApproveWithdraw_${requestId}`;
   }

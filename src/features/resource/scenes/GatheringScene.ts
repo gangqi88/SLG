@@ -11,8 +11,6 @@ export class GatheringScene extends Phaser.Scene {
     wood: 0,
   };
   private isGathering: boolean = false;
-  private gatheringTimer?: Phaser.Time.TimerEvent;
-
   constructor() {
     super('GatheringScene');
   }
@@ -26,10 +24,11 @@ export class GatheringScene extends Phaser.Scene {
     this.player = this.physics.add.sprite(100, 450, 'player');
     // If 'player' texture doesn't exist, create a placeholder
     if (!this.textures.exists('player')) {
-      const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+      const graphics = this.make.graphics({ x: 0, y: 0 });
       graphics.fillStyle(0xff0000);
       graphics.fillRect(0, 0, 32, 32);
       graphics.generateTexture('player', 32, 32);
+      graphics.destroy();
       this.player.setTexture('player');
     }
 
@@ -45,10 +44,11 @@ export class GatheringScene extends Phaser.Scene {
     platforms.create(400, 550, 'ground').setScale(2).refreshBody(); // Invisible ground platform for physics
     // If 'ground' texture doesn't exist...
     if (!this.textures.exists('ground')) {
-      const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+      const graphics = this.make.graphics({ x: 0, y: 0 });
       graphics.fillStyle(0x228b22);
       graphics.fillRect(0, 0, 400, 50); // 400x50, scaled x2 -> 800x100
       graphics.generateTexture('ground', 400, 50);
+      graphics.destroy();
       // Re-create the platform with the new texture
       platforms.clear(true, true);
       platforms.create(400, 550, 'ground').setDisplaySize(800, 100).refreshBody();
@@ -77,9 +77,9 @@ export class GatheringScene extends Phaser.Scene {
     });
 
     // Back Button
-    const backBtn = this.add
+    this.add
       .text(this.scale.width - 100, 10, 'Back', {
-        fill: '#fff',
+        color: '#fff',
         backgroundColor: '#333',
         padding: { x: 5, y: 5 },
       })
@@ -124,7 +124,7 @@ export class GatheringScene extends Phaser.Scene {
 
       const textureKey = `resource_${type}`;
       if (!this.textures.exists(textureKey)) {
-        const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+        const graphics = this.make.graphics({ x: 0, y: 0 });
         graphics.fillStyle(color);
         if (type === 'grass') {
           graphics.fillCircle(10, 10, 10); // Simple circle for grass
@@ -133,6 +133,7 @@ export class GatheringScene extends Phaser.Scene {
           graphics.fillRect(0, 0, 20, 40); // Rect for tree
           graphics.generateTexture(textureKey, 20, 40);
         }
+        graphics.destroy();
       }
 
       const node = this.resources.create(x, 480, textureKey);
@@ -145,7 +146,7 @@ export class GatheringScene extends Phaser.Scene {
   private tryGather() {
     // Check overlap with resources
     let found = false;
-    this.physics.overlap(this.player, this.resources, (player, resource) => {
+    this.physics.overlap(this.player, this.resources, (_player, resource) => {
       if (found) return; // Only gather one at a time
       found = true;
       this.startGathering(resource as Phaser.Physics.Arcade.Sprite);
@@ -164,7 +165,7 @@ export class GatheringScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    this.gatheringTimer = this.time.delayedCall(1000, () => {
+    this.time.delayedCall(1000, () => {
       // Success
       this.gatheredData[type === 'grass' ? 'grass' : 'wood']++;
 

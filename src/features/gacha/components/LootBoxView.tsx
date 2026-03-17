@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import InventoryManager from '@/features/resource/logic/InventoryManager';
-import { InventoryItem, LootBox } from '@/features/gacha/types/LootBox';
+import { InventoryItem } from '@/features/gacha/types/LootBox';
 
 const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);

@@ -98,7 +98,7 @@ export class DemolitionScene extends Phaser.Scene {
     rock.setAngularVelocity(Phaser.Math.Between(-100, 100));
   }
 
-  private hitRock(player: any, rock: any) {
+  private hitRock(player: any, _rock: any) {
     this.physics.pause();
     player.setTint(0xff0000);
     this.gameOver = true;

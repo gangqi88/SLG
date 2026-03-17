@@ -3,7 +3,6 @@ import Phaser from 'phaser';
 export class TowerDefenseScene extends Phaser.Scene {
   private hero!: Phaser.GameObjects.Container;
   private npc!: Phaser.GameObjects.Container;
-  private enemies: Phaser.GameObjects.Container[] = [];
   private enemyGroup!: Phaser.Physics.Arcade.Group;
   private projectiles!: Phaser.Physics.Arcade.Group;
 
@@ -219,7 +218,7 @@ export class TowerDefenseScene extends Phaser.Scene {
     this.scoreText.setText(`Score: ${this.score}`);
   }
 
-  private handleEnemyHitNpc(enemy: any, npc: any) {
+  private handleEnemyHitNpc(enemy: any, _npc: any) {
     enemy.destroy();
 
     this.npcHp -= 10;

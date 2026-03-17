@@ -35,9 +35,9 @@ export class CityScene extends Phaser.Scene {
     this.createBuildingSprites();
 
     // Back Button
-    const backBtn = this.add
+    this.add
       .text(this.scale.width - 100, 10, 'Back', {
-        fill: '#0f0',
+        color: '#0f0',
         backgroundColor: '#333',
         padding: { x: 5, y: 5 },
       })
@@ -50,7 +50,7 @@ export class CityScene extends Phaser.Scene {
       });
   }
 
-  update(time: number, delta: number) {
+  update(_time: number, delta: number) {
     const dt = delta / 1000;
     this.cityManager.update(dt);
     this.updateResourceUI();

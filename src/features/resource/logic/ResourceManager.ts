@@ -23,7 +23,6 @@ export class ResourceManager {
   private resources: Resources;
   private production: ResourceProduction;
   private capacity: number; // Max storage for each resource (simplified)
-  private lastUpdate: number;
 
   constructor() {
     this.resources = {
@@ -41,7 +40,6 @@ export class ResourceManager {
     };
 
     this.capacity = 10000;
-    this.lastUpdate = Date.now();
   }
 
   public update(deltaTime: number) {

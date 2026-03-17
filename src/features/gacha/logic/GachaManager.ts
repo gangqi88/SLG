@@ -1,4 +1,4 @@
-import { Hero, Quality, Race } from '@/features/hero/types/Hero';
+import { Hero, Quality } from '@/features/hero/types/Hero';
 import { allHeroes } from '@/features/hero/data/heroes';
 import { newTroopHeroes } from '@/features/hero/data/newHeroes';
 
@@ -143,6 +143,10 @@ export class GachaManager {
       // 50% chance to get UP hero if available in this quality
       if (Math.random() < 0.5) {
         return upCandidates[Math.floor(Math.random() * upCandidates.length)];
+      }
+
+      if (normalCandidates.length > 0) {
+        return normalCandidates[Math.floor(Math.random() * normalCandidates.length)];
       }
     }
 

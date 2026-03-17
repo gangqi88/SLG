@@ -1,8 +1,8 @@
-import { Hero, HeroStats, Skill, TroopType } from '@/features/hero/types/Hero';
+import { Hero, Skill, TroopType } from '@/features/hero/types/Hero';
 import { calculateNormalDamage, calculateSkillDamage, calculateHealing } from './CombatFormulas';
 import { BondManager } from '@/features/hero/logic/BondManager';
 import { HeroLogic } from '@/features/hero/logic/HeroLogic';
-import { BattleUnit, Buff, BattleLog, BattleEvent } from '@/features/battle/types/BattleTypes';
+import { BattleUnit, BattleLog, BattleEvent } from '@/features/battle/types/BattleTypes';
 import { ComboManager, ComboSkill } from '@/features/hero/logic/ComboManager';
 
 export class BattleSystem {
