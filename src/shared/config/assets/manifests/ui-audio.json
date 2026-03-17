@@ -1,0 +1,30 @@
+[
+  {
+    "key": "ui_btn_primary",
+    "url": "/game-assets/ui/ui_btn_primary.svg",
+    "type": "image",
+    "feature": "ui",
+    "optional": true
+  },
+  {
+    "key": "ui_badge_pvp",
+    "url": "/game-assets/ui/ui_badge_pvp.svg",
+    "type": "image",
+    "feature": "battle-pvp",
+    "optional": true
+  },
+  {
+    "key": "ui_badge_pve",
+    "url": "/game-assets/ui/ui_badge_pve.svg",
+    "type": "image",
+    "feature": "battle-pve",
+    "optional": true
+  },
+  {
+    "key": "ui_badge_siege",
+    "url": "/game-assets/ui/ui_badge_siege.svg",
+    "type": "image",
+    "feature": "battle-siege",
+    "optional": true
+  }
+]

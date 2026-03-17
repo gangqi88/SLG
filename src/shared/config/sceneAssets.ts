@@ -1,3 +1,5 @@
+import { IMAGE_GAME_ASSETS } from '@/shared/config/assets';
+
 export type BackgroundTextureKey = 'bg_battle' | 'bg_city';
 
 export interface OptionalSceneImageAsset {
@@ -5,7 +7,13 @@ export interface OptionalSceneImageAsset {
   url: string;
 }
 
-export const OPTIONAL_BACKGROUND_IMAGE_ASSETS: OptionalSceneImageAsset[] = [
-  { key: 'bg_battle', url: '/assets/bg_battle.png' },
-  { key: 'bg_city', url: '/assets/bg_city.png' },
-];
+const isBackgroundTextureKey = (key: string): key is BackgroundTextureKey =>
+  key === 'bg_battle' || key === 'bg_city';
+
+export const OPTIONAL_BACKGROUND_IMAGE_ASSETS: OptionalSceneImageAsset[] = IMAGE_GAME_ASSETS.filter(
+  (asset): asset is OptionalSceneImageAsset =>
+    asset.optional && isBackgroundTextureKey(asset.key) && asset.feature === 'shared-background'
+).map((asset) => ({
+  key: asset.key,
+  url: asset.url,
+}));

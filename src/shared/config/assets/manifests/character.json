@@ -1,0 +1,9 @@
+[
+  {
+    "key": "hero_avatar_demo",
+    "url": "/game-assets/character/hero_avatar_demo.svg",
+    "type": "image",
+    "feature": "hero",
+    "optional": true
+  }
+]

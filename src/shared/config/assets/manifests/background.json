@@ -1,0 +1,16 @@
+[
+  {
+    "key": "bg_battle",
+    "url": "/game-assets/background/bg_battle.svg",
+    "type": "image",
+    "feature": "shared-background",
+    "optional": true
+  },
+  {
+    "key": "bg_city",
+    "url": "/game-assets/background/bg_city.svg",
+    "type": "image",
+    "feature": "shared-background",
+    "optional": true
+  }
+]
