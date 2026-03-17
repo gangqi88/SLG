@@ -3,14 +3,22 @@ import Phaser from 'phaser';
 import { PreloadScene } from '@/shared/scenes/PreloadScene';
 import { BattleScene } from '@/features/battle/scenes/BattleScene';
 import { Hero } from '@/features/hero/types/Hero';
+import { getBattleSceneAssetFeatures } from '@/shared/config/assets/sceneAssetFeatures';
+import { BattleMode } from '@/features/battle/types/battleMode';
 
 interface BattleViewProps {
   attackerHeroes: Hero[];
   defenderHeroes: Hero[];
+  battleMode: BattleMode;
   onExit: () => void;
 }
 
-const BattleView: React.FC<BattleViewProps> = ({ attackerHeroes, defenderHeroes, onExit }) => {
+const BattleView: React.FC<BattleViewProps> = ({
+  attackerHeroes,
+  defenderHeroes,
+  battleMode,
+  onExit,
+}) => {
   const gameRef = useRef<Phaser.Game | null>(null);
 
   useEffect(() => {
@@ -34,15 +42,14 @@ const BattleView: React.FC<BattleViewProps> = ({ attackerHeroes, defenderHeroes,
     const game = new Phaser.Game(config);
     gameRef.current = game;
 
-    // Set data in registry for PreloadScene to pick up if direct init fails
-    // But now PreloadScene expects { targetScene, sceneData }
-    const sceneData = { attackerHeroes, defenderHeroes };
-    game.registry.set('startData', { targetScene: 'BattleScene', sceneData });
+    const assetFeatures = getBattleSceneAssetFeatures(battleMode);
+    const sceneData = { attackerHeroes, defenderHeroes, battleMode };
+    game.registry.set('startData', { targetScene: 'BattleScene', sceneData, assetFeatures });
 
     game.events.once('ready', () => {
       const scene = game.scene.getScene('PreloadScene');
       if (scene) {
-        scene.scene.restart({ targetScene: 'BattleScene', sceneData });
+        scene.scene.restart({ targetScene: 'BattleScene', sceneData, assetFeatures });
       }
     });
 
@@ -50,7 +57,7 @@ const BattleView: React.FC<BattleViewProps> = ({ attackerHeroes, defenderHeroes,
       game.destroy(true);
       gameRef.current = null;
     };
-  }, [attackerHeroes, defenderHeroes]);
+  }, [attackerHeroes, battleMode, defenderHeroes]);
 
   return (
     <div style={{ position: 'relative', width: '800px', height: '600px', margin: '0 auto' }}>

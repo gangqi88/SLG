@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
 import { PreloadScene } from '@/shared/scenes/PreloadScene';
 import { GatheringScene } from '@/features/resource/scenes/GatheringScene';
+import { getSceneAssetFeatures } from '@/shared/config/assets/sceneAssetFeatures';
 
 interface GatheringViewProps {
   onExit: () => void;
@@ -31,10 +32,11 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
     const game = new Phaser.Game(config);
     gameRef.current = game;
 
-    // Tell PreloadScene to start GatheringScene
-    game.registry.set('startData', { targetScene: 'GatheringScene' });
+    game.registry.set('startData', {
+      targetScene: 'GatheringScene',
+      assetFeatures: getSceneAssetFeatures('GatheringScene'),
+    });
 
-    // Listen for exit event from scene
     game.events.on('exitGathering', () => {
       onExit();
     });

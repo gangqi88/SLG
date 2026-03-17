@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Phaser from 'phaser';
 import { PreloadScene } from '@/shared/scenes/PreloadScene';
 import { CookingScene } from '@/features/resource/scenes/CookingScene';
+import { getSceneAssetFeatures } from '@/shared/config/assets/sceneAssetFeatures';
 
 interface CookingViewProps {
   onExit: () => void;
@@ -32,10 +33,11 @@ const CookingView: React.FC<CookingViewProps> = ({ onExit }) => {
     const game = new Phaser.Game(config);
     gameRef.current = game;
 
-    // Set initial data to tell PreloadScene to go to CookingScene
-    game.registry.set('startData', { targetScene: 'CookingScene' });
+    game.registry.set('startData', {
+      targetScene: 'CookingScene',
+      assetFeatures: getSceneAssetFeatures('CookingScene'),
+    });
 
-    // Listen for exit event from scene
     game.events.on('exitCooking', () => {
       onExit();
     });

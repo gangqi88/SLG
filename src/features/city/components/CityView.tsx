@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
 import { PreloadScene } from '@/shared/scenes/PreloadScene';
 import { CityScene } from '@/features/city/scenes/CityScene';
+import { getSceneAssetFeatures } from '@/shared/config/assets/sceneAssetFeatures';
 
 interface CityViewProps {
   onExit: () => void;
@@ -31,10 +32,11 @@ const CityView: React.FC<CityViewProps> = ({ onExit }) => {
     const game = new Phaser.Game(config);
     gameRef.current = game;
 
-    // Set initial data to tell PreloadScene to go to CityScene
-    game.registry.set('startData', { targetScene: 'CityScene' });
+    game.registry.set('startData', {
+      targetScene: 'CityScene',
+      assetFeatures: getSceneAssetFeatures('CityScene'),
+    });
 
-    // Listen for exit event from scene
     game.events.on('exitCity', () => {
       onExit();
     });
