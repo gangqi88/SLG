@@ -1,4 +1,4 @@
-﻿# 项目规则（索引）
+# 项目规则（索引）
 
 > 本文件为规则总入口，正文必须小于 1000 字。详细规则拆分到分片文件，按需读取。
 
@@ -15,6 +15,7 @@
 - 版本与变更策略：`R3-version.md`
 - 职责边界与协作接口：`R4-collaboration.md`
 - 审查流程与常见问题：`R5-review.md`
+- 变更与发布安全：`R6-change-safety.md`
 
 ## 全局硬规则
 
@@ -23,14 +24,16 @@
 - 不在各技能重复维护全局矩阵与通用流程
 - 调度入口统一 `task-scheduler/SKILL.md`
 - 兼容入口仅转发：`frontend-workflow-orchestrator/SKILL.md`
+- 中高风险改动必须满足灰度、可观测、可回滚
 
 ## 使用示例
 
 - 需写新技能文档：读 `R2-format.md` + `R3-version.md`
 - 需定义技能边界：读 `R4-collaboration.md`
 - 需做文档审查：读 `R5-review.md`
+- 需做上线治理：读 `R6-change-safety.md`
 
 ---
 
-_文档版本: 2.0.0_
+_文档版本: 2.1.0_
 _最后更新: 2026-03-17_
