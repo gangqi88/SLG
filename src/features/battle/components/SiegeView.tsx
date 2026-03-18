@@ -7,12 +7,12 @@ import { SiegeBattleScene } from '@/features/battle/scenes/SiegeBattleScene';
 import { Team, getTeamHeroes } from '@/shared/logic/Team';
 import { SceneHUD } from '@/shared/components/SceneHUD';
 import { useModal } from '@/shared/components/ModalProvider';
-import { BattleReportView, type BattleReport } from '@/shared/logic/battleReports';
+import { BattleReportView, createBattleReportFromResult, type BattleReport } from '@/shared/logic/battleReports';
 import { applyRewards, formatRewardLines, type Reward } from '@/shared/logic/rewards';
 import { hasClaimed, markClaimed, newClaimKey } from '@/shared/logic/claimLedger';
-import { simulateBattle } from '@/shared/logic/battleSim';
 import { computeTeamPower } from '@/shared/logic/teamMetrics';
 import { WALL_HERO } from '@/features/hero/data/siegeHeroes';
+import type { BattleResult } from '@/shared/logic/battleResult';
 
 interface SiegeViewProps {
   onExit: () => void;
@@ -23,37 +23,28 @@ const siegeManager = new SiegeManager();
 const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const gameRef = useRef<Phaser.Game | null>(null);
   const modal = useModal();
-  const claimKeyRef = useRef<string>(newClaimKey('siege'));
+  const battleIdRef = useRef<string>(newClaimKey('siege'));
+  const claimKeyRef = useRef<string>('');
   const [auto, setAuto] = useState(true);
   const [speed, setSpeed] = useState<1 | 2>(1);
   const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
+  const [battleResult, setBattleResult] = useState<BattleResult | null>(null);
   const team = useSyncExternalStore(
     (listener) => Team.subscribe(listener),
     () => Team.getSnapshot(),
   );
   const attackerTeam = useMemo(() => getTeamHeroes(team.heroIds).slice(0, 5), [team.heroIds]);
 
-  const sim = useMemo(() => simulateBattle(attackerTeam, [WALL_HERO]), [attackerTeam]);
   const attackerPower = useMemo(() => computeTeamPower(attackerTeam), [attackerTeam]);
   const defenderPower = useMemo(() => computeTeamPower([WALL_HERO]), []);
 
   const report = useMemo<BattleReport>(() => {
-    const win = sim.winner === 'attacker';
-    return {
-      title: '攻城战',
-      entries: [
-        { label: '我方', value: `本盟(${attackerTeam.length})` },
-        { label: '敌方', value: '城墙' },
-        { label: '结果', value: win ? '胜利' : sim.winner === 'defender' ? '失败' : '平局', tone: win ? 'good' : sim.winner === 'defender' ? 'bad' : 'normal' },
-        { label: '耗时', value: `${sim.durationSec}s` },
-        { label: '我方伤害', value: `${sim.damage.attacker}`, tone: 'good' },
-        { label: '敌方伤害', value: `${sim.damage.defender}`, tone: 'bad' },
-      ],
-    };
-  }, [attackerTeam.length, sim.damage.attacker, sim.damage.defender, sim.durationSec, sim.winner]);
+    if (!battleResult) return { title: '攻城战', entries: [{ label: '状态', value: '战斗进行中', tone: 'normal' }] };
+    return createBattleReportFromResult(battleResult);
+  }, [battleResult]);
 
   const rewards = useMemo<Reward[]>(() => {
-    const win = sim.winner === 'attacker';
+    const win = battleResult?.winner === 'attacker';
     const coin = Math.max(120, Math.floor((win ? 1 : 0.7) * (600 + attackerPower / 40)));
     const exp = Math.max(30, Math.floor((win ? 1 : 0.8) * (120 + attackerPower / 220)));
     const wood = Math.max(0, Math.floor((win ? 1 : 0.5) * (200 + attackerPower / 120)));
@@ -62,7 +53,7 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
       { type: 'item', id: 'item_hero_exp', amount: exp },
       { type: 'resource', id: 'wood', amount: wood },
     ];
-  }, [attackerPower, sim.winner]);
+  }, [attackerPower, battleResult?.winner]);
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -83,6 +74,9 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     gameRef.current = game;
     game.registry.set('battleSettings', { auto, speed });
     game.registry.set('battleCommands', []);
+    game.registry.set('battleCooldowns', {});
+    setBattleResult(null);
+    claimKeyRef.current = `siege:${battleIdRef.current}`;
 
     // Restart scene with data to ensure init receives it
     // Use a slight timeout to ensure scene manager is ready if needed,
@@ -91,11 +85,17 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     // We can just stop and restart.
     setTimeout(() => {
       if (game.scene.getScene('SiegeBattleScene')) {
-        game.scene.start('SiegeBattleScene', { attackerHeroes: attackerTeam });
+        game.scene.start('SiegeBattleScene', { attackerHeroes: attackerTeam, battleId: battleIdRef.current });
       }
     }, 100);
 
+    const onBattleEnd = (result: BattleResult) => {
+      setBattleResult(result);
+    };
+    game.events.on('battleEnd', onBattleEnd);
+
     return () => {
+      game.events.off('battleEnd', onBattleEnd);
       game.destroy(true);
       gameRef.current = null;
     };
@@ -245,6 +245,10 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
               label: '结算',
               variant: 'primary',
               onClick: () => {
+                if (!battleResult) {
+                  modal.openAlert({ title: '结算', message: '战斗尚未结束。' });
+                  return;
+                }
                 if (hasClaimed(claimKeyRef.current)) {
                   modal.openAlert({ title: '结算', message: '奖励已领取。' });
                   return;

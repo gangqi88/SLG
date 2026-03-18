@@ -5,6 +5,7 @@ import { Hero } from '@/features/hero/types/Hero';
 import { VisualUnit } from '@/shared/visuals/VisualUnit';
 import { EffectManager } from '@/shared/visuals/EffectManager';
 import { PerformanceMonitor } from '@/shared/visuals/PerformanceMonitor';
+import { accumulateStatsFromEvents, emptySideStats, type BattleResult } from '@/shared/logic/battleResult';
 
 export class BattleScene extends Phaser.Scene {
   private battleSystem!: BattleSystem;
@@ -13,6 +14,13 @@ export class BattleScene extends Phaser.Scene {
   private performanceMonitor!: PerformanceMonitor;
   private battleLogText!: Phaser.GameObjects.Text;
   private isPaused: boolean = false;
+  private battleId: string = '';
+  private mode: string = '';
+  private attackerNames: string[] = [];
+  private defenderNames: string[] = [];
+  private endEmitted: boolean = false;
+  private sideByUnitId: Map<string, 'attacker' | 'defender'> = new Map();
+  private stats = { attacker: emptySideStats(), defender: emptySideStats() };
 
   // Animation Queue
   private eventQueue: BattleEvent[] = [];
@@ -41,8 +49,16 @@ export class BattleScene extends Phaser.Scene {
     super('BattleScene');
   }
 
-  init(data: { attackerHeroes: Hero[]; defenderHeroes: Hero[] }) {
+  init(data: { attackerHeroes: Hero[]; defenderHeroes: Hero[]; battleId?: string; battleMode?: string }) {
     this.battleSystem = new BattleSystem(data.attackerHeroes, data.defenderHeroes);
+    this.battleId = data.battleId ?? '';
+    this.mode = data.battleMode ?? 'battle';
+    this.attackerNames = data.attackerHeroes.map((h) => h.name);
+    this.defenderNames = data.defenderHeroes.map((h) => h.name);
+    this.endEmitted = false;
+    this.sideByUnitId = new Map();
+    this.battleSystem.units.forEach((u) => this.sideByUnitId.set(u.uniqueId, u.side));
+    this.stats = { attacker: emptySideStats(), defender: emptySideStats() };
   }
 
   create() {
@@ -142,7 +158,26 @@ export class BattleScene extends Phaser.Scene {
 
       // Fetch new events
       const newEvents = this.battleSystem.getEvents();
+      accumulateStatsFromEvents(this.stats, newEvents, this.sideByUnitId);
       this.eventQueue.push(...newEvents);
+
+      const attackersAlive = this.battleSystem.units.some((u) => u.side === 'attacker' && !u.isDead);
+      const defendersAlive = this.battleSystem.units.some((u) => u.side === 'defender' && !u.isDead);
+      if ((!attackersAlive || !defendersAlive) && !this.endEmitted) {
+        const winner = attackersAlive && !defendersAlive ? 'attacker' : !attackersAlive && defendersAlive ? 'defender' : 'draw';
+        const result: BattleResult = {
+          battleId: this.battleId,
+          mode: this.mode,
+          winner,
+          durationSec: Math.round(this.battleSystem.currentTime * 10) / 10,
+          attacker: { names: this.attackerNames },
+          defender: { names: this.defenderNames },
+          stats: this.stats,
+        };
+        this.endEmitted = true;
+        this.isPaused = true;
+        this.game.events.emit('battleEnd', result);
+      }
     }
   }
 

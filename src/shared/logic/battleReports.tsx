@@ -1,4 +1,5 @@
 import React from 'react';
+import type { BattleResult } from '@/shared/logic/battleResult';
 
 export type BattleReportEntry = {
   label: string;
@@ -26,6 +27,27 @@ export const createMockBattleReport = (args: { title: string; attacker: string; 
       { label: '战功', value: `${win ? 12 : 6}` },
       { label: '经验', value: `+${rewardExp}`, tone: 'good' },
       { label: '金币', value: `+${rewardCoin}`, tone: 'good' },
+    ],
+  } satisfies BattleReport;
+};
+
+export const createBattleReportFromResult = (result: BattleResult) => {
+  const win = result.winner === 'attacker';
+  const lose = result.winner === 'defender';
+  const outcome = win ? '胜利' : lose ? '失败' : '平局';
+  return {
+    title: result.mode,
+    entries: [
+      { label: '我方', value: result.attacker.names.join('、') || '—' },
+      { label: '敌方', value: result.defender.names.join('、') || '—' },
+      { label: '结果', value: outcome, tone: win ? 'good' : lose ? 'bad' : 'normal' },
+      { label: '耗时', value: `${result.durationSec}s` },
+      { label: '我方伤害', value: String(result.stats.attacker.damage), tone: 'good' },
+      { label: '我方治疗', value: String(result.stats.attacker.heal), tone: 'good' },
+      { label: '我方阵亡', value: String(result.stats.attacker.deaths), tone: 'bad' },
+      { label: '敌方伤害', value: String(result.stats.defender.damage), tone: 'bad' },
+      { label: '敌方治疗', value: String(result.stats.defender.heal), tone: 'bad' },
+      { label: '敌方阵亡', value: String(result.stats.defender.deaths), tone: 'good' },
     ],
   } satisfies BattleReport;
 };
@@ -68,4 +90,3 @@ export const BattleReportView: React.FC<{ report: BattleReport }> = ({ report })
     </div>
   );
 };
-

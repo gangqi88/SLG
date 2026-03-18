@@ -7,11 +7,11 @@ import { getBattleSceneAssetFeatures } from '@/shared/config/assets/sceneAssetFe
 import { BattleMode } from '@/features/battle/types/battleMode';
 import { SceneHUD } from '@/shared/components/SceneHUD';
 import { useModal } from '@/shared/components/ModalProvider';
-import { BattleReportView, type BattleReport } from '@/shared/logic/battleReports';
+import { BattleReportView, createBattleReportFromResult, type BattleReport } from '@/shared/logic/battleReports';
 import { applyRewards, formatRewardLines, type Reward } from '@/shared/logic/rewards';
 import { hasClaimed, markClaimed, newClaimKey } from '@/shared/logic/claimLedger';
 import { computeTeamPower } from '@/shared/logic/teamMetrics';
-import { simulateBattle } from '@/shared/logic/battleSim';
+import type { BattleResult } from '@/shared/logic/battleResult';
 
 interface BattleViewProps {
   attackerHeroes: Hero[];
@@ -28,32 +28,25 @@ const BattleView: React.FC<BattleViewProps> = ({
 }) => {
   const gameRef = useRef<Phaser.Game | null>(null);
   const modal = useModal();
-  const claimKeyRef = useRef<string>(newClaimKey('battle'));
+  const battleIdRef = useRef<string>(newClaimKey('battle'));
+  const claimKeyRef = useRef<string>('');
   const [auto, setAuto] = useState(true);
   const [speed, setSpeed] = useState<1 | 2>(1);
   const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
+  const [battleResult, setBattleResult] = useState<BattleResult | null>(null);
 
-  const sim = useMemo(() => simulateBattle(attackerHeroes, defenderHeroes), [attackerHeroes, defenderHeroes]);
   const attackerPower = useMemo(() => computeTeamPower(attackerHeroes), [attackerHeroes]);
   const defenderPower = useMemo(() => computeTeamPower(defenderHeroes), [defenderHeroes]);
 
   const report = useMemo<BattleReport>(() => {
-    const win = sim.winner === 'attacker';
-    return {
-      title: battleMode,
-      entries: [
-        { label: '我方', value: `我方(${attackerHeroes.length})` },
-        { label: '敌方', value: `敌方(${defenderHeroes.length})` },
-        { label: '结果', value: win ? '胜利' : sim.winner === 'defender' ? '失败' : '平局', tone: win ? 'good' : sim.winner === 'defender' ? 'bad' : 'normal' },
-        { label: '耗时', value: `${sim.durationSec}s` },
-        { label: '我方伤害', value: `${sim.damage.attacker}`, tone: 'good' },
-        { label: '敌方伤害', value: `${sim.damage.defender}`, tone: 'bad' },
-      ],
-    };
-  }, [attackerHeroes.length, battleMode, defenderHeroes.length, sim.damage.attacker, sim.damage.defender, sim.durationSec, sim.winner]);
+    if (!battleResult) {
+      return { title: battleMode, entries: [{ label: '状态', value: '战斗进行中', tone: 'normal' }] };
+    }
+    return createBattleReportFromResult(battleResult);
+  }, [battleMode, battleResult]);
 
   const rewards = useMemo<Reward[]>(() => {
-    const win = sim.winner === 'attacker';
+    const win = battleResult?.winner === 'attacker';
     const coin = Math.max(50, Math.floor((win ? 1 : 0.6) * (250 + attackerPower / 60)));
     const exp = Math.max(10, Math.floor((win ? 1 : 0.7) * (60 + attackerPower / 500)));
     const frag = win ? 2 : 1;
@@ -62,7 +55,7 @@ const BattleView: React.FC<BattleViewProps> = ({
       { type: 'item', id: 'item_hero_exp', amount: exp },
       { type: 'fragment', id: 'item_hero_fragment', amount: frag },
     ];
-  }, [attackerPower, sim.winner]);
+  }, [attackerPower, battleResult?.winner]);
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -84,12 +77,15 @@ const BattleView: React.FC<BattleViewProps> = ({
 
     const game = new Phaser.Game(config);
     gameRef.current = game;
+    setBattleResult(null);
+    claimKeyRef.current = `battle:${battleIdRef.current}`;
 
     game.registry.set('battleSettings', { auto, speed });
     game.registry.set('battleCommands', []);
+    game.registry.set('battleCooldowns', {});
 
     const assetFeatures = getBattleSceneAssetFeatures(battleMode);
-    const sceneData = { attackerHeroes, defenderHeroes, battleMode };
+    const sceneData = { attackerHeroes, defenderHeroes, battleMode, battleId: battleIdRef.current };
     game.registry.set('startData', { targetScene: 'BattleScene', sceneData, assetFeatures });
 
     game.events.once('ready', () => {
@@ -99,7 +95,13 @@ const BattleView: React.FC<BattleViewProps> = ({
       }
     });
 
+    const onBattleEnd = (result: BattleResult) => {
+      setBattleResult(result);
+    };
+    game.events.on('battleEnd', onBattleEnd);
+
     return () => {
+      game.events.off('battleEnd', onBattleEnd);
       game.destroy(true);
       gameRef.current = null;
     };
@@ -222,6 +224,10 @@ const BattleView: React.FC<BattleViewProps> = ({
             key: 'result',
             label: '结算',
             onClick: () => {
+              if (!battleResult) {
+                modal.openAlert({ title: '结算', message: '战斗尚未结束。' });
+                return;
+              }
               if (hasClaimed(claimKeyRef.current)) {
                 modal.openAlert({ title: '战报', message: '奖励已领取。' });
                 return;

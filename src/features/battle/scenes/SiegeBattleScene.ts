@@ -6,6 +6,7 @@ import { VisualUnit } from '@/shared/visuals/VisualUnit';
 import { EffectManager } from '@/shared/visuals/EffectManager';
 import { PerformanceMonitor } from '@/shared/visuals/PerformanceMonitor';
 import { WALL_HERO, STREET_FIGHT_DEFENDERS } from '@/features/hero/data/siegeHeroes';
+import { accumulateStatsFromEvents, emptySideStats, type BattleResult } from '@/shared/logic/battleResult';
 
 export class SiegeBattleScene extends Phaser.Scene {
   private battleSystem!: BattleSystem;
@@ -15,6 +16,12 @@ export class SiegeBattleScene extends Phaser.Scene {
   private battleLogText!: Phaser.GameObjects.Text;
   private isPaused: boolean = false;
   private wallBroken: boolean = false;
+  private battleId: string = '';
+  private attackerNames: string[] = [];
+  private defenderNames: string[] = [];
+  private endEmitted: boolean = false;
+  private sideByUnitId: Map<string, 'attacker' | 'defender'> = new Map();
+  private stats = { attacker: emptySideStats(), defender: emptySideStats() };
 
   // Animation Queue
   private eventQueue: BattleEvent[] = [];
@@ -43,10 +50,17 @@ export class SiegeBattleScene extends Phaser.Scene {
     super('SiegeBattleScene');
   }
 
-  init(data: { attackerHeroes: Hero[] }) {
+  init(data: { attackerHeroes: Hero[]; battleId?: string }) {
     // Phase 1: Attackers vs Wall
     this.battleSystem = new BattleSystem(data.attackerHeroes, [WALL_HERO]);
     this.wallBroken = false;
+    this.battleId = data.battleId ?? '';
+    this.attackerNames = data.attackerHeroes.map((h) => h.name);
+    this.defenderNames = ['城墙'];
+    this.endEmitted = false;
+    this.sideByUnitId = new Map();
+    this.battleSystem.units.forEach((u) => this.sideByUnitId.set(u.uniqueId, u.side));
+    this.stats = { attacker: emptySideStats(), defender: emptySideStats() };
   }
 
   create() {
@@ -135,6 +149,7 @@ export class SiegeBattleScene extends Phaser.Scene {
       });
 
       const newEvents = this.battleSystem.getEvents();
+      accumulateStatsFromEvents(this.stats, newEvents, this.sideByUnitId);
       this.eventQueue.push(...newEvents);
 
       // Check win condition
@@ -151,6 +166,19 @@ export class SiegeBattleScene extends Phaser.Scene {
           .setOrigin(0.5)
           .setDepth(100);
         this.isPaused = true;
+        if (!this.endEmitted) {
+          const result: BattleResult = {
+            battleId: this.battleId,
+            mode: 'siege',
+            winner: 'defender',
+            durationSec: Math.round(this.battleSystem.currentTime * 10) / 10,
+            attacker: { names: this.attackerNames },
+            defender: { names: this.defenderNames },
+            stats: this.stats,
+          };
+          this.endEmitted = true;
+          this.game.events.emit('battleEnd', result);
+        }
       } else if (!defendersAlive) {
         this.add
           .text(400, 300, 'VICTORY!', {
@@ -169,6 +197,19 @@ export class SiegeBattleScene extends Phaser.Scene {
           .setOrigin(0.5)
           .setDepth(100);
         this.isPaused = true;
+        if (!this.endEmitted) {
+          const result: BattleResult = {
+            battleId: this.battleId,
+            mode: 'siege',
+            winner: 'attacker',
+            durationSec: Math.round(this.battleSystem.currentTime * 10) / 10,
+            attacker: { names: this.attackerNames },
+            defender: { names: this.defenderNames },
+            stats: this.stats,
+          };
+          this.endEmitted = true;
+          this.game.events.emit('battleEnd', result);
+        }
       }
     }
   }
@@ -340,6 +381,7 @@ export class SiegeBattleScene extends Phaser.Scene {
       // We need to find the newly added unit to create visual
       // The new unit is the last one in units array
       const newUnit = this.battleSystem.units[this.battleSystem.units.length - 1];
+      this.sideByUnitId.set(newUnit.uniqueId, newUnit.side);
       this.createVisualUnit(newUnit);
     });
 
