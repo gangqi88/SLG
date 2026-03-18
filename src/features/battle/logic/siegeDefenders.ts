@@ -19,8 +19,12 @@ const qualityByLevel = (level: number) => {
 
 export const createSiegeDefenderProfile = (city: WorldCity): SiegeDefenderProfile => {
   const levelFactor = 1 + city.level * 0.12;
-  const defenseFactor = 1 + city.defense / 1200;
-  const wallFactor = levelFactor * defenseFactor;
+  const max = city.defenseState?.max ?? city.defense;
+  const cur = city.defenseState?.cur ?? max;
+  const ratio = max > 0 ? Math.max(0, Math.min(1, cur / max)) : 1;
+  const effectiveDefense = city.defense * (0.6 + 0.4 * ratio);
+  const defenseFactor = 1 + effectiveDefense / 1200;
+  const wallFactor = levelFactor * defenseFactor * (0.7 + 0.3 * ratio);
 
   const wall: Hero = {
     ...WALL_HERO,
@@ -36,7 +40,7 @@ export const createSiegeDefenderProfile = (city: WorldCity): SiegeDefenderProfil
   };
 
   const defenders = STREET_FIGHT_DEFENDERS.map((h) => {
-    const f = 1 + city.level * 0.08;
+    const f = (1 + city.level * 0.08) * (0.85 + 0.15 * ratio);
     return {
       ...h,
       name: `${city.name} ${h.name}`,
@@ -53,4 +57,3 @@ export const createSiegeDefenderProfile = (city: WorldCity): SiegeDefenderProfil
 
   return { cityName: city.name, wall, defenders };
 };
-

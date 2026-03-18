@@ -3,6 +3,7 @@ import styles from './AllianceWorldMap.module.css';
 import { useModal } from '@/shared/components/ModalProvider';
 import type { AllianceWar } from '@/features/alliance/types/Alliance';
 import { WorldMap } from '@/features/alliance/logic/WorldMap';
+import { formatRemaining } from '@/shared/logic/time';
 
 type CityStatus = 'friendly' | 'neutral' | 'enemy' | 'war';
 
@@ -85,7 +86,12 @@ export const AllianceWorldMap: React.FC<{
             <div>
               类型：{cityTypeLabel(c.cityType)} · Lv.{c.level}
             </div>
-            <div>城防：{c.defense}</div>
+            <div>
+              城防耐久：{c.defenseState.cur}/{c.defenseState.max}
+              {c.defenseState.repairToMs && Date.now() < c.defenseState.repairToMs
+                ? ` · 修复中 ${formatRemaining(c.defenseState.repairToMs - Date.now())}`
+                : ''}
+            </div>
             <div>
               产出：木 {c.production.woodPerMin}/分 · 矿 {c.production.orePerMin}/分 · 金 {c.production.coinPerMin}/分
             </div>
