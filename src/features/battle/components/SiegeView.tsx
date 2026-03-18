@@ -7,9 +7,12 @@ import { SiegeBattleScene } from '@/features/battle/scenes/SiegeBattleScene';
 import { Team, getTeamHeroes } from '@/shared/logic/Team';
 import { SceneHUD } from '@/shared/components/SceneHUD';
 import { useModal } from '@/shared/components/ModalProvider';
-import { BattleReportView, createMockBattleReport } from '@/shared/logic/battleReports';
+import { BattleReportView, type BattleReport } from '@/shared/logic/battleReports';
 import { applyRewards, formatRewardLines, type Reward } from '@/shared/logic/rewards';
 import { hasClaimed, markClaimed, newClaimKey } from '@/shared/logic/claimLedger';
+import { simulateBattle } from '@/shared/logic/battleSim';
+import { computeTeamPower } from '@/shared/logic/teamMetrics';
+import { WALL_HERO } from '@/features/hero/data/siegeHeroes';
 
 interface SiegeViewProps {
   onExit: () => void;
@@ -21,25 +24,44 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const gameRef = useRef<Phaser.Game | null>(null);
   const modal = useModal();
   const claimKeyRef = useRef<string>(newClaimKey('siege'));
+  const [auto, setAuto] = useState(false);
+  const [speed, setSpeed] = useState<1 | 2>(1);
   const team = useSyncExternalStore(
     (listener) => Team.subscribe(listener),
     () => Team.getSnapshot(),
   );
   const attackerTeam = useMemo(() => getTeamHeroes(team.heroIds).slice(0, 5), [team.heroIds]);
 
-  const report = useMemo(
-    () => createMockBattleReport({ title: '攻城战', attacker: '本盟', defender: '敌盟' }),
-    [],
-  );
+  const sim = useMemo(() => simulateBattle(attackerTeam, [WALL_HERO]), [attackerTeam]);
+  const attackerPower = useMemo(() => computeTeamPower(attackerTeam), [attackerTeam]);
+  const defenderPower = useMemo(() => computeTeamPower([WALL_HERO]), []);
 
-  const rewards = useMemo<Reward[]>(
-    () => [
-      { type: 'resource', id: 'coin', amount: 800 },
-      { type: 'item', id: 'item_hero_exp', amount: 180 },
-      { type: 'fragment', id: 'item_hero_fragment', amount: 5 },
-    ],
-    [],
-  );
+  const report = useMemo<BattleReport>(() => {
+    const win = sim.winner === 'attacker';
+    return {
+      title: '攻城战',
+      entries: [
+        { label: '我方', value: `本盟(${attackerTeam.length})` },
+        { label: '敌方', value: '城墙' },
+        { label: '结果', value: win ? '胜利' : sim.winner === 'defender' ? '失败' : '平局', tone: win ? 'good' : sim.winner === 'defender' ? 'bad' : 'normal' },
+        { label: '耗时', value: `${sim.durationSec}s` },
+        { label: '我方伤害', value: `${sim.damage.attacker}`, tone: 'good' },
+        { label: '敌方伤害', value: `${sim.damage.defender}`, tone: 'bad' },
+      ],
+    };
+  }, [attackerTeam.length, sim.damage.attacker, sim.damage.defender, sim.durationSec, sim.winner]);
+
+  const rewards = useMemo<Reward[]>(() => {
+    const win = sim.winner === 'attacker';
+    const coin = Math.max(120, Math.floor((win ? 1 : 0.7) * (600 + attackerPower / 40)));
+    const exp = Math.max(30, Math.floor((win ? 1 : 0.8) * (120 + attackerPower / 220)));
+    const wood = Math.max(0, Math.floor((win ? 1 : 0.5) * (200 + attackerPower / 120)));
+    return [
+      { type: 'resource', id: 'coin', amount: coin },
+      { type: 'item', id: 'item_hero_exp', amount: exp },
+      { type: 'resource', id: 'wood', amount: wood },
+    ];
+  }, [attackerPower, sim.winner]);
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -97,9 +119,61 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
         <div id="phaser-battle-container" />
         <SceneHUD
           title="攻城战"
-          left={[{ label: '阶段', value: '战斗' }]}
-          right={[{ label: '战报', value: '—' }]}
+          left={[
+            { label: '队伍', value: `${attackerTeam.length}/${team.maxSize}` },
+            { label: '战力', value: String(attackerPower) },
+          ]}
+          right={[
+            { label: '目标', value: '城墙' },
+            { label: '战力', value: String(defenderPower) },
+          ]}
           actions={[
+            {
+              key: 'auto',
+              label: auto ? '自动:开' : '自动:关',
+              onClick: () => setAuto((v) => !v),
+            },
+            {
+              key: 'speed',
+              label: speed === 1 ? '加速:1x' : '加速:2x',
+              onClick: () => setSpeed((v) => (v === 1 ? 2 : 1)),
+            },
+            {
+              key: 'skills',
+              label: '技能',
+              variant: 'primary',
+              onClick: () =>
+                modal.openModal({
+                  title: '技能',
+                  content: (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {attackerTeam.map((h) => (
+                        <div
+                          key={h.id}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            padding: '8px 10px',
+                            borderRadius: 12,
+                            border: '1px solid rgba(58,58,90,0.7)',
+                            background: 'rgba(0,0,0,0.16)',
+                          }}
+                        >
+                          <span>{h.name}</span>
+                          <span style={{ color: 'var(--game-text-muted)', fontFamily: 'var(--game-font-mono)' }}>
+                            {h.activeSkill.name}
+                            {h.activeSkill.cooldown ? ` · CD ${h.activeSkill.cooldown}s` : ''}
+                          </span>
+                        </div>
+                      ))}
+                      <div style={{ color: 'var(--game-text-muted)', fontSize: 12 }}>
+                        自动/加速/冷却与施放逻辑待与 Phaser 场景联动。
+                      </div>
+                    </div>
+                  ),
+                  actions: [{ key: 'close', label: '关闭', variant: 'primary', onClick: () => modal.close() }],
+                }),
+            },
             {
               key: 'report',
               label: '战报',

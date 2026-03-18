@@ -8,7 +8,7 @@ import { Team, getTeamHeroes } from '@/shared/logic/Team';
 const BattleRoute: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const defenderHeroes = demonHeroes.slice(0, 3);
+  const defenderHeroes = useMemo(() => demonHeroes.slice(0, 3), []);
   const battleMode = parseBattleMode(searchParams.get('mode'));
   const team = useSyncExternalStore(
     (listener) => Team.subscribe(listener),

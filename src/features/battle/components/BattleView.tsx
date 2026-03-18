@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Phaser from 'phaser';
 import { PreloadScene } from '@/shared/scenes/PreloadScene';
 import { BattleScene } from '@/features/battle/scenes/BattleScene';
@@ -7,10 +7,11 @@ import { getBattleSceneAssetFeatures } from '@/shared/config/assets/sceneAssetFe
 import { BattleMode } from '@/features/battle/types/battleMode';
 import { SceneHUD } from '@/shared/components/SceneHUD';
 import { useModal } from '@/shared/components/ModalProvider';
-import { BattleReportView, createMockBattleReport } from '@/shared/logic/battleReports';
+import { BattleReportView, type BattleReport } from '@/shared/logic/battleReports';
 import { applyRewards, formatRewardLines, type Reward } from '@/shared/logic/rewards';
 import { hasClaimed, markClaimed, newClaimKey } from '@/shared/logic/claimLedger';
 import { computeTeamPower } from '@/shared/logic/teamMetrics';
+import { simulateBattle } from '@/shared/logic/battleSim';
 
 interface BattleViewProps {
   attackerHeroes: Hero[];
@@ -28,30 +29,39 @@ const BattleView: React.FC<BattleViewProps> = ({
   const gameRef = useRef<Phaser.Game | null>(null);
   const modal = useModal();
   const claimKeyRef = useRef<string>(newClaimKey('battle'));
+  const [auto, setAuto] = useState(false);
+  const [speed, setSpeed] = useState<1 | 2>(1);
 
-  const report = useMemo(
-    () =>
-      createMockBattleReport({
-        title: battleMode,
-        attacker: `我方(${attackerHeroes.length})`,
-        defender: `敌方(${defenderHeroes.length})`,
-      }),
-    [attackerHeroes.length, battleMode, defenderHeroes.length],
-  );
-
-  const rewards = useMemo<Reward[]>(() => {
-    const rewardCoin = 300 + Math.floor(Math.random() * 400);
-    const rewardExp = 80 + Math.floor(Math.random() * 120);
-    const rewardFrag = Math.random() > 0.7 ? 3 : 0;
-    return [
-      { type: 'resource', id: 'coin', amount: rewardCoin },
-      { type: 'item', id: 'item_hero_exp', amount: rewardExp },
-      ...(rewardFrag > 0 ? ([{ type: 'fragment', id: 'item_hero_fragment', amount: rewardFrag }] as const) : []),
-    ];
-  }, []);
-
+  const sim = useMemo(() => simulateBattle(attackerHeroes, defenderHeroes), [attackerHeroes, defenderHeroes]);
   const attackerPower = useMemo(() => computeTeamPower(attackerHeroes), [attackerHeroes]);
   const defenderPower = useMemo(() => computeTeamPower(defenderHeroes), [defenderHeroes]);
+
+  const report = useMemo<BattleReport>(() => {
+    const win = sim.winner === 'attacker';
+    return {
+      title: battleMode,
+      entries: [
+        { label: '我方', value: `我方(${attackerHeroes.length})` },
+        { label: '敌方', value: `敌方(${defenderHeroes.length})` },
+        { label: '结果', value: win ? '胜利' : sim.winner === 'defender' ? '失败' : '平局', tone: win ? 'good' : sim.winner === 'defender' ? 'bad' : 'normal' },
+        { label: '耗时', value: `${sim.durationSec}s` },
+        { label: '我方伤害', value: `${sim.damage.attacker}`, tone: 'good' },
+        { label: '敌方伤害', value: `${sim.damage.defender}`, tone: 'bad' },
+      ],
+    };
+  }, [attackerHeroes.length, battleMode, defenderHeroes.length, sim.damage.attacker, sim.damage.defender, sim.durationSec, sim.winner]);
+
+  const rewards = useMemo<Reward[]>(() => {
+    const win = sim.winner === 'attacker';
+    const coin = Math.max(50, Math.floor((win ? 1 : 0.6) * (250 + attackerPower / 60)));
+    const exp = Math.max(10, Math.floor((win ? 1 : 0.7) * (60 + attackerPower / 500)));
+    const frag = win ? 2 : 1;
+    return [
+      { type: 'resource', id: 'coin', amount: coin },
+      { type: 'item', id: 'item_hero_exp', amount: exp },
+      { type: 'fragment', id: 'item_hero_fragment', amount: frag },
+    ];
+  }, [attackerPower, sim.winner]);
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -107,19 +117,49 @@ const BattleView: React.FC<BattleViewProps> = ({
         actions={[
           {
             key: 'auto',
-            label: '自动',
-            onClick: () => modal.openAlert({ title: '自动战斗', message: '自动战斗开关待接入。' }),
+            label: auto ? '自动:开' : '自动:关',
+            onClick: () => setAuto((v) => !v),
           },
           {
             key: 'speed',
-            label: '加速',
-            onClick: () => modal.openAlert({ title: '战斗加速', message: '加速功能待接入。' }),
+            label: speed === 1 ? '加速:1x' : '加速:2x',
+            onClick: () => setSpeed((v) => (v === 1 ? 2 : 1)),
           },
           {
             key: 'skills',
             label: '技能',
             variant: 'primary',
-            onClick: () => modal.openAlert({ title: '技能', message: '技能按钮与冷却待接入。' }),
+            onClick: () =>
+              modal.openModal({
+                title: '技能',
+                content: (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {attackerHeroes.map((h) => (
+                      <div
+                        key={h.id}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          padding: '8px 10px',
+                          borderRadius: 12,
+                          border: '1px solid rgba(58,58,90,0.7)',
+                          background: 'rgba(0,0,0,0.16)',
+                        }}
+                      >
+                        <span>{h.name}</span>
+                        <span style={{ color: 'var(--game-text-muted)', fontFamily: 'var(--game-font-mono)' }}>
+                          {h.activeSkill.name}
+                          {h.activeSkill.cooldown ? ` · CD ${h.activeSkill.cooldown}s` : ''}
+                        </span>
+                      </div>
+                    ))}
+                    <div style={{ color: 'var(--game-text-muted)', fontSize: 12 }}>
+                      自动/加速/冷却与施放逻辑待与 Phaser 场景联动。
+                    </div>
+                  </div>
+                ),
+                actions: [{ key: 'close', label: '关闭', variant: 'primary', onClick: () => modal.close() }],
+              }),
           },
           {
             key: 'result',
