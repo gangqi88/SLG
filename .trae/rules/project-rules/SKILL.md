@@ -16,6 +16,7 @@
 - 职责边界与协作接口：`R4-collaboration.md`
 - 审查流程与常见问题：`R5-review.md`
 - 变更与发布安全：`R6-change-safety.md`
+- Git 提交规范与自动提交：`R7-git.md`
 
 ## 全局硬规则
 

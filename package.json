@@ -20,7 +20,9 @@
     "test:e2e": "node ./scripts/e2e/run-e2e.mjs",
     "cy:run": "cypress run",
     "lint": "eslint .",
-    "lint:style": "stylelint \"**/*.css\""
+    "lint:style": "stylelint \"**/*.css\"",
+    "hooks:install": "node ./scripts/git-hooks/install.mjs",
+    "commit:template": "node ./scripts/git/commit-template.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
