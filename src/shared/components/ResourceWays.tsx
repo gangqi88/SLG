@@ -64,11 +64,39 @@ export const getResourceWays = (key: ResourceNeedKey): Way[] => {
   return common;
 };
 
+const preferredWayKeysByResource: Partial<Record<ResourceNeedKey, string[]>> = {
+  wood: ['gathering', 'tasks', 'siege', 'battle', 'lootbox'],
+  ore: ['gathering', 'tasks', 'siege', 'battle', 'lootbox'],
+  food: ['gathering', 'tasks', 'battle', 'lootbox'],
+  coin: ['tasks', 'battle', 'siege', 'gathering', 'lootbox'],
+  gem: ['tasks', 'recharge', 'activity'],
+  bun: ['lootbox', 'tasks', 'battle', 'shop'],
+  fragment: ['gacha', 'lootbox', 'tasks', 'battle'],
+};
+
+const sortWays = (resourceKey: ResourceNeedKey, ways: Way[]) => {
+  const preferred = preferredWayKeysByResource[resourceKey] ?? [];
+  const preferredIndex = new Map<string, number>();
+  preferred.forEach((k, i) => preferredIndex.set(k, i));
+  const withIndex = ways.map((w, idx) => ({ w, idx }));
+  withIndex.sort((a, b) => {
+    const ap = preferredIndex.has(a.w.key) ? (preferredIndex.get(a.w.key) as number) : Number.POSITIVE_INFINITY;
+    const bp = preferredIndex.has(b.w.key) ? (preferredIndex.get(b.w.key) as number) : Number.POSITIVE_INFINITY;
+    if (ap !== bp) return ap - bp;
+    const ato = a.w.to ? 0 : 1;
+    const bto = b.w.to ? 0 : 1;
+    if (ato !== bto) return ato - bto;
+    return a.idx - b.idx;
+  });
+  return withIndex.map((x) => x.w);
+};
+
 export const ResourceWaysContent: React.FC<{
   resourceKey: ResourceNeedKey;
   onGo: (to: string) => void;
 }> = ({ resourceKey, onGo }) => {
-  const ways = getResourceWays(resourceKey);
+  const ways = sortWays(resourceKey, getResourceWays(resourceKey));
+  const preferredSet = new Set(preferredWayKeysByResource[resourceKey] ?? []);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ color: 'var(--game-text-muted)' }}>
@@ -90,7 +118,24 @@ export const ResourceWaysContent: React.FC<{
             }}
           >
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 900, color: 'var(--game-title)' }}>{w.title}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ fontWeight: 900, color: 'var(--game-title)' }}>{w.title}</div>
+                {preferredSet.has(w.key) ? (
+                  <span
+                    style={{
+                      fontSize: 12,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                      border: '1px solid rgba(212, 184, 126, 0.35)',
+                      background: 'rgba(212, 184, 126, 0.12)',
+                      color: 'var(--game-title)',
+                      fontWeight: 900,
+                    }}
+                  >
+                    推荐
+                  </span>
+                ) : null}
+              </div>
               <div style={{ fontSize: 12, color: 'var(--game-text-muted)' }}>{w.desc}</div>
             </div>
             {w.to ? (

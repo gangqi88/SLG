@@ -7,6 +7,7 @@ import { useModal } from '@/shared/components/ModalProvider';
 import { useNavigate } from 'react-router-dom';
 import { openResourceWays } from '@/shared/logic/openResourceWays';
 import type { ModalAction } from '@/shared/components/ModalProvider';
+import { pickMostDeficient } from '@/shared/logic/resourceDeficit';
 
 interface CityViewProps {
   onExit: () => void;
@@ -66,11 +67,15 @@ const CityView: React.FC<CityViewProps> = ({ onExit }) => {
     }) => {
       const needWood = payload.haveWood < payload.costWood;
       const needStone = payload.haveStone < payload.costStone;
+      const primary = pickMostDeficient([
+        { key: 'wood', need: payload.costWood, have: payload.haveWood },
+        { key: 'ore', need: payload.costStone, have: payload.haveStone },
+      ])?.key;
       const actions: ModalAction[] = [
         { key: 'cancel', label: '取消', variant: 'secondary', onClick: () => modal.close() },
       ];
 
-      if (needWood) {
+      if (needWood && primary === 'wood') {
         actions.unshift({
           key: 'wood',
           label: '获取木材',
@@ -81,11 +86,33 @@ const CityView: React.FC<CityViewProps> = ({ onExit }) => {
           },
         });
       }
-      if (needStone) {
+      if (needStone && primary === 'ore') {
         actions.unshift({
           key: 'ore',
           label: '获取矿石',
           variant: 'primary',
+          onClick: () => {
+            modal.close();
+            openResourceWays({ modal, navigate, resourceKey: 'ore', title: '矿石不足' });
+          },
+        });
+      }
+      if (needWood && primary !== 'wood') {
+        actions.unshift({
+          key: 'wood',
+          label: '获取木材',
+          variant: 'secondary',
+          onClick: () => {
+            modal.close();
+            openResourceWays({ modal, navigate, resourceKey: 'wood', title: '木材不足' });
+          },
+        });
+      }
+      if (needStone && primary !== 'ore') {
+        actions.unshift({
+          key: 'ore',
+          label: '获取矿石',
+          variant: 'secondary',
           onClick: () => {
             modal.close();
             openResourceWays({ modal, navigate, resourceKey: 'ore', title: '矿石不足' });
