@@ -4,6 +4,9 @@ import { useModal } from '@/shared/components/ModalProvider';
 import type { AllianceWar } from '@/features/alliance/types/Alliance';
 import { WorldMap } from '@/features/alliance/logic/WorldMap';
 import { formatRemaining } from '@/shared/logic/time';
+import { useNavigate } from 'react-router-dom';
+import { BattleHistory } from '@/shared/logic/battleHistory';
+import { BattleReportView, createBattleReportFromResult } from '@/shared/logic/battleReports';
 
 type CityStatus = 'friendly' | 'neutral' | 'enemy' | 'war';
 
@@ -27,6 +30,7 @@ export const AllianceWorldMap: React.FC<{
   activeWar?: AllianceWar | null;
 }> = ({ onDeclareWar, currentAllianceId, activeWar }) => {
   const modal = useModal();
+  const navigate = useNavigate();
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const draggingRef = useRef(false);
   const lastRef = useRef<{ x: number; y: number } | null>(null);
@@ -107,6 +111,47 @@ export const AllianceWorldMap: React.FC<{
         </div>
       ),
       actions: [
+        {
+          key: 'siege',
+          label: '前往攻城',
+          variant: 'primary',
+          onClick: () => {
+            if (!isWarTarget || activeWar?.status !== 'active') {
+              modal.openAlert({ title: '未开始', message: '该城池尚未进入攻城阶段。' });
+              return;
+            }
+            modal.close();
+            navigate(`/siege?cityId=${encodeURIComponent(c.id)}`);
+          },
+        },
+        {
+          key: 'report',
+          label: '查看战报',
+          variant: 'secondary',
+          onClick: () => {
+            const latest = BattleHistory.getLatestByCityId(c.id);
+            if (!latest) {
+              modal.openAlert({ title: '战报', message: '暂无该城池战报。' });
+              return;
+            }
+            modal.openModal({
+              title: '战报',
+              content: <BattleReportView report={createBattleReportFromResult(latest)} />,
+              actions: [
+                { key: 'close', label: '关闭', variant: 'secondary', onClick: () => modal.close() },
+                {
+                  key: 'all',
+                  label: '查看全部',
+                  variant: 'primary',
+                  onClick: () => {
+                    modal.close();
+                    navigate(`/reports?cityId=${encodeURIComponent(c.id)}`);
+                  },
+                },
+              ],
+            });
+          },
+        },
         {
           key: 'assist',
           label: '协防',

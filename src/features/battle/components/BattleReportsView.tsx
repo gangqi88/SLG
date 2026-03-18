@@ -4,6 +4,7 @@ import { BattleHistory } from '@/shared/logic/battleHistory';
 import type { BattleResult, HeroBattleStats } from '@/shared/logic/battleResult';
 import { BattleReportView, createBattleReportFromResult } from '@/shared/logic/battleReports';
 import styles from './BattleReportsView.module.css';
+import { useSearchParams } from 'react-router-dom';
 
 const modeLabel = (mode: string) => {
   if (mode === 'siege') return '攻城战';
@@ -29,10 +30,16 @@ const sortByHeal = (a: HeroBattleStats, b: HeroBattleStats) => b.heal - a.heal;
 
 export const BattleReportsView: React.FC = () => {
   const modal = useModal();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filterCityId = searchParams.get('cityId');
   const items = useSyncExternalStore(
     (listener) => BattleHistory.subscribe(listener),
     () => BattleHistory.getSnapshot(),
   );
+  const filteredItems = useMemo(() => {
+    if (!filterCityId) return items;
+    return items.filter((r) => r.targetCityId === filterCityId);
+  }, [filterCityId, items]);
 
   const openDetail = (r: BattleResult) => {
     const report = createBattleReportFromResult(r);
@@ -78,7 +85,7 @@ export const BattleReportsView: React.FC = () => {
   };
 
   const rows = useMemo(() => {
-    return items.map((r) => {
+    return filteredItems.map((r) => {
       const time = r.endedAtMs ? new Date(r.endedAtMs).toLocaleString() : '—';
       const left = r.attacker.names.slice(0, 2).join('、') || '—';
       const right = r.defender.names.slice(0, 2).join('、') || '—';
@@ -86,15 +93,32 @@ export const BattleReportsView: React.FC = () => {
       const subtitle = city ? `${city} · ${left}  vs  ${right}` : `${left}  vs  ${right}`;
       return { r, time, subtitle };
     });
-  }, [items]);
+  }, [filteredItems]);
 
   return (
     <div className={styles.wrap}>
       <div className={styles.header}>
         <h2 className={styles.title}>战报列表</h2>
-        <button type="button" className={styles.btn} onClick={() => BattleHistory.clear()}>
-          清空
-        </button>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          {filterCityId && (
+            <button
+              type="button"
+              className={styles.btn}
+              onClick={() => {
+                setSearchParams((p) => {
+                  const next = new URLSearchParams(p);
+                  next.delete('cityId');
+                  return next;
+                });
+              }}
+            >
+              清除筛选
+            </button>
+          )}
+          <button type="button" className={styles.btn} onClick={() => BattleHistory.clear()}>
+            清空
+          </button>
+        </div>
       </div>
 
       <div className={styles.list}>
@@ -116,7 +140,11 @@ export const BattleReportsView: React.FC = () => {
             </span>
           </button>
         ))}
-        {rows.length === 0 && <div className={styles.empty}>暂无战报（进行一次战斗/攻城后会自动记录）</div>}
+        {rows.length === 0 && (
+          <div className={styles.empty}>
+            暂无战报{filterCityId ? '（当前城池暂无记录）' : '（进行一次战斗/攻城后会自动记录）'}
+          </div>
+        )}
       </div>
     </div>
   );

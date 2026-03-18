@@ -39,6 +39,11 @@ class BattleHistoryStore {
     return this.load().sort((a, b) => (b.endedAtMs ?? 0) - (a.endedAtMs ?? 0));
   }
 
+  getLatestByCityId(cityId: string): BattleResult | null {
+    const list = this.getSnapshot();
+    return list.find((r) => r.targetCityId === cityId) ?? null;
+  }
+
   add(result: BattleResult) {
     const items = this.load();
     const exists = items.some((i) => i.battleId === result.battleId);
@@ -55,4 +60,3 @@ class BattleHistoryStore {
 }
 
 export const BattleHistory = new BattleHistoryStore();
-
