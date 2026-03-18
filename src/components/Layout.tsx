@@ -50,34 +50,16 @@ const Layout: React.FC = () => {
         }}
       >
         <NavLink to="/" style={getLinkStyle} end>
-          Hero List
+          Game Main
         </NavLink>
-        <NavLink to="/city" style={getLinkStyle}>
-          City Management
+        <NavLink to="/heroes" style={getLinkStyle}>
+          Heroes
         </NavLink>
-        <NavLink to="/gathering" style={getLinkStyle}>
-          Gathering
+        <NavLink to="/alliance" style={getLinkStyle}>
+          Alliance
         </NavLink>
-        <NavLink to="/tasks" style={getLinkStyle}>
-          Tasks
-        </NavLink>
-        <NavLink to="/gacha" style={getLinkStyle}>
-          Gacha
-        </NavLink>
-        <NavLink to="/lootbox" style={getLinkStyle}>
-          Loot Box
-        </NavLink>
-        <NavLink to="/tower-defense" style={getLinkStyle}>
-          Guard Qiao
-        </NavLink>
-        <NavLink to="/cooking" style={getLinkStyle}>
-          Chef Contest
-        </NavLink>
-        <NavLink to="/siege" style={getLinkStyle}>
-          Siege War
-        </NavLink>
-        <NavLink to="/battle" style={getLinkStyle}>
-          Test Battle
+        <NavLink to="/style-guide" style={getLinkStyle}>
+          Style Guide
         </NavLink>
       </div>
 

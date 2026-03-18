@@ -1,8 +1,8 @@
 describe('Basic E2E Test', () => {
-  it('should visit home page, check Hero List, and navigate to City Management', () => {
+  it('should visit game main page and navigate to City', () => {
     cy.visit('/');
-    cy.contains('Hero List').should('be.visible');
-    cy.contains('City Management').click();
+    cy.contains('Game Main').should('be.visible');
+    cy.contains('City').click();
     cy.url().should('include', '/city');
   });
 });

@@ -12,7 +12,7 @@ const isBackgroundTextureKey = (key: string): key is BackgroundTextureKey =>
 
 export const OPTIONAL_BACKGROUND_IMAGE_ASSETS: OptionalSceneImageAsset[] = IMAGE_GAME_ASSETS.filter(
   (asset): asset is OptionalSceneImageAsset =>
-    asset.optional && isBackgroundTextureKey(asset.key) && asset.feature === 'shared-background'
+    asset.optional && isBackgroundTextureKey(asset.key) && asset.feature === 'shared-background',
 ).map((asset) => ({
   key: asset.key,
   url: asset.url,

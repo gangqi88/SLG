@@ -25,8 +25,7 @@ export class PreloadScene extends Phaser.Scene {
     }
   }
 
-  preload() {
-  }
+  preload() {}
 
   create() {
     void this.loadAssetsAndStart();
@@ -49,7 +48,7 @@ export class PreloadScene extends Phaser.Scene {
     const fallbackFeatures = getSceneAssetFeaturesByTarget(this.startData.targetScene);
     if (import.meta.env.DEV) {
       console.warn(
-        `[AssetLoader] 未传 assetFeatures，已按目标场景回退: ${this.startData.targetScene ?? 'default'}`
+        `[AssetLoader] 未传 assetFeatures，已按目标场景回退: ${this.startData.targetScene ?? 'default'}`,
       );
     }
     return fallbackFeatures;

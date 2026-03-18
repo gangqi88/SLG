@@ -5,8 +5,10 @@ import { createBrowserRouter, useNavigate } from 'react-router-dom';
 import Layout from './components/Layout';
 
 // Lazy load components
+const GameMain = React.lazy(() => import('@/features/main/components/GameMain'));
 const HeroList = React.lazy(() => import('@/features/hero/components/HeroList'));
 const CityView = React.lazy(() => import('@/features/city/components/CityView'));
+const MainCityView = React.lazy(() => import('@/features/city/components/MainCityView'));
 const GatheringView = React.lazy(() => import('@/features/resource/components/GatheringView'));
 const TaskView = React.lazy(() => import('@/features/task/components/TaskView'));
 const GachaView = React.lazy(() => import('@/features/gacha/components/GachaView'));
@@ -16,6 +18,9 @@ const CookingView = React.lazy(() => import('@/features/resource/components/Cook
 const SiegeView = React.lazy(() => import('@/features/battle/components/SiegeView'));
 const BattleRoute = React.lazy(() => import('@/features/battle/components/BattleRoute'));
 const StyleGuide = React.lazy(() => import('@/shared/components/StyleGuide'));
+const AllianceDashboard = React.lazy(
+  () => import('@/features/alliance/components/AllianceDashboard'),
+);
 
 type ExitProps = {
   onExit: () => void;
@@ -38,6 +43,14 @@ export const router = createBrowserRouter([
         index: true,
         element: (
           <Suspense fallback={<Loading />}>
+            <GameMain />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'heroes',
+        element: (
+          <Suspense fallback={<Loading />}>
             <HeroList />
           </Suspense>
         ),
@@ -47,6 +60,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Loading />}>
             <WithExit Component={CityView} />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'main-city',
+        element: (
+          <Suspense fallback={<Loading />}>
+            <MainCityView />
           </Suspense>
         ),
       },
@@ -111,6 +132,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Loading />}>
             <BattleRoute />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'alliance',
+        element: (
+          <Suspense fallback={<Loading />}>
+            <AllianceDashboard />
           </Suspense>
         ),
       },

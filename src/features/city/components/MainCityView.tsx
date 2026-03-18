@@ -39,3 +39,5 @@ export const MainCityView: React.FC = () => {
     </div>
   );
 };
+
+export default MainCityView;
