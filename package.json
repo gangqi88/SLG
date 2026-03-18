@@ -17,7 +17,7 @@
     "assets:check": "node ./scripts/assets/check-assets.mjs",
     "assets:check:strict": "node ./scripts/assets/check-assets.mjs --strict",
     "test": "vitest",
-    "test:e2e": "start-server-and-test dev http://localhost:8080 cy:run",
+    "test:e2e": "node ./scripts/e2e/run-e2e.mjs",
     "cy:run": "cypress run",
     "lint": "eslint .",
     "lint:style": "stylelint \"**/*.css\""

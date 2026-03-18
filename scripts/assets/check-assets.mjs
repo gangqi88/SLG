@@ -7,8 +7,10 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '../..');
 const manifestsDir = path.join(projectRoot, 'src', 'shared', 'config', 'assets', 'manifests');
 const publicDir = path.join(projectRoot, 'public');
+const gameAssetsDir = path.join(publicDir, 'game-assets');
 const allowedExtensions = new Set(['.png', '.jpg', '.jpeg', '.webp', '.svg', '.mp3', '.ogg', '.wav']);
 const requiredOptionalKeys = new Set(['bg_battle', 'bg_city']);
+const strictMode = process.argv.includes('--strict');
 
 const errors = [];
 
@@ -23,6 +25,22 @@ const ensureFileExists = async (filePath) => {
   } catch {
     return false;
   }
+};
+
+const toPublicRelativePath = (url) => url.replace(/^\/+/, '').replace(/\\/g, '/');
+
+const listFilesRecursive = async (dirPath) => {
+  const entries = await readdir(dirPath, { withFileTypes: true });
+  const nested = await Promise.all(
+    entries.map(async (entry) => {
+      const entryPath = path.join(dirPath, entry.name);
+      if (entry.isDirectory()) {
+        return listFilesRecursive(entryPath);
+      }
+      return [entryPath];
+    })
+  );
+  return nested.flat();
 };
 
 const loadManifestEntries = async () => {
@@ -45,7 +63,7 @@ const loadManifestEntries = async () => {
   return entriesByFile.flat();
 };
 
-const validateAsset = async (asset, index, seenKeys) => {
+const validateAsset = async (asset, index, seenKeys, referencedFiles) => {
   const prefix = `Entry #${index + 1}`;
   if (!asset || typeof asset !== 'object') {
     pushError(`${prefix}: invalid object`);
@@ -92,7 +110,8 @@ const validateAsset = async (asset, index, seenKeys) => {
   }
 
   if (url.startsWith('/')) {
-    const relativePath = url.replace(/^\/+/, '');
+    const relativePath = toPublicRelativePath(url);
+    referencedFiles.add(relativePath);
     const absolutePath = path.join(publicDir, relativePath);
     const exists = await ensureFileExists(absolutePath);
     if (!exists) {
@@ -101,11 +120,34 @@ const validateAsset = async (asset, index, seenKeys) => {
   }
 };
 
+const validateOrphanFiles = async (referencedFiles) => {
+  const exists = await ensureFileExists(gameAssetsDir);
+  if (!exists) {
+    pushError('strict mode: public/game-assets directory not found');
+    return;
+  }
+  const allFiles = await listFilesRecursive(gameAssetsDir);
+  const unmatchedFiles = allFiles
+    .map((absolutePath) => path.relative(publicDir, absolutePath).replace(/\\/g, '/'))
+    .filter((relativePath) => allowedExtensions.has(path.extname(relativePath).toLowerCase()))
+    .filter((relativePath) => !referencedFiles.has(relativePath))
+    .sort();
+  unmatchedFiles.forEach((relativePath) => {
+    pushError(`strict mode: orphan file found at public/${relativePath}`);
+  });
+};
+
 const run = async () => {
   const manifest = await loadManifestEntries();
 
   const seenKeys = new Set();
-  await Promise.all(manifest.map((asset, index) => validateAsset(asset, index, seenKeys)));
+  const referencedFiles = new Set();
+  await Promise.all(
+    manifest.map((asset, index) => validateAsset(asset, index, seenKeys, referencedFiles))
+  );
+  if (strictMode) {
+    await validateOrphanFiles(referencedFiles);
+  }
 
   if (errors.length > 0) {
     console.error('Asset check failed:');
