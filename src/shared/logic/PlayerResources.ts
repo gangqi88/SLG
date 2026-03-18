@@ -19,6 +19,40 @@ class PlayerResourcesStore {
 
   constructor() {
     this.load();
+    this.syncFromInventory();
+  }
+
+  private syncFromInventory() {
+    import('@/features/resource/logic/InventoryManager').then(({ default: inventory }) => {
+      inventory.subscribe(() => {
+        const items = inventory.getItems();
+        const bun = items.find((i) => i.item.id === 'item_hero_exp')?.quantity ?? 0;
+        const wood = items.find((i) => i.item.id === 'resource_wood')?.quantity ?? this.resources.wood;
+        const ore = items.find((i) => i.item.id === 'resource_stone')?.quantity ?? this.resources.ore;
+        const next = {
+          ...this.resources,
+          bun,
+          wood,
+          ore,
+        };
+        if (
+          next.bun === this.resources.bun &&
+          next.wood === this.resources.wood &&
+          next.ore === this.resources.ore
+        ) {
+          return;
+        }
+        this.resources = next;
+        this.emit();
+      });
+
+      const items = inventory.getItems();
+      const bun = items.find((i) => i.item.id === 'item_hero_exp')?.quantity ?? 0;
+      const wood = items.find((i) => i.item.id === 'resource_wood')?.quantity ?? this.resources.wood;
+      const ore = items.find((i) => i.item.id === 'resource_stone')?.quantity ?? this.resources.ore;
+      this.resources = { ...this.resources, bun, wood, ore };
+      this.emit();
+    });
   }
 
   private load() {
@@ -76,4 +110,3 @@ class PlayerResourcesStore {
 }
 
 export const PlayerResources = new PlayerResourcesStore();
-

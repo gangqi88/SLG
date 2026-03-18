@@ -6,6 +6,7 @@ export type UINotificationsSnapshot = {
   lootBoxCount: number;
   taskClaimableCount: number;
   mailUnreadCount: number;
+  activityCount: number;
 };
 
 type Listener = () => void;
@@ -15,6 +16,7 @@ class UINotificationsStore {
     lootBoxCount: 0,
     taskClaimableCount: 0,
     mailUnreadCount: 0,
+    activityCount: 0,
   };
   private listeners: Set<Listener> = new Set();
   private taskManager = getTaskManager();
@@ -47,6 +49,13 @@ class UINotificationsStore {
     this.emit();
   }
 
+  setActivityCount(count: number) {
+    const next = Math.max(0, Math.floor(count));
+    if (this.snapshot.activityCount === next) return;
+    this.snapshot = { ...this.snapshot, activityCount: next };
+    this.emit();
+  }
+
   private recompute() {
     const items = InventoryManager.getItems();
     const lootBoxCount = items
@@ -58,11 +67,13 @@ class UINotificationsStore {
       lootBoxCount,
       taskClaimableCount,
       mailUnreadCount: this.snapshot.mailUnreadCount,
+      activityCount: this.snapshot.activityCount,
     };
     if (
       next.lootBoxCount === this.snapshot.lootBoxCount &&
       next.taskClaimableCount === this.snapshot.taskClaimableCount &&
-      next.mailUnreadCount === this.snapshot.mailUnreadCount
+      next.mailUnreadCount === this.snapshot.mailUnreadCount &&
+      next.activityCount === this.snapshot.activityCount
     ) {
       return;
     }
@@ -72,4 +83,3 @@ class UINotificationsStore {
 }
 
 export const UINotifications = new UINotificationsStore();
-
