@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Web3Manager, WalletAccount } from '@/shared/utils/web3';
+import { useModal } from '@/shared/components/ModalProvider';
 
 interface WalletConnectProps {
   onConnect: (account: WalletAccount) => void;
@@ -7,13 +8,17 @@ interface WalletConnectProps {
 }
 
 const WalletConnect: React.FC<WalletConnectProps> = ({ onConnect, onDisconnect }) => {
+  const modal = useModal();
   const [account, setAccount] = useState<WalletAccount | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleConnect = async () => {
     if (!Web3Manager.isUniSatInstalled()) {
-      alert('UniSat Wallet is not installed. Please install it from https://unisat.io');
+      modal.openAlert({
+        title: '未安装钱包',
+        message: '未检测到 UniSat Wallet，请先安装后再连接。',
+      });
       return;
     }
 
@@ -43,7 +48,10 @@ const WalletConnect: React.FC<WalletConnectProps> = ({ onConnect, onDisconnect }
     if (account) {
       const sig = await Web3Manager.signMessage('Hello Civilization Spark!');
       if (sig) {
-        alert(`Signature Valid! \nSig: ${sig.slice(0, 20)}...`);
+        modal.openAlert({
+          title: '签名成功',
+          message: `Sig: ${sig.slice(0, 20)}...`,
+        });
       }
     }
   };

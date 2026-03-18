@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import styles from './AllianceAd.module.css';
+import { useModal } from '@/shared/components/ModalProvider';
 
 export const AllianceAd: React.FC = () => {
   const { adSpace, pendingBids, placeAdBid } = useAlliance();
+  const modal = useModal();
   const [bidAmount, setBidAmount] = useState(1000);
 
   const handleBid = async () => {
     if (bidAmount <= 0) {
-      alert('Please enter a valid bid amount');
+      modal.openAlert({ title: '提示', message: '请输入有效出价。' });
       return;
     }
 
     await placeAdBid(bidAmount);
-    alert('Bid placed successfully!');
+    modal.openAlert({ title: '出价成功', message: '已提交出价。' });
   };
 
   const formatTime = (timestamp: number) => {

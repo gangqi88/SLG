@@ -48,6 +48,31 @@ export class CityScene extends Phaser.Scene {
         // We need a callback to App.tsx
         this.game.events.emit('exitCity');
       });
+
+    const onConfirm = (payload: { buildingId: string; cost: number }) => {
+      const building = this.cityManager.buildingManager.getBuilding(payload.buildingId);
+      if (!building) return;
+      const cost = payload.cost;
+      const r = this.cityManager.resourceManager;
+      const woodOk = r.getResource(ResourceType.WOOD) >= cost;
+      const stoneOk = r.getResource(ResourceType.STONE) >= cost;
+      const success = this.cityManager.upgradeBuilding(payload.buildingId);
+      if (success) {
+        this.game.events.emit('toast', {
+          title: '升级成功',
+          message: `${building.type} 升至 Lv.${building.level}`,
+        });
+        this.createBuildingSprites();
+        return;
+      }
+      const lack = !woodOk ? 'wood' : !stoneOk ? 'ore' : 'wood';
+      this.game.events.emit('resourceLack', { resourceKey: lack });
+    };
+
+    this.game.events.on('cityUpgradeConfirm', onConfirm);
+    this.events.once('shutdown', () => {
+      this.game.events.off('cityUpgradeConfirm', onConfirm);
+    });
   }
 
   update(_time: number, delta: number) {
@@ -101,20 +126,18 @@ export class CityScene extends Phaser.Scene {
     const building = this.cityManager.buildingManager.getBuilding(buildingId);
     if (!building) return;
 
-    // Show upgrade dialog (simplified: just confirm)
     const cost = building.level * 100;
-    const confirm = window.confirm(
-      `Upgrade ${building.type} to Lv.${building.level + 1}?\nCost: ${cost} Wood, ${cost} Stone`,
-    );
-
-    if (confirm) {
-      const success = this.cityManager.upgradeBuilding(buildingId);
-      if (success) {
-        alert('Upgrade Successful!');
-        this.createBuildingSprites(); // Refresh UI
-      } else {
-        alert('Not enough resources!');
-      }
-    }
+    const r = this.cityManager.resourceManager;
+    const wood = Math.floor(r.getResource(ResourceType.WOOD));
+    const stone = Math.floor(r.getResource(ResourceType.STONE));
+    this.game.events.emit('cityUpgradeRequest', {
+      buildingId,
+      buildingType: building.type,
+      nextLevel: building.level + 1,
+      costWood: cost,
+      costStone: cost,
+      haveWood: wood,
+      haveStone: stone,
+    });
   }
 }

@@ -1,36 +1,38 @@
 import React, { useState } from 'react';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import styles from './AllianceWar.module.css';
+import { useModal } from '@/shared/components/ModalProvider';
 
 export const AllianceWar: React.FC = () => {
   const { activeWar, declareWar, submitWarScore, alliance } = useAlliance();
+  const modal = useModal();
   const [targetId, setTargetId] = useState('');
   const [score, setScore] = useState(100);
 
   const handleDeclare = async () => {
     if (!targetId.trim()) {
-      alert('Please enter target alliance ID');
+      modal.openAlert({ title: '提示', message: '请输入目标联盟 ID。' });
       return;
     }
 
     if ((alliance?.level || 0) < 5) {
-      alert('Alliance level 5 required to declare war');
+      modal.openAlert({ title: '未解锁', message: '联盟等级达到 Lv.5 才可宣战。' });
       return;
     }
 
     const war = await declareWar(targetId);
     if (war) {
-      alert('War declared successfully!');
+      modal.openAlert({ title: '宣战成功', message: '已发起宣战。' });
       setTargetId('');
     } else {
-      alert('Failed to declare war. Check requirements.');
+      modal.openAlert({ title: '宣战失败', message: '当前无法宣战，请检查条件后重试。' });
     }
   };
 
   const handleSubmitScore = () => {
     const success = submitWarScore(score);
     if (success) {
-      alert('Score submitted!');
+      modal.openAlert({ title: '提交成功', message: '已提交战功。' });
     }
   };
 

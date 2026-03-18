@@ -1,14 +1,19 @@
 import React from 'react';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import styles from './AllianceCheckIn.module.css';
+import { useModal } from '@/shared/components/ModalProvider';
 
 export const AllianceCheckIn: React.FC = () => {
   const { checkIn, checkInStatus, playerContribution } = useAlliance();
+  const modal = useModal();
 
   const handleCheckIn = async () => {
     const result = await checkIn();
     if (result.contribution > 0) {
-      alert(`Check-in successful! You received ${result.contribution} contribution points!`);
+      modal.openAlert({
+        title: '签到成功',
+        message: `获得贡献 +${result.contribution}`,
+      });
     }
   };
 

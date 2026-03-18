@@ -25,7 +25,6 @@ export class Web3Manager {
     const unisat = window.unisat;
 
     if (!unisat) {
-      alert('Please install UniSat Wallet!');
       return null;
     }
 

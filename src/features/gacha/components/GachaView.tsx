@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { GachaManager, GachaResult } from '@/features/gacha/logic/GachaManager';
 import { Quality } from '@/features/hero/types/Hero';
+import { useModal } from '@/shared/components/ModalProvider';
 
 const GachaView: React.FC = () => {
+  const modal = useModal();
   const [manager] = useState<GachaManager>(() => {
     const globalWindow = window as Window & { _gachaManager?: GachaManager };
     if (!globalWindow._gachaManager) {
@@ -26,7 +28,10 @@ const GachaView: React.FC = () => {
         const res = manager.draw(poolId, count);
         setResults(res);
       } catch (error) {
-        alert(error instanceof Error ? error.message : String(error));
+        modal.openAlert({
+          title: '招募失败',
+          message: error instanceof Error ? error.message : String(error),
+        });
       }
       setIsDrawing(false);
     }, 1000);

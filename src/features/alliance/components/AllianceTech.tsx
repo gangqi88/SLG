@@ -1,27 +1,32 @@
 import React from 'react';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import styles from './AllianceTech.module.css';
+import { useModal } from '@/shared/components/ModalProvider';
 
 export const AllianceTech: React.FC = () => {
   const { techList, playerContribution, upgradeTech } = useAlliance();
+  const modal = useModal();
 
   const handleUpgrade = async (techId: string) => {
     const tech = techList.find((t) => t.id === techId);
     if (!tech) return;
 
     if (playerContribution < tech.costPerLevel) {
-      alert('Insufficient contribution points!');
+      modal.openAlert({
+        title: '贡献不足',
+        message: '贡献不足。可通过签到、攻城、联盟任务等途径获取（部分待接入）。',
+      });
       return;
     }
 
     if (tech.currentLevel >= tech.maxLevel) {
-      alert('This tech is already at max level!');
+      modal.openAlert({ title: '提示', message: '已达到最高等级。' });
       return;
     }
 
     const success = await upgradeTech(techId);
     if (success) {
-      alert('Tech upgraded successfully!');
+      modal.openAlert({ title: '升级成功', message: '联盟科技已升级。' });
     }
   };
 

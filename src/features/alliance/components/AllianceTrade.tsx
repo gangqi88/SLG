@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import styles from './AllianceTrade.module.css';
+import { useModal } from '@/shared/components/ModalProvider';
 
 type ResourceType = 'wood' | 'stone' | 'food' | 'gold';
 
 export const AllianceTrade: React.FC = () => {
   const { tradeRequests, createTradeRequest, acceptTradeRequest } = useAlliance();
+  const modal = useModal();
 
   const [showCreate, setShowCreate] = useState(false);
   const [offerType, setOfferType] = useState<'resource' | 'hero'>('resource');
@@ -25,13 +27,13 @@ export const AllianceTrade: React.FC = () => {
       requestResource,
     );
     setShowCreate(false);
-    alert('Trade request created!');
+    modal.openAlert({ title: '创建成功', message: '交易请求已发布。' });
   };
 
   const handleAccept = (tradeId: string) => {
     const success = acceptTradeRequest(tradeId);
     if (success) {
-      alert('Trade accepted!');
+      modal.openAlert({ title: '交易成功', message: '已接受交易。' });
     }
   };
 

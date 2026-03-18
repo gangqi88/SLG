@@ -70,7 +70,22 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
     if (success) {
       setShowUpgradeModal(false);
     } else {
-      openResourceWays({ modal, navigate, resourceKey: 'wood', title: '资源不足' });
+      const needWood = currentResources.wood < upgradeCost.wood;
+      const needStone = currentResources.stone < upgradeCost.stone;
+      const needGold = currentResources.gold < upgradeCost.gold;
+      if (needWood) {
+        openResourceWays({ modal, navigate, resourceKey: 'wood', title: '木材不足' });
+        return;
+      }
+      if (needStone) {
+        openResourceWays({ modal, navigate, resourceKey: 'ore', title: '矿石不足' });
+        return;
+      }
+      if (needGold) {
+        openResourceWays({ modal, navigate, resourceKey: 'coin', title: '金币不足' });
+        return;
+      }
+      modal.openAlert({ title: '升级失败', message: '当前无法升级，请稍后再试。' });
     }
   };
 

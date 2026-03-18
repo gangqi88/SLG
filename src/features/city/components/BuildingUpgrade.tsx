@@ -1,6 +1,9 @@
 import React from 'react';
 import { Building, BuildingUpgradeCost } from '@/features/city/types/MainCity';
 import styles from './BuildingUpgrade.module.css';
+import { useModal } from '@/shared/components/ModalProvider';
+import { useNavigate } from 'react-router-dom';
+import { openResourceWays } from '@/shared/logic/openResourceWays';
 
 interface BuildingUpgradeProps {
   building: Building;
@@ -17,10 +20,16 @@ export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
   onUpgrade,
   onCancel,
 }) => {
+  const modal = useModal();
+  const navigate = useNavigate();
   const canAfford =
     currentResources.wood >= upgradeCost.wood &&
     currentResources.stone >= upgradeCost.stone &&
     currentResources.gold >= upgradeCost.gold;
+
+  const needWood = currentResources.wood < upgradeCost.wood;
+  const needStone = currentResources.stone < upgradeCost.stone;
+  const needGold = currentResources.gold < upgradeCost.gold;
 
   const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -68,6 +77,17 @@ export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
             >
               {upgradeCost.wood}
             </span>
+            {needWood ? (
+              <button
+                type="button"
+                className={styles.wayButton}
+                onClick={() => openResourceWays({ modal, navigate, resourceKey: 'wood', title: '木材不足' })}
+              >
+                获取
+              </button>
+            ) : (
+              <span />
+            )}
           </div>
           <div className={styles.costItem}>
             <span>矿石:</span>
@@ -78,6 +98,17 @@ export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
             >
               {upgradeCost.stone}
             </span>
+            {needStone ? (
+              <button
+                type="button"
+                className={styles.wayButton}
+                onClick={() => openResourceWays({ modal, navigate, resourceKey: 'ore', title: '矿石不足' })}
+              >
+                获取
+              </button>
+            ) : (
+              <span />
+            )}
           </div>
           <div className={styles.costItem}>
             <span>金币:</span>
@@ -88,10 +119,22 @@ export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
             >
               {upgradeCost.gold}
             </span>
+            {needGold ? (
+              <button
+                type="button"
+                className={styles.wayButton}
+                onClick={() => openResourceWays({ modal, navigate, resourceKey: 'coin', title: '金币不足' })}
+              >
+                获取
+              </button>
+            ) : (
+              <span />
+            )}
           </div>
           <div className={styles.costItem}>
             <span>耗时:</span>
             <span>{formatTime(upgradeCost.time)}</span>
+            <span />
           </div>
         </div>
 

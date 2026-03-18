@@ -1,20 +1,25 @@
 import React from 'react';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import styles from './AllianceShop.module.css';
+import { useModal } from '@/shared/components/ModalProvider';
 
 export const AllianceShop: React.FC = () => {
   const { shopItems, playerContribution, buyShopItem } = useAlliance();
+  const modal = useModal();
 
   const handleBuy = async (itemId: string, price: number) => {
     if (playerContribution < price) {
-      alert('Insufficient contribution points!');
+      modal.openAlert({
+        title: '贡献不足',
+        message: '贡献不足。可通过签到、攻城、联盟任务等途径获取（部分待接入）。',
+      });
       return;
     }
     const success = await buyShopItem(itemId);
     if (success) {
-      alert('Purchase successful!');
+      modal.openAlert({ title: '购买成功', message: '已完成购买。' });
     } else {
-      alert('Purchase failed. Please check inventory.');
+      modal.openAlert({ title: '购买失败', message: '购买失败，请稍后再试。' });
     }
   };
 
