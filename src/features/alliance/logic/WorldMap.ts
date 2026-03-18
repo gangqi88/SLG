@@ -47,8 +47,8 @@ const baseCities: WorldCity[] = [
     defense: 520,
     defenseState: { max: 520, cur: 520, repairFromMs: null, repairToMs: null },
     production: { woodPerMin: 32, orePerMin: 18, coinPerMin: 40 },
-    ownerAllianceId: LEGACY_SELF_ALLIANCE_ID,
-    ownerAllianceName: '本盟',
+    ownerAllianceId: null,
+    ownerAllianceName: null,
   },
   {
     id: 'c2',
@@ -99,8 +99,8 @@ const baseCities: WorldCity[] = [
     defense: 380,
     defenseState: { max: 380, cur: 380, repairFromMs: null, repairToMs: null },
     production: { woodPerMin: 20, orePerMin: 12, coinPerMin: 22 },
-    ownerAllianceId: LEGACY_SELF_ALLIANCE_ID,
-    ownerAllianceName: '本盟',
+    ownerAllianceId: null,
+    ownerAllianceName: null,
   },
   {
     id: 'c6',
@@ -126,6 +126,11 @@ const computeDefenseAt = (s: CityDefenseState, nowMs: number) => {
   const p = (nowMs - s.repairFromMs) / dur;
   const next = s.cur + (s.max - s.cur) * p;
   return { cur: clampInt(next, 0, s.max), repairing: true, remainingMs: s.repairToMs - nowMs };
+};
+
+const normalizeOwner = (ownerAllianceId: string | null, ownerAllianceName: string | null) => {
+  if (!ownerAllianceId) return { ownerAllianceId: null, ownerAllianceName: null };
+  return { ownerAllianceId, ownerAllianceName: ownerAllianceName ?? '未知联盟' };
 };
 
 class WorldMapStore {
@@ -182,7 +187,8 @@ class WorldMapStore {
           ownerAllianceId = alliance.id;
           ownerAllianceName = alliance.name;
         }
-        return { ...c, ownerAllianceId, ownerAllianceName, defenseState };
+        const normalized = normalizeOwner(ownerAllianceId, ownerAllianceName);
+        return { ...c, ...normalized, defenseState };
       });
 
       if ((parsed?.version ?? 1) < STORAGE_VERSION) {
@@ -191,6 +197,10 @@ class WorldMapStore {
     } catch {
       return;
     }
+  }
+
+  ensureMigrated() {
+    this.load();
   }
 
   private save() {
@@ -230,7 +240,8 @@ class WorldMapStore {
     const idx = this.cities.findIndex((c) => c.id === cityId);
     if (idx < 0) return;
     const prev = this.cities[idx];
-    const next: WorldCity = { ...prev, ownerAllianceId, ownerAllianceName };
+    const normalized = normalizeOwner(ownerAllianceId, ownerAllianceName);
+    const next: WorldCity = { ...prev, ...normalized };
     this.cities = [...this.cities.slice(0, idx), next, ...this.cities.slice(idx + 1)];
     this.save();
     this.emit();
@@ -282,7 +293,8 @@ class WorldMapStore {
       defenseState = { max, cur, repairFromMs: now, repairToMs: now + durMs };
     }
 
-    const next: WorldCity = { ...prev, ownerAllianceId, ownerAllianceName, defenseState };
+    const normalized = normalizeOwner(ownerAllianceId, ownerAllianceName);
+    const next: WorldCity = { ...prev, ...normalized, defenseState };
     this.cities = [...this.cities.slice(0, idx), next, ...this.cities.slice(idx + 1)];
     this.save();
     this.emit();
