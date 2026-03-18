@@ -14,11 +14,50 @@ import styles from './AllianceDashboard.module.css';
 import { useModal } from '@/shared/components/ModalProvider';
 import { useNavigate } from 'react-router-dom';
 import { formatRemaining } from '@/shared/logic/time';
-import { Team } from '@/shared/logic/Team';
 import { TeamEditor } from '@/shared/components/TeamEditor';
 import { WorldMap } from '@/features/alliance/logic/WorldMap';
 
 type TabType = 'info' | 'members' | 'checkin' | 'chat' | 'shop' | 'trade' | 'tech' | 'war' | 'ad';
+
+const AllianceJoinCreateModal: React.FC<{
+  kind: 'create' | 'join';
+  onSubmit: (value: string) => Promise<void>;
+  onClose: () => void;
+}> = ({ kind, onSubmit, onClose }) => {
+  const [value, setValue] = useState('');
+  const title = kind === 'create' ? '创建联盟' : '加入联盟';
+  const placeholder = kind === 'create' ? '联盟名称' : '联盟 ID';
+  const primary = kind === 'create' ? '创建' : '申请';
+
+  return (
+    <div className={styles.modalContent}>
+      <h3>{title}</h3>
+      <input
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        className={styles.input}
+      />
+      {kind === 'create' && <p className={styles.cost}>消耗：10,000 金币</p>}
+      <div className={styles.modalActions}>
+        <button
+          onClick={async () => {
+            if (!value.trim()) return;
+            await onSubmit(value.trim());
+            onClose();
+          }}
+          className={styles.confirmButton}
+        >
+          {primary}
+        </button>
+        <button onClick={onClose} className={styles.cancelButton}>
+          取消
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export const AllianceDashboard: React.FC = () => {
   const {
@@ -38,25 +77,13 @@ export const AllianceDashboard: React.FC = () => {
   const modal = useModal();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>('info');
-  const [createName, setCreateName] = useState('');
-  const [joinId, setJoinId] = useState('');
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showJoinModal, setShowJoinModal] = useState(false);
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
 
-  const handleCreate = async () => {
-    if (!createName.trim()) return;
-    await createAlliance(createName);
-    setShowCreateModal(false);
-    setCreateName('');
-  };
-
-  const handleJoin = async () => {
-    if (!joinId.trim()) return;
-    await joinAlliance(joinId);
-    setShowJoinModal(false);
-    setJoinId('');
-  };
+  useEffect(() => {
+    if (!hasAlliance) return;
+    const t = setInterval(() => setTick((v) => v + 1), 1000);
+    return () => clearInterval(t);
+  }, [hasAlliance]);
 
   if (isLoading) {
     return (
@@ -74,60 +101,61 @@ export const AllianceDashboard: React.FC = () => {
         <p>加入或创建联盟，参与攻城与联盟玩法。</p>
 
         <div className={styles.actions}>
-          <button className={styles.createButton} onClick={() => setShowCreateModal(true)}>
+          <button
+            className={styles.createButton}
+            onClick={() => {
+              modal.openModal({
+                title: '创建联盟',
+                content: (
+                  <AllianceJoinCreateModal
+                    kind="create"
+                    onSubmit={async (name) => {
+                      await createAlliance(name);
+                    }}
+                    onClose={() => modal.close()}
+                  />
+                ),
+                actions: [
+                  {
+                    key: 'close',
+                    label: '关闭',
+                    variant: 'secondary',
+                    onClick: () => modal.close(),
+                  },
+                ],
+              });
+            }}
+          >
             创建联盟
           </button>
-          <button className={styles.joinButton} onClick={() => setShowJoinModal(true)}>
+          <button
+            className={styles.joinButton}
+            onClick={() => {
+              modal.openModal({
+                title: '加入联盟',
+                content: (
+                  <AllianceJoinCreateModal
+                    kind="join"
+                    onSubmit={async (id) => {
+                      await joinAlliance(id);
+                    }}
+                    onClose={() => modal.close()}
+                  />
+                ),
+                actions: [
+                  {
+                    key: 'close',
+                    label: '关闭',
+                    variant: 'secondary',
+                    onClick: () => modal.close(),
+                  },
+                ],
+              });
+            }}
+          >
             加入联盟
           </button>
         </div>
-
-        {showCreateModal && (
-          <div className={styles.modal}>
-            <div className={styles.modalContent}>
-              <h3>创建联盟</h3>
-              <input
-                type="text"
-                placeholder="联盟名称"
-                value={createName}
-                onChange={(e) => setCreateName(e.target.value)}
-                className={styles.input}
-              />
-              <p className={styles.cost}>消耗：10,000 金币</p>
-              <div className={styles.modalActions}>
-                <button onClick={handleCreate} className={styles.confirmButton}>
-                  创建
-                </button>
-                <button onClick={() => setShowCreateModal(false)} className={styles.cancelButton}>
-                  取消
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {showJoinModal && (
-          <div className={styles.modal}>
-            <div className={styles.modalContent}>
-              <h3>加入联盟</h3>
-              <input
-                type="text"
-                placeholder="联盟 ID"
-                value={joinId}
-                onChange={(e) => setJoinId(e.target.value)}
-                className={styles.input}
-              />
-              <div className={styles.modalActions}>
-                <button onClick={handleJoin} className={styles.confirmButton}>
-                  申请
-                </button>
-                <button onClick={() => setShowJoinModal(false)} className={styles.cancelButton}>
-                  取消
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
@@ -203,11 +231,6 @@ export const AllianceDashboard: React.FC = () => {
     });
   };
 
-  useEffect(() => {
-    const t = setInterval(() => setTick((v) => v + 1), 1000);
-    return () => clearInterval(t);
-  }, []);
-
   const openRally = (targetCityId?: string | null) => {
     modal.openModal({
       title: '集结队伍',
@@ -241,7 +264,9 @@ export const AllianceDashboard: React.FC = () => {
               <div className={styles.level}>Lv.{alliance?.level}</div>
             </div>
             <div className={styles.metaRow}>
-              <div className={styles.metaItem}>人数 {alliance?.memberCount}/{alliance?.maxMembers}</div>
+              <div className={styles.metaItem}>
+                人数 {alliance?.memberCount}/{alliance?.maxMembers}
+              </div>
               <div className={styles.metaItem}>盟主 {leaderName}</div>
               <div className={styles.metaItem}>贡献 {playerContribution}</div>
               <div className={styles.metaItem}>战力 {totalPower}</div>
@@ -283,7 +308,12 @@ export const AllianceDashboard: React.FC = () => {
                   倒计时：{formatRemaining(activeWar.endTime - Date.now())}
                 </div>
                 <div className={styles.metaItem}>
-                  阶段：{activeWar.status === 'active' ? '攻城中' : activeWar.status === 'preparing' ? '宣战中' : '已结束'}
+                  阶段：
+                  {activeWar.status === 'active'
+                    ? '攻城中'
+                    : activeWar.status === 'preparing'
+                      ? '宣战中'
+                      : '已结束'}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
@@ -299,10 +329,17 @@ export const AllianceDashboard: React.FC = () => {
                   className={styles.entryBtn}
                   onClick={() => {
                     if (activeWar.status !== 'active') {
-                      modal.openAlert({ title: '未开始', message: '宣战倒计时结束后才能开始攻城。' });
+                      modal.openAlert({
+                        title: '未开始',
+                        message: '宣战倒计时结束后才能开始攻城。',
+                      });
                       return;
                     }
-                    navigate(activeWar.targetCityId ? `/siege?cityId=${encodeURIComponent(activeWar.targetCityId)}` : '/siege');
+                    navigate(
+                      activeWar.targetCityId
+                        ? `/siege?cityId=${encodeURIComponent(activeWar.targetCityId)}`
+                        : '/siege',
+                    );
                   }}
                 >
                   前往攻城
@@ -332,7 +369,8 @@ export const AllianceDashboard: React.FC = () => {
               return;
             }
             const targetAllianceId = city.ownerAllianceId ?? 'neutral';
-            const defenderName = city.ownerAllianceName ?? (city.ownerAllianceId ? '敌方联盟' : '无主城池');
+            const defenderName =
+              city.ownerAllianceName ?? (city.ownerAllianceId ? '敌方联盟' : '无主城池');
             modal.openConfirm({
               title: '宣战',
               message: `目标：${city.name}。宣战将消耗联盟押金并进入倒计时，确认继续？`,
@@ -352,7 +390,12 @@ export const AllianceDashboard: React.FC = () => {
                       </div>
                     ),
                     actions: [
-                      { key: 'close', label: '关闭', variant: 'secondary', onClick: () => modal.close() },
+                      {
+                        key: 'close',
+                        label: '关闭',
+                        variant: 'secondary',
+                        onClick: () => modal.close(),
+                      },
                       {
                         key: 'rally',
                         label: '集结队伍',
