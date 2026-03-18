@@ -27,7 +27,7 @@ const ensureFileExists = async (filePath) => {
   }
 };
 
-const toPublicRelativePath = (url) => url.replace(/^\/+/, '').replace(/\\/g, '/');
+const toPublicRelativePath = (url) => url.replace(/^\/+/, '').replaceAll('\\', '/');
 
 const listFilesRecursive = async (dirPath) => {
   const entries = await readdir(dirPath, { withFileTypes: true });
@@ -128,7 +128,7 @@ const validateOrphanFiles = async (referencedFiles) => {
   }
   const allFiles = await listFilesRecursive(gameAssetsDir);
   const unmatchedFiles = allFiles
-    .map((absolutePath) => path.relative(publicDir, absolutePath).replace(/\\/g, '/'))
+    .map((absolutePath) => path.relative(publicDir, absolutePath).replaceAll('\\', '/'))
     .filter((relativePath) => allowedExtensions.has(path.extname(relativePath).toLowerCase()))
     .filter((relativePath) => !referencedFiles.has(relativePath))
     .sort();

@@ -22,7 +22,6 @@ describe('WorldMap migration', () => {
       },
     });
 
-    const { WorldMap } = await import('@/features/alliance/logic/WorldMap');
     TestOnlyWorldMap.ensureMigrated();
 
     const raw = localStorage.getItem(STORAGE_KEY);
