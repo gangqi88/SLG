@@ -10,6 +10,7 @@ import { useModal } from '@/shared/components/ModalProvider';
 import { BattleReportView, createMockBattleReport } from '@/shared/logic/battleReports';
 import { applyRewards, formatRewardLines, type Reward } from '@/shared/logic/rewards';
 import { hasClaimed, markClaimed, newClaimKey } from '@/shared/logic/claimLedger';
+import { computeTeamPower } from '@/shared/logic/teamMetrics';
 
 interface BattleViewProps {
   attackerHeroes: Hero[];
@@ -48,6 +49,9 @@ const BattleView: React.FC<BattleViewProps> = ({
       ...(rewardFrag > 0 ? ([{ type: 'fragment', id: 'item_hero_fragment', amount: rewardFrag }] as const) : []),
     ];
   }, []);
+
+  const attackerPower = useMemo(() => computeTeamPower(attackerHeroes), [attackerHeroes]);
+  const defenderPower = useMemo(() => computeTeamPower(defenderHeroes), [defenderHeroes]);
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -94,11 +98,11 @@ const BattleView: React.FC<BattleViewProps> = ({
         title="战斗"
         left={[
           { label: '我方', value: String(attackerHeroes.length) },
-          { label: '战力', value: String(attackerHeroes.length * 1000) },
+          { label: '战力', value: String(attackerPower) },
         ]}
         right={[
           { label: '敌方', value: String(defenderHeroes.length) },
-          { label: '战力', value: String(defenderHeroes.length * 1000) },
+          { label: '战力', value: String(defenderPower) },
         ]}
         actions={[
           {

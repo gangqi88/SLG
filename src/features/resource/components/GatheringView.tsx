@@ -9,6 +9,8 @@ import { formatRemaining } from '@/shared/logic/time';
 import { applyRewards, type Reward } from '@/shared/logic/rewards';
 import { Team } from '@/shared/logic/Team';
 import { TeamEditor } from '@/shared/components/TeamEditor';
+import { getTeamHeroes } from '@/shared/logic/Team';
+import { computeGatherRates } from '@/shared/logic/teamMetrics';
 
 interface GatheringViewProps {
   onExit: () => void;
@@ -25,6 +27,9 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
   const [tick, setTick] = useState(0);
   const [progress, setProgress] = useState(0);
 
+  const teamHeroes = useMemo(() => getTeamHeroes(team.heroIds), [team.heroIds]);
+  const rates = useMemo(() => computeGatherRates(teamHeroes), [teamHeroes]);
+
   const sessionLabel = useMemo(() => {
     const elapsed = Date.now() - startRef.current;
     return formatRemaining(elapsed);
@@ -38,8 +43,8 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
       if (!Number.isNaN(last) && last > 0) {
         const offlineMs = Date.now() - last;
         const minutes = Math.min(240, Math.floor(offlineMs / 60000));
-        const wood = minutes * 20;
-        const ore = minutes * 12;
+        const wood = minutes * rates.woodPerMin;
+        const ore = minutes * rates.orePerMin;
         if (minutes > 0) {
           const rewards: Reward[] = [
             { type: 'resource', id: 'wood', amount: wood },
@@ -63,6 +68,9 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
                     +{ore}
                   </span>
                 </div>
+                <div style={{ color: 'var(--game-text-muted)', marginTop: 6, fontSize: 12 }}>
+                  产速：木材 {rates.woodPerMin}/分 · 矿石 {rates.orePerMin}/分
+                </div>
               </div>
             ),
           });
@@ -70,18 +78,18 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
       }
       localStorage.removeItem(key);
     }
-  }, [modal]);
+  }, [modal, rates.orePerMin, rates.woodPerMin]);
 
   useEffect(() => {
     const t = setInterval(() => {
       setTick((v) => v + 1);
       setProgress((p) => {
-        const next = p + 3;
+        const next = p + rates.progressPerSec;
         return next >= 100 ? 0 : next;
       });
     }, 1000);
     return () => clearInterval(t);
-  }, []);
+  }, [rates.progressPerSec]);
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -131,7 +139,11 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
           { label: '队伍', value: `${team.heroIds.length}/${team.maxSize}` },
           { label: '时长', value: sessionLabel },
         ]}
-        right={[{ label: '进度', value: `${progress}%` }]}
+        right={[
+          { label: '进度', value: `${Math.floor(progress)}%` },
+          { label: '木材', value: `${rates.woodPerMin}/分` },
+          { label: '矿石', value: `${rates.orePerMin}/分` },
+        ]}
         actions={[
           {
             key: 'team',
@@ -151,8 +163,14 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
               modal.openModal({
                 title: '离线收益',
                 content: (
-                  <div style={{ color: 'var(--game-text-muted)' }}>
-                    离线收益会在下次进入采集时自动结算。
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div style={{ color: 'var(--game-text-muted)' }}>离线收益会在下次进入采集时自动结算。</div>
+                    <div style={{ color: 'var(--game-title)', fontWeight: 900 }}>
+                      当前产速：木材 {rates.woodPerMin}/分 · 矿石 {rates.orePerMin}/分
+                    </div>
+                    <div style={{ color: 'var(--game-text-muted)', fontSize: 12 }}>
+                      产速受编队影响（人数/战力）。
+                    </div>
                   </div>
                 ),
               }),
