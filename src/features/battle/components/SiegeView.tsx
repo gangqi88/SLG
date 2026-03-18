@@ -5,6 +5,8 @@ import { SneakAttackScene } from '@/features/battle/scenes/SneakAttackScene';
 import { DemolitionScene } from '@/features/battle/scenes/DemolitionScene';
 import { SiegeBattleScene } from '@/features/battle/scenes/SiegeBattleScene';
 import { HUMAN_HEROES } from '@/features/hero/data/humanHeroes';
+import { SceneHUD } from '@/shared/components/SceneHUD';
+import { useModal } from '@/shared/components/ModalProvider';
 
 interface SiegeViewProps {
   onExit: () => void;
@@ -14,6 +16,7 @@ const siegeManager = new SiegeManager();
 
 const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const gameRef = useRef<Phaser.Game | null>(null);
+  const modal = useModal();
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -69,19 +72,25 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
         style={{ position: 'relative', width: '800px', height: '600px', backgroundColor: '#000' }}
       >
         <div id="phaser-battle-container" />
-        <button
-          onClick={onExit}
-          style={{
-            position: 'absolute',
-            top: 10,
-            right: 10,
-            padding: '5px 10px',
-            cursor: 'pointer',
-            zIndex: 1001,
-          }}
-        >
-          Exit
-        </button>
+        <SceneHUD
+          title="攻城战"
+          left={[{ label: '阶段', value: '战斗' }]}
+          right={[{ label: '战报', value: '—' }]}
+          actions={[
+            {
+              key: 'report',
+              label: '战报',
+              onClick: () => modal.openAlert({ title: '战报', message: '战报弹窗待接入。' }),
+            },
+            {
+              key: 'result',
+              label: '结算',
+              variant: 'primary',
+              onClick: () => modal.openAlert({ title: '结算', message: '攻城结算面板待接入。' }),
+            },
+          ]}
+          onExit={onExit}
+        />
       </div>
     </div>
   );

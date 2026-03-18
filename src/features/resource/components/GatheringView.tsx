@@ -3,6 +3,8 @@ import Phaser from 'phaser';
 import { PreloadScene } from '@/shared/scenes/PreloadScene';
 import { GatheringScene } from '@/features/resource/scenes/GatheringScene';
 import { getSceneAssetFeatures } from '@/shared/config/assets/sceneAssetFeatures';
+import { SceneHUD } from '@/shared/components/SceneHUD';
+import { useModal } from '@/shared/components/ModalProvider';
 
 interface GatheringViewProps {
   onExit: () => void;
@@ -10,6 +12,7 @@ interface GatheringViewProps {
 
 const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
   const gameRef = useRef<Phaser.Game | null>(null);
+  const modal = useModal();
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -50,6 +53,25 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
   return (
     <div style={{ position: 'relative', width: '800px', height: '600px', margin: '0 auto' }}>
       <div id="phaser-gathering-container" />
+      <SceneHUD
+        title="资源采集"
+        left={[{ label: '队伍', value: '≤5' }]}
+        right={[{ label: '进度', value: '—' }]}
+        actions={[
+          {
+            key: 'team',
+            label: '队伍',
+            variant: 'primary',
+            onClick: () => modal.openAlert({ title: '队伍配置', message: '队伍配置面板待接入。' }),
+          },
+          {
+            key: 'offline',
+            label: '离线收益',
+            onClick: () => modal.openAlert({ title: '离线收益', message: '离线收益结算面板待接入。' }),
+          },
+        ]}
+        onExit={onExit}
+      />
     </div>
   );
 };

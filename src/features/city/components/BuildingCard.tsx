@@ -3,6 +3,7 @@ import { Building } from '@/features/city/types/MainCity';
 import { BuildingUpgrade } from './BuildingUpgrade';
 import { useMainCity } from '@/features/city/hooks/useMainCity';
 import styles from './BuildingCard.module.css';
+import { useModal } from '@/shared/components/ModalProvider';
 
 interface BuildingCardProps {
   building: Building;
@@ -10,6 +11,7 @@ interface BuildingCardProps {
 
 export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
   const { getUpgradeCost, startUpgrade, currentResources } = useMainCity();
+  const modal = useModal();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [countdown, setCountdown] = useState<string>('');
 
@@ -54,7 +56,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
       return;
     }
     if (building.level >= building.maxLevel) {
-      alert('Building is at max level!');
+      modal.openAlert({ title: '提示', message: '已达到最高等级。' });
       return;
     }
     setShowUpgradeModal(true);
@@ -65,7 +67,10 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
     if (success) {
       setShowUpgradeModal(false);
     } else {
-      alert('Failed to start upgrade. Make sure you have enough resources.');
+      modal.openAlert({
+        title: '资源不足',
+        message: '资源不足，无法开始升级。请前往采集/任务/活动获取。',
+      });
     }
   };
 
@@ -75,20 +80,20 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
 
   const getBuildingName = (type: string): string => {
     const names: Record<string, string> = {
-      castle: 'Castle',
-      warehouse: 'Warehouse',
-      wall: 'Wall',
-      lumber: 'Lumber Mill',
-      quarry: 'Quarry',
-      farm: 'Farm',
-      market: 'Market',
-      barracks: 'Barracks',
-      stable: 'Stable',
-      range: 'Range',
-      hospital: 'Hospital',
-      alliance_hall: 'Alliance Hall',
-      hero_hall: 'Hero Hall',
-      bazaar: 'Bazaar',
+      castle: '城堡',
+      warehouse: '仓库',
+      wall: '城墙',
+      lumber: '伐木场',
+      quarry: '采石场',
+      farm: '农田',
+      market: '集市',
+      barracks: '兵营',
+      stable: '马厩',
+      range: '弓兵营',
+      hospital: '医馆',
+      alliance_hall: '联盟大厅',
+      hero_hall: '武将府',
+      bazaar: '集市坊',
     };
     return names[type] || type;
   };
@@ -100,7 +105,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
         <div className={styles.info}>
           <h3 className={styles.name}>{getBuildingName(building.type)}</h3>
           <p className={styles.level}>
-            Level {building.level} / {building.maxLevel}
+            等级 {building.level} / {building.maxLevel}
           </p>
           {building.isUpgrading ? (
             <div className={styles.upgrading}>{countdown || 'Upgrading...'}</div>
@@ -113,7 +118,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
           onClick={handleUpgradeClick}
           disabled={building.isUpgrading || building.level >= building.maxLevel}
         >
-          {building.level >= building.maxLevel ? 'Maxed' : 'Upgrade'}
+          {building.level >= building.maxLevel ? '已满级' : '升级'}
         </button>
       </div>
 

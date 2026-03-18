@@ -2,6 +2,7 @@ import React from 'react';
 import { useMainCity } from '@/features/city/hooks/useMainCity';
 import { BuildingCard } from './BuildingCard';
 import { AdBillboard } from './AdBillboard';
+import { AuctionHouse } from './AuctionHouse';
 import styles from './MainCity.module.css';
 
 export const MainCityView: React.FC = () => {
@@ -19,12 +20,12 @@ export const MainCityView: React.FC = () => {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Main City</h1>
+        <h1 className={styles.title}>主城</h1>
       </header>
 
       <div className={styles.content}>
         <section className={styles.buildingsSection}>
-          <h2 className={styles.sectionTitle}>Buildings</h2>
+          <h2 className={styles.sectionTitle}>建筑</h2>
           <div className={styles.buildingsGrid}>
             {Object.values(buildings).map((building) => (
               <BuildingCard key={building.id} building={building} />
@@ -34,6 +35,8 @@ export const MainCityView: React.FC = () => {
 
         <aside className={styles.sidebar}>
           <AdBillboard />
+          <div style={{ height: 12 }} />
+          <AuctionHouse />
         </aside>
       </div>
     </div>

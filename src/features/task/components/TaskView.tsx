@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { TaskManager, Task } from '@/features/task/logic/TaskManager';
 import { getTaskManager } from '@/features/task/logic/taskSingleton';
+import { useModal } from '@/shared/components/ModalProvider';
+import { applyRewards, formatRewardLines } from '@/shared/logic/rewards';
 
 const TaskView: React.FC = () => {
+  const modal = useModal();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [manager] = useState<TaskManager>(() => getTaskManager());
 
@@ -11,8 +14,37 @@ const TaskView: React.FC = () => {
     return () => manager.unsubscribe(setTasks);
   }, [manager]);
 
+  const taskById = useMemo(() => {
+    const map = new Map<string, Task>();
+    tasks.forEach((t) => map.set(t.id, t));
+    return map;
+  }, [tasks]);
+
   const handleClaim = (taskId: string) => {
+    const task = taskById.get(taskId);
     manager.claimReward(taskId);
+    if (task) {
+      applyRewards(task.rewards);
+      const lines = formatRewardLines(task.rewards);
+      modal.openModal({
+        title: '获得奖励',
+        content: (
+          <div>
+            <div style={{ color: 'var(--game-text-muted)', marginBottom: 10 }}>{task.name}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {lines.map((l, idx) => (
+                <div key={`${l.label}-${idx}`} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>{l.label}</span>
+                  <span style={{ fontFamily: 'var(--game-font-mono)', color: 'var(--game-title)' }}>
+                    +{l.amount}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ),
+      });
+    }
   };
 
   const handleSimulateProgress = () => {

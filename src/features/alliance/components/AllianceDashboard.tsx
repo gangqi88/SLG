@@ -9,7 +9,9 @@ import { AllianceTrade } from './AllianceTrade';
 import { AllianceTech } from './AllianceTech';
 import { AllianceWar } from './AllianceWar';
 import { AllianceAd } from './AllianceAd';
+import { AllianceWorldMap } from './AllianceWorldMap';
 import styles from './AllianceDashboard.module.css';
+import { useModal } from '@/shared/components/ModalProvider';
 
 type TabType = 'info' | 'members' | 'checkin' | 'chat' | 'shop' | 'trade' | 'tech' | 'war' | 'ad';
 
@@ -20,10 +22,14 @@ export const AllianceDashboard: React.FC = () => {
     isLoading,
     createAlliance,
     joinAlliance,
+    leaveAlliance,
+    members,
     playerRole,
     playerContribution,
+    declareWar,
   } = useAlliance();
 
+  const modal = useModal();
   const [activeTab, setActiveTab] = useState<TabType>('info');
   const [createName, setCreateName] = useState('');
   const [joinId, setJoinId] = useState('');
@@ -48,7 +54,7 @@ export const AllianceDashboard: React.FC = () => {
     return (
       <div className={styles.loading}>
         <div className={styles.spinner}></div>
-        <p>Loading alliance data...</p>
+        <p>加载联盟数据...</p>
       </div>
     );
   }
@@ -56,36 +62,36 @@ export const AllianceDashboard: React.FC = () => {
   if (!hasAlliance) {
     return (
       <div className={styles.noAlliance}>
-        <h2>Alliance System</h2>
-        <p>Join or create an alliance to enjoy exclusive benefits!</p>
+        <h2>联盟</h2>
+        <p>加入或创建联盟，参与攻城与联盟玩法。</p>
 
         <div className={styles.actions}>
           <button className={styles.createButton} onClick={() => setShowCreateModal(true)}>
-            Create Alliance
+            创建联盟
           </button>
           <button className={styles.joinButton} onClick={() => setShowJoinModal(true)}>
-            Join Alliance
+            加入联盟
           </button>
         </div>
 
         {showCreateModal && (
           <div className={styles.modal}>
             <div className={styles.modalContent}>
-              <h3>Create Alliance</h3>
+              <h3>创建联盟</h3>
               <input
                 type="text"
-                placeholder="Alliance Name"
+                placeholder="联盟名称"
                 value={createName}
                 onChange={(e) => setCreateName(e.target.value)}
                 className={styles.input}
               />
-              <p className={styles.cost}>Cost: 10,000 Gold</p>
+              <p className={styles.cost}>消耗：10,000 金币</p>
               <div className={styles.modalActions}>
                 <button onClick={handleCreate} className={styles.confirmButton}>
-                  Create
+                  创建
                 </button>
                 <button onClick={() => setShowCreateModal(false)} className={styles.cancelButton}>
-                  Cancel
+                  取消
                 </button>
               </div>
             </div>
@@ -95,20 +101,20 @@ export const AllianceDashboard: React.FC = () => {
         {showJoinModal && (
           <div className={styles.modal}>
             <div className={styles.modalContent}>
-              <h3>Join Alliance</h3>
+              <h3>加入联盟</h3>
               <input
                 type="text"
-                placeholder="Alliance ID"
+                placeholder="联盟 ID"
                 value={joinId}
                 onChange={(e) => setJoinId(e.target.value)}
                 className={styles.input}
               />
               <div className={styles.modalActions}>
                 <button onClick={handleJoin} className={styles.confirmButton}>
-                  Apply
+                  申请
                 </button>
                 <button onClick={() => setShowJoinModal(false)} className={styles.cancelButton}>
-                  Cancel
+                  取消
                 </button>
               </div>
             </div>
@@ -119,15 +125,15 @@ export const AllianceDashboard: React.FC = () => {
   }
 
   const tabs: { key: TabType; label: string; requiresLevel?: number }[] = [
-    { key: 'info', label: 'Info' },
-    { key: 'members', label: 'Members' },
-    { key: 'checkin', label: 'Check-in' },
-    { key: 'chat', label: 'Chat' },
-    { key: 'shop', label: 'Shop' },
-    { key: 'trade', label: 'Trade' },
-    { key: 'tech', label: 'Tech', requiresLevel: 4 },
-    { key: 'war', label: 'War', requiresLevel: 5 },
-    { key: 'ad', label: 'Ad' },
+    { key: 'info', label: '公告' },
+    { key: 'members', label: '成员' },
+    { key: 'checkin', label: '签到' },
+    { key: 'chat', label: '聊天' },
+    { key: 'shop', label: '商店' },
+    { key: 'trade', label: '交易' },
+    { key: 'tech', label: '科技', requiresLevel: 4 },
+    { key: 'war', label: '攻城战', requiresLevel: 5 },
+    { key: 'ad', label: '广告位' },
   ];
 
   const renderContent = () => {
@@ -160,34 +166,94 @@ export const AllianceDashboard: React.FC = () => {
     return (alliance?.level || 0) >= tab.requiresLevel;
   };
 
+  const leaderName = members.find((m) => m.id === alliance?.leaderId)?.name || '—';
+  const totalPower = members.reduce((sum, m) => sum + (m.weeklyContribution || 0), 0);
+
+  const openTab = (key: TabType) => {
+    const tab = tabs.find((t) => t.key === key);
+    if (!tab) return;
+    if (!isTabEnabled(tab)) {
+      modal.openAlert({
+        title: '未解锁',
+        message: `联盟等级达到 Lv.${tab.requiresLevel} 解锁：${tab.label}`,
+      });
+      return;
+    }
+    setActiveTab(key);
+  };
+
+  const handleLeave = () => {
+    const isLeader = playerRole === 'leader';
+    modal.openConfirm({
+      title: isLeader ? '解散联盟' : '退出联盟',
+      message: isLeader ? '盟主退出将解散联盟，确认继续？' : '确认退出当前联盟？',
+      primaryText: '确认',
+      secondaryText: '取消',
+      onConfirm: async () => {
+        await leaveAlliance();
+      },
+    });
+  };
+
   return (
     <div className={styles.dashboard}>
-      <div className={styles.header}>
-        <h2>{alliance?.name}</h2>
-        <div className={styles.headerInfo}>
-          <span className={styles.level}>Level {alliance?.level}</span>
-          <span className={styles.contribution}>Contribution: {playerContribution}</span>
-          {(playerRole === 'leader' || playerRole === 'officer') && (
-            <span className={styles.role}>{playerRole}</span>
-          )}
+      <div className={styles.topGrid}>
+        <div className={styles.infoCard}>
+          <div className={styles.infoHeader}>
+            <div className={styles.nameRow}>
+              <div className={styles.name}>{alliance?.name}</div>
+              <div className={styles.level}>Lv.{alliance?.level}</div>
+            </div>
+            <div className={styles.metaRow}>
+              <div className={styles.metaItem}>人数 {alliance?.memberCount}/{alliance?.maxMembers}</div>
+              <div className={styles.metaItem}>盟主 {leaderName}</div>
+              <div className={styles.metaItem}>贡献 {playerContribution}</div>
+              <div className={styles.metaItem}>战力 {totalPower}</div>
+            </div>
+          </div>
+
+          <div className={styles.entryGrid}>
+            <button type="button" className={styles.entryBtn} onClick={() => openTab('members')}>
+              成员管理
+            </button>
+            <button type="button" className={styles.entryBtn} onClick={() => openTab('info')}>
+              联盟公告
+            </button>
+            <button type="button" className={styles.entryBtn} onClick={() => openTab('tech')}>
+              联盟科技
+            </button>
+            <button type="button" className={styles.entryBtn} onClick={() => openTab('shop')}>
+              联盟商店
+            </button>
+            <button type="button" className={styles.entryBtn} onClick={() => openTab('war')}>
+              攻城战
+            </button>
+            <button type="button" className={styles.entryBtnDanger} onClick={handleLeave}>
+              {playerRole === 'leader' ? '解散联盟' : '退出联盟'}
+            </button>
+          </div>
+
+          <div className={styles.content}>{renderContent()}</div>
         </div>
-      </div>
 
-      <div className={styles.tabs}>
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            className={`${styles.tab} ${activeTab === tab.key ? styles.activeTab : ''} ${!isTabEnabled(tab) ? styles.disabledTab : ''}`}
-            onClick={() => isTabEnabled(tab) && setActiveTab(tab.key)}
-            disabled={!isTabEnabled(tab)}
-          >
-            {tab.label}
-            {!isTabEnabled(tab) && <span className={styles.locked}>🔒 Lv.{tab.requiresLevel}</span>}
-          </button>
-        ))}
+        <AllianceWorldMap
+          onDeclareWar={async () => {
+            if ((alliance?.level || 0) < 5) {
+              modal.openAlert({ title: '未解锁', message: '联盟等级达到 Lv.5 解锁攻城战。' });
+              return;
+            }
+            modal.openConfirm({
+              title: '宣战',
+              message: '宣战将消耗联盟押金并进入倒计时，确认继续？',
+              primaryText: '确认',
+              secondaryText: '取消',
+              onConfirm: async () => {
+                await declareWar('mock_target_alliance');
+              },
+            });
+          }}
+        />
       </div>
-
-      <div className={styles.content}>{renderContent()}</div>
     </div>
   );
 };

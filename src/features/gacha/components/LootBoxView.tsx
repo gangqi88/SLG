@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import InventoryManager from '@/features/resource/logic/InventoryManager';
 import { InventoryItem } from '@/features/gacha/types/LootBox';
+import { useModal } from '@/shared/components/ModalProvider';
 
 const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
+  const modal = useModal();
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [selectedBox, setSelectedBox] = useState<InventoryItem | null>(null);
   const [isOpening, setIsOpening] = useState(false);
@@ -55,6 +57,34 @@ const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
 
   const boxes = inventory.filter((i) => i.item.type === 'box');
   const otherItems = inventory.filter((i) => i.item.type !== 'box');
+
+  const rewardLines = useMemo(() => {
+    if (!reward) return [];
+    return reward.map((r) => ({
+      id: r.item.item.id,
+      name: r.item.item.name,
+      qty: r.item.quantity,
+    }));
+  }, [reward]);
+
+  useEffect(() => {
+    if (!reward) return;
+    modal.openModal({
+      title: '获得奖励',
+      content: (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {rewardLines.map((l) => (
+            <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>{l.name}</span>
+              <span style={{ fontFamily: 'var(--game-font-mono)', color: 'var(--game-title)' }}>
+                x{l.qty}
+              </span>
+            </div>
+          ))}
+        </div>
+      ),
+    });
+  }, [modal, reward, rewardLines]);
 
   return (
     <div style={styles.container}>
@@ -118,17 +148,6 @@ const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
               <span className={isOpening ? 'shaking-box' : ''}>🎁</span>
             </div>
 
-            {reward && (
-              <div style={styles.reward}>
-                <h4>You received:</h4>
-                {reward.map((r, idx) => (
-                  <div key={idx}>
-                    {r.item.quantity}x {r.item.item.name}
-                  </div>
-                ))}
-              </div>
-            )}
-
             {!isOpening && !reward && (
               <button onClick={handleOpenBox} style={styles.openBtn}>
                 Open Box
@@ -143,7 +162,7 @@ const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
                 }}
                 style={styles.cancelBtn}
               >
-                {reward ? 'Close' : 'Cancel'}
+                {reward ? '关闭' : '取消'}
               </button>
             )}
           </div>

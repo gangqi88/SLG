@@ -28,14 +28,14 @@ export const AllianceInfoPanel: React.FC = () => {
 
   const getFeatures = () => {
     const features: Record<number, string[]> = {
-      1: ['Basic Chat'],
-      2: ['Check-in', 'Trade'],
-      3: ['Alliance Shop'],
-      4: ['Alliance Tech Lv.1'],
-      5: ['Alliance War', 'Tech Lv.2'],
-      6: ['Tech Lv.2'],
-      7: ['Tech Lv.3'],
-      8: ['Advanced War', 'Tech Lv.3'],
+      1: ['基础聊天'],
+      2: ['签到', '交易'],
+      3: ['联盟商店'],
+      4: ['联盟科技 Lv.1'],
+      5: ['攻城战', '科技 Lv.2'],
+      6: ['科技 Lv.2'],
+      7: ['科技 Lv.3'],
+      8: ['高级攻城', '科技 Lv.3'],
     };
     return features[alliance.level] || [];
   };
@@ -50,17 +50,17 @@ export const AllianceInfoPanel: React.FC = () => {
           <h3>{alliance.name}</h3>
           <div className={styles.stats}>
             <div className={styles.stat}>
-              <span className={styles.label}>Level</span>
+              <span className={styles.label}>等级</span>
               <span className={styles.value}>{alliance.level}</span>
             </div>
             <div className={styles.stat}>
-              <span className={styles.label}>Members</span>
+              <span className={styles.label}>人数</span>
               <span className={styles.value}>
                 {alliance.memberCount}/{alliance.maxMembers}
               </span>
             </div>
             <div className={styles.stat}>
-              <span className={styles.label}>Created</span>
+              <span className={styles.label}>创建</span>
               <span className={styles.value}>
                 {new Date(alliance.createdAt).toLocaleDateString()}
               </span>
@@ -72,13 +72,13 @@ export const AllianceInfoPanel: React.FC = () => {
       {playerRole === 'leader' && alliance.level < 8 && (
         <div className={styles.upgradeSection}>
           <button className={styles.upgradeButton} onClick={handleUpgrade}>
-            Upgrade Alliance (Cost: {upgradeCost.toLocaleString()} Gold)
+            升级联盟（消耗：{upgradeCost.toLocaleString()} 金币）
           </button>
         </div>
       )}
 
       <div className={styles.features}>
-        <h4>Unlocked Features</h4>
+        <h4>已解锁功能</h4>
         <div className={styles.featureList}>
           {getFeatures().map((feature, index) => (
             <span key={index} className={styles.feature}>
@@ -90,13 +90,13 @@ export const AllianceInfoPanel: React.FC = () => {
 
       <div className={styles.announcement}>
         <div className={styles.announcementHeader}>
-          <h4>Announcement</h4>
+          <h4>联盟公告</h4>
           {playerRole === 'leader' && (
             <button
               className={styles.editButton}
               onClick={() => (isEditing ? handleSaveAnnouncement() : setIsEditing(true))}
             >
-              {isEditing ? 'Save' : 'Edit'}
+              {isEditing ? '保存' : '编辑'}
             </button>
           )}
         </div>

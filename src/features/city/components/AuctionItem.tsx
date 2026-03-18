@@ -41,18 +41,18 @@ export const AuctionItemCard: React.FC<AuctionItemProps> = ({ item }) => {
 
       <div className={styles.price}>
         <div className={styles.currentBid}>
-          <span>Current Bid:</span>
+          <span>当前出价:</span>
           <span className={styles.amount}>{item.currentBid}</span>
         </div>
-        {item.bidCount > 0 && <div className={styles.bidCount}>{item.bidCount} bids</div>}
+        {item.bidCount > 0 && <div className={styles.bidCount}>{item.bidCount} 次</div>}
       </div>
 
       <div className={styles.timeLeft}>
         {item.status === 'active'
           ? timeLeft > 0
-            ? `${hours}h ${minutes}m left`
-            : 'Ending soon'
-          : 'Auction Ended'}
+            ? `剩余 ${hours}小时 ${minutes}分`
+            : '即将结束'
+          : '已结束'}
       </div>
 
       {item.status === 'active' && (
@@ -63,15 +63,15 @@ export const AuctionItemCard: React.FC<AuctionItemProps> = ({ item }) => {
               value={bidAmount}
               onChange={(e) => setBidAmount(Number(e.target.value))}
               min={minBid}
-              placeholder={`Min: ${minBid}`}
+              placeholder={`最低 ${minBid}`}
             />
             <button onClick={handleBid} disabled={bidAmount < minBid}>
-              Bid
+              出价
             </button>
           </div>
           {item.buyoutPrice > 0 && (
             <button className={styles.buyoutButton} onClick={handleBuyout}>
-              Buyout: {item.buyoutPrice}
+              一口价：{item.buyoutPrice}
             </button>
           )}
         </div>

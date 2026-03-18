@@ -3,6 +3,7 @@ import { Hero } from '@/features/hero/types/Hero';
 import { HeroLogic } from '@/features/hero/logic/HeroLogic';
 import InventoryManager from '@/features/resource/logic/InventoryManager';
 import { InventoryItem } from '@/features/gacha/types/LootBox';
+import { useModal } from '@/shared/components/ModalProvider';
 
 interface HeroDevelopmentViewProps {
   hero: Hero;
@@ -11,8 +12,10 @@ interface HeroDevelopmentViewProps {
 }
 
 const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose, onUpdate }) => {
+  const modal = useModal();
   const [stats, setStats] = useState(HeroLogic.getStats(hero));
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [lastSuccess, setLastSuccess] = useState<string | null>(null);
 
   const updateData = useCallback(() => {
     setStats(HeroLogic.getStats(hero));
@@ -42,8 +45,13 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
     if (HeroLogic.levelUp(hero)) {
       updateData();
       onUpdate();
+      setLastSuccess('升级成功');
+      setTimeout(() => setLastSuccess(null), 900);
     } else {
-      alert('Not enough Hero XP!');
+      modal.openAlert({
+        title: '资源不足',
+        message: '包子不足，无法升级。',
+      });
     }
   };
 
@@ -51,8 +59,13 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
     if (HeroLogic.starUp(hero)) {
       updateData();
       onUpdate();
+      setLastSuccess('升星成功');
+      setTimeout(() => setLastSuccess(null), 900);
     } else {
-      alert('Not enough Hero Fragments!');
+      modal.openAlert({
+        title: '资源不足',
+        message: '碎片不足，无法升星。',
+      });
     }
   };
 
@@ -100,7 +113,9 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
         tabIndex={-1}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <h2>{hero.name} Development</h2>
+          <h2 style={{ margin: 0 }}>
+            {hero.name} 养成{lastSuccess ? ` · ${lastSuccess}` : ''}
+          </h2>
           <button
             onClick={onClose}
             style={{
@@ -119,7 +134,7 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
           <div style={{ flex: 1 }}>
             <h3>Level: {hero.level}</h3>
             <div style={{ color: '#aaa', fontSize: '0.9em' }}>
-              Next Level Cost: {levelUpCost} XP
+              下一级消耗：{levelUpCost} 包子
             </div>
             <div
               style={{
@@ -128,7 +143,7 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
                 marginBottom: '10px',
               }}
             >
-              Have: {expItem?.quantity || 0} XP
+              当前拥有：{expItem?.quantity || 0} 包子
             </div>
             <button
               onClick={handleLevelUp}
@@ -138,12 +153,12 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
                 padding: '8px',
                 borderRadius: '4px',
                 border: 'none',
-                backgroundColor: canLevelUp ? '#2196f3' : '#555',
+                backgroundColor: canLevelUp ? 'var(--game-btn-confirm)' : '#555',
                 color: '#fff',
                 cursor: canLevelUp ? 'pointer' : 'not-allowed',
               }}
             >
-              Level Up
+              升级
             </button>
           </div>
 
@@ -155,7 +170,7 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
             {hero.starRating < 5 ? (
               <>
                 <div style={{ color: '#aaa', fontSize: '0.9em' }}>
-                  Next Star Cost: {starUpCost} Fragments
+                  下一星消耗：{starUpCost} 碎片
                 </div>
                 <div
                   style={{
@@ -164,7 +179,7 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
                     marginBottom: '10px',
                   }}
                 >
-                  Have: {fragItem?.quantity || 0} Fragments
+                  当前拥有：{fragItem?.quantity || 0} 碎片
                 </div>
                 <button
                   onClick={handleStarUp}
@@ -174,34 +189,34 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
                     padding: '8px',
                     borderRadius: '4px',
                     border: 'none',
-                    backgroundColor: canStarUp ? '#ff9800' : '#555',
+                    backgroundColor: canStarUp ? 'var(--game-btn-reward)' : '#555',
                     color: '#fff',
                     cursor: canStarUp ? 'pointer' : 'not-allowed',
                   }}
                 >
-                  Star Up
+                  升星
                 </button>
               </>
             ) : (
-              <div style={{ color: '#ffd700', marginTop: '10px' }}>Max Stars Reached</div>
+              <div style={{ color: '#ffd700', marginTop: '10px' }}>已满星</div>
             )}
           </div>
         </div>
 
         <div style={{ backgroundColor: '#222', padding: '15px', borderRadius: '8px' }}>
-          <h3>Current Stats</h3>
+          <h3>当前属性</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
-              Command: <span style={{ color: '#4caf50' }}>{stats.command}</span>
+              统御: <span style={{ color: '#4caf50' }}>{stats.command}</span>
             </div>
             <div>
-              Strength: <span style={{ color: '#f44336' }}>{stats.strength}</span>
+              武力: <span style={{ color: '#f44336' }}>{stats.strength}</span>
             </div>
             <div>
-              Strategy: <span style={{ color: '#2196f3' }}>{stats.strategy}</span>
+              谋略: <span style={{ color: '#2196f3' }}>{stats.strategy}</span>
             </div>
             <div>
-              Defense: <span style={{ color: '#ff9800' }}>{stats.defense}</span>
+              防御: <span style={{ color: '#ff9800' }}>{stats.defense}</span>
             </div>
           </div>
         </div>

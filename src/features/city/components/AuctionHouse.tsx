@@ -13,31 +13,31 @@ export const AuctionHouse: React.FC = () => {
     filter === 'all' ? auctionItems : auctionItems.filter((item) => item.status === filter);
 
   if (isLoading) {
-    return <div className={styles.loading}>Loading auctions...</div>;
+    return <div className={styles.loading}>竞拍加载中...</div>;
   }
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Auction House</h2>
+      <h2 className={styles.title}>竞拍</h2>
 
       <div className={styles.filters}>
         <button
           className={`${styles.filterButton} ${filter === 'active' ? styles.active : ''}`}
           onClick={() => setFilter('active')}
         >
-          Active
+          进行中
         </button>
         <button
           className={`${styles.filterButton} ${filter === 'ended' ? styles.active : ''}`}
           onClick={() => setFilter('ended')}
         >
-          Ended
+          已结束
         </button>
         <button
           className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
           onClick={() => setFilter('all')}
         >
-          All
+          全部
         </button>
       </div>
 
@@ -47,7 +47,7 @@ export const AuctionHouse: React.FC = () => {
         ))}
       </div>
 
-      {filteredItems.length === 0 && <p className={styles.empty}>No auctions found</p>}
+      {filteredItems.length === 0 && <p className={styles.empty}>暂无竞拍</p>}
     </div>
   );
 };

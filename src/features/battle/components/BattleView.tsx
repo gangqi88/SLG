@@ -5,6 +5,8 @@ import { BattleScene } from '@/features/battle/scenes/BattleScene';
 import { Hero } from '@/features/hero/types/Hero';
 import { getBattleSceneAssetFeatures } from '@/shared/config/assets/sceneAssetFeatures';
 import { BattleMode } from '@/features/battle/types/battleMode';
+import { SceneHUD } from '@/shared/components/SceneHUD';
+import { useModal } from '@/shared/components/ModalProvider';
 
 interface BattleViewProps {
   attackerHeroes: Hero[];
@@ -20,6 +22,7 @@ const BattleView: React.FC<BattleViewProps> = ({
   onExit,
 }) => {
   const gameRef = useRef<Phaser.Game | null>(null);
+  const modal = useModal();
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -62,9 +65,41 @@ const BattleView: React.FC<BattleViewProps> = ({
   return (
     <div style={{ position: 'relative', width: '800px', height: '600px', margin: '0 auto' }}>
       <div id="phaser-container" />
-      <button onClick={onExit} style={{ position: 'absolute', top: 10, right: 10, zIndex: 100 }}>
-        Exit Battle
-      </button>
+      <SceneHUD
+        title="战斗"
+        left={[
+          { label: '我方', value: String(attackerHeroes.length) },
+          { label: '战力', value: String(attackerHeroes.length * 1000) },
+        ]}
+        right={[
+          { label: '敌方', value: String(defenderHeroes.length) },
+          { label: '战力', value: String(defenderHeroes.length * 1000) },
+        ]}
+        actions={[
+          {
+            key: 'auto',
+            label: '自动',
+            onClick: () => modal.openAlert({ title: '自动战斗', message: '自动战斗开关待接入。' }),
+          },
+          {
+            key: 'speed',
+            label: '加速',
+            onClick: () => modal.openAlert({ title: '战斗加速', message: '加速功能待接入。' }),
+          },
+          {
+            key: 'skills',
+            label: '技能',
+            variant: 'primary',
+            onClick: () => modal.openAlert({ title: '技能', message: '技能按钮与冷却待接入。' }),
+          },
+          {
+            key: 'result',
+            label: '结算',
+            onClick: () => modal.openAlert({ title: '结算', message: '战斗结算面板待接入。' }),
+          },
+        ]}
+        onExit={onExit}
+      />
     </div>
   );
 };

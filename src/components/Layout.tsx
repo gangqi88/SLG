@@ -102,7 +102,13 @@ const LayoutInner: React.FC = () => {
           onClick: () => modal.openAlert({ title: '好友', message: '好友系统界面待接入。' }),
           disabled: true,
         },
-        { key: 'welfare', label: '福利', icon: '🎁', onClick: () => navigate('/tasks') },
+        {
+          key: 'welfare',
+          label: '福利',
+          icon: '🎁',
+          badge: ui.taskClaimableCount,
+          onClick: () => navigate('/tasks'),
+        },
         {
           key: 'activity',
           label: '活动',

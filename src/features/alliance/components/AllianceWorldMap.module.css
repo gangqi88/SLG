@@ -1,0 +1,102 @@
+.wrap {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-panel);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 420px;
+}
+
+.header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--game-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--game-font-title-md);
+  font-weight: 900;
+  color: var(--game-title);
+}
+
+.hint {
+  color: var(--game-text-muted);
+  font-size: var(--game-font-caption);
+}
+
+.viewport {
+  position: relative;
+  flex: 1;
+  background: radial-gradient(circle at 30% 20%, rgba(33, 150, 243, 0.18), transparent 45%),
+    radial-gradient(circle at 70% 70%, rgba(244, 67, 54, 0.18), transparent 50%),
+    rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+}
+
+.city {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 2px solid rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-weight: 900;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.city:active {
+  transform: scale(0.92);
+  filter: brightness(1.08);
+}
+
+.cityName {
+  position: absolute;
+  top: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--game-text);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+
+.legend {
+  padding: 10px 14px;
+  border-top: 1px solid var(--game-border);
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--game-font-caption);
+  color: var(--game-text-muted);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+}
+

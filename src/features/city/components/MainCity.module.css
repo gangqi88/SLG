@@ -1,5 +1,5 @@
 .container {
-  padding: 20px;
+  padding: 0;
 }
 
 .loading {
@@ -13,8 +13,8 @@
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #3498db;
+  border: 3px solid rgba(255, 255, 255, 0.12);
+  border-top: 3px solid var(--game-title);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -29,39 +29,52 @@
 }
 
 .header {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: var(--game-font-title-lg);
+  font-weight: 900;
   margin: 0;
+  color: var(--game-title);
 }
 
 .content {
   display: grid;
   grid-template-columns: 1fr 300px;
-  gap: 20px;
+  gap: var(--game-gap);
 }
 
 .buildingsSection {
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 .sectionTitle {
-  font-size: 18px;
-  margin-bottom: 15px;
+  font-size: var(--game-font-title-md);
+  margin-bottom: 12px;
+  color: var(--game-title);
+  font-weight: 900;
 }
 
 .buildingsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 15px;
+  gap: var(--game-gap);
 }
 
 .sidebar {
-  background: rgb(20 20 20 / 70%);
-  padding: 15px;
-  border-radius: 8px;
-  border: 1px solid rgb(255 255 255 / 10%);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 12px;
+  border-radius: var(--game-radius-panel);
+  border: 1px solid var(--game-border);
+}
+
+@media (max-width: 900px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    order: 2;
+  }
 }
