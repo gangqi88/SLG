@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import AllianceManager from '@/features/alliance/logic/AllianceManager';
+import { WorldMap } from '@/features/alliance/logic/WorldMap';
 import {
   Alliance,
   AllianceMember,
@@ -99,6 +100,9 @@ export const useAlliance = (): UseAllianceReturn => {
       setTechList(manager.getTechInfo());
       setTechBonuses(manager.getTechBonuses());
       setCheckInStatus(manager.getCheckInStatus());
+      if (state.currentAlliance) {
+        WorldMap.bindSelfAlliance(state.currentAlliance.id, state.currentAlliance.name);
+      }
       setIsLoading(false);
     };
 

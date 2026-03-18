@@ -1,3 +1,5 @@
+import AllianceManager from '@/features/alliance/logic/AllianceManager';
+
 type Listener = () => void;
 
 export type CityDefenseState = {
@@ -22,8 +24,14 @@ export type WorldCity = {
 };
 
 const STORAGE_KEY = 'slg_world_map_v1';
+const STORAGE_VERSION = 2;
+
+export const NPC_ENEMY_ALLIANCE_ID = 'npc_enemy_1';
+const LEGACY_SELF_ALLIANCE_ID = 'a_self';
+const LEGACY_ENEMY_ALLIANCE_ID = 'a_enemy';
 
 type Persisted = {
+  version?: number;
   owners: Record<string, { ownerAllianceId: string | null; ownerAllianceName: string | null }>;
   defense?: Record<string, Partial<CityDefenseState>>;
 };
@@ -39,7 +47,7 @@ const baseCities: WorldCity[] = [
     defense: 520,
     defenseState: { max: 520, cur: 520, repairFromMs: null, repairToMs: null },
     production: { woodPerMin: 32, orePerMin: 18, coinPerMin: 40 },
-    ownerAllianceId: 'a_self',
+    ownerAllianceId: LEGACY_SELF_ALLIANCE_ID,
     ownerAllianceName: '本盟',
   },
   {
@@ -65,7 +73,7 @@ const baseCities: WorldCity[] = [
     defense: 760,
     defenseState: { max: 760, cur: 760, repairFromMs: null, repairToMs: null },
     production: { woodPerMin: 54, orePerMin: 30, coinPerMin: 72 },
-    ownerAllianceId: 'a_enemy',
+    ownerAllianceId: NPC_ENEMY_ALLIANCE_ID,
     ownerAllianceName: '敌盟',
   },
   {
@@ -91,7 +99,7 @@ const baseCities: WorldCity[] = [
     defense: 380,
     defenseState: { max: 380, cur: 380, repairFromMs: null, repairToMs: null },
     production: { woodPerMin: 20, orePerMin: 12, coinPerMin: 22 },
-    ownerAllianceId: 'a_self',
+    ownerAllianceId: LEGACY_SELF_ALLIANCE_ID,
     ownerAllianceName: '本盟',
   },
   {
@@ -104,7 +112,7 @@ const baseCities: WorldCity[] = [
     defense: 620,
     defenseState: { max: 620, cur: 620, repairFromMs: null, repairToMs: null },
     production: { woodPerMin: 40, orePerMin: 24, coinPerMin: 52 },
-    ownerAllianceId: 'a_enemy',
+    ownerAllianceId: NPC_ENEMY_ALLIANCE_ID,
     ownerAllianceName: '敌盟',
   },
 ];
@@ -143,6 +151,7 @@ class WorldMapStore {
     if (!raw) return;
     try {
       const parsed = JSON.parse(raw) as Persisted;
+      const alliance = AllianceManager.getInstance().getAlliance();
       const owners = parsed?.owners ?? {};
       const defense = parsed?.defense ?? {};
       this.cities = baseCities.map((c) => {
@@ -162,10 +171,23 @@ class WorldMapStore {
           defenseState.repairFromMs = typeof d.repairFromMs === 'number' ? d.repairFromMs : null;
           defenseState.repairToMs = typeof d.repairToMs === 'number' ? d.repairToMs : null;
         }
-        const ownerAllianceId = o ? (o.ownerAllianceId ?? null) : c.ownerAllianceId;
-        const ownerAllianceName = o ? (o.ownerAllianceName ?? null) : c.ownerAllianceName;
+        let ownerAllianceId = o ? (o.ownerAllianceId ?? null) : c.ownerAllianceId;
+        let ownerAllianceName = o ? (o.ownerAllianceName ?? null) : c.ownerAllianceName;
+
+        if (ownerAllianceId === LEGACY_ENEMY_ALLIANCE_ID) {
+          ownerAllianceId = NPC_ENEMY_ALLIANCE_ID;
+          ownerAllianceName = ownerAllianceName ?? '敌盟';
+        }
+        if (ownerAllianceId === LEGACY_SELF_ALLIANCE_ID && alliance) {
+          ownerAllianceId = alliance.id;
+          ownerAllianceName = alliance.name;
+        }
         return { ...c, ownerAllianceId, ownerAllianceName, defenseState };
       });
+
+      if ((parsed?.version ?? 1) < STORAGE_VERSION) {
+        this.save();
+      }
     } catch {
       return;
     }
@@ -179,7 +201,10 @@ class WorldMapStore {
       owners[c.id] = { ownerAllianceId: c.ownerAllianceId, ownerAllianceName: c.ownerAllianceName };
       defense[c.id] = c.defenseState;
     });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ owners, defense } satisfies Persisted));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ version: STORAGE_VERSION, owners, defense } satisfies Persisted),
+    );
   }
 
   getSnapshot() {
@@ -207,6 +232,19 @@ class WorldMapStore {
     const prev = this.cities[idx];
     const next: WorldCity = { ...prev, ownerAllianceId, ownerAllianceName };
     this.cities = [...this.cities.slice(0, idx), next, ...this.cities.slice(idx + 1)];
+    this.save();
+    this.emit();
+  }
+
+  bindSelfAlliance(allianceId: string, allianceName: string) {
+    let changed = false;
+    const next = this.cities.map((c) => {
+      if (c.ownerAllianceId !== LEGACY_SELF_ALLIANCE_ID) return c;
+      changed = true;
+      return { ...c, ownerAllianceId: allianceId, ownerAllianceName: allianceName };
+    });
+    if (!changed) return;
+    this.cities = next;
     this.save();
     this.emit();
   }

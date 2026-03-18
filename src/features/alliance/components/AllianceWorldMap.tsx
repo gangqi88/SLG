@@ -82,7 +82,7 @@ export const AllianceWorldMap: React.FC<{
 
   const openCity = (c: (typeof cities)[number]) => {
     const owner = c.ownerAllianceName || (c.ownerAllianceId ? '未知联盟' : '无主');
-    const isSelf = Boolean(currentAllianceId && (c.ownerAllianceId === currentAllianceId || c.ownerAllianceId === 'a_self'));
+    const isSelf = Boolean(currentAllianceId && c.ownerAllianceId === currentAllianceId);
     const isNeutral = !c.ownerAllianceId;
     const isWarTarget = Boolean(activeWar && activeWar.status !== 'finished' && activeWar.targetCityId === c.id);
     const statusLabel = isSelf ? '己方' : isNeutral ? '无主' : '敌方';
@@ -183,7 +183,7 @@ export const AllianceWorldMap: React.FC<{
 
   const cityNodes = useMemo(() => {
     return cities.map((c) => {
-      const isSelf = Boolean(currentAllianceId && (c.ownerAllianceId === currentAllianceId || c.ownerAllianceId === 'a_self'));
+      const isSelf = Boolean(currentAllianceId && c.ownerAllianceId === currentAllianceId);
       const isNeutral = !c.ownerAllianceId;
       const isWarTarget = Boolean(activeWar && activeWar.status !== 'finished' && activeWar.targetCityId === c.id);
       const status: CityStatus = isWarTarget ? 'war' : isSelf ? 'friendly' : isNeutral ? 'neutral' : 'enemy';

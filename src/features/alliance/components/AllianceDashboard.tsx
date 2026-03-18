@@ -327,7 +327,7 @@ export const AllianceDashboard: React.FC = () => {
               modal.openAlert({ title: '宣战失败', message: '未找到目标城池。' });
               return;
             }
-            if (city.ownerAllianceId === alliance?.id || city.ownerAllianceId === 'a_self') {
+            if (city.ownerAllianceId === alliance?.id) {
               modal.openAlert({ title: '提示', message: '无法对己方城池宣战。' });
               return;
             }
