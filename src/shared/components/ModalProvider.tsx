@@ -1,5 +1,6 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import styles from './Modal.module.css';
+import { useLocale } from '@/shared/locale/LocaleProvider';
 
 export type ModalAction = {
   key: string;
@@ -40,8 +41,20 @@ export const useModal = () => {
 
 export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [modal, setModal] = useState<ModalState | null>(null);
+  const { t } = useLocale();
 
   const close = useCallback(() => setModal(null), []);
+
+  useEffect(() => {
+    if (!modal) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [close, modal]);
 
   const openModal: ModalApi['openModal'] = useCallback(({ title, content, actions }) => {
     setModal({
@@ -53,13 +66,13 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           : [
               {
                 key: 'ok',
-                label: '知道了',
+                label: t('modalOk'),
                 variant: 'primary',
                 onClick: () => setModal(null),
               },
             ],
     });
-  }, []);
+  }, [t]);
 
   const openAlert: ModalApi['openAlert'] = useCallback(({ title, message, primaryText }) => {
     openModal({
@@ -68,13 +81,13 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       actions: [
         {
           key: 'ok',
-          label: primaryText ?? '知道了',
+          label: primaryText ?? t('modalOk'),
           variant: 'primary',
           onClick: () => setModal(null),
         },
       ],
     });
-  }, [openModal]);
+  }, [openModal, t]);
 
   const openConfirm: ModalApi['openConfirm'] = useCallback(
     ({ title, message, primaryText, secondaryText, onConfirm, onCancel }) => {
@@ -84,7 +97,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         actions: [
           {
             key: 'cancel',
-            label: secondaryText ?? '取消',
+            label: secondaryText ?? t('modalCancel'),
             variant: 'secondary',
             onClick: () => {
               setModal(null);
@@ -93,7 +106,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           },
           {
             key: 'confirm',
-            label: primaryText ?? '确定',
+            label: primaryText ?? t('modalConfirm'),
             variant: 'primary',
             onClick: () => {
               setModal(null);
@@ -103,7 +116,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         ],
       });
     },
-    [openModal],
+    [openModal, t],
   );
 
   const api = useMemo<ModalApi>(
