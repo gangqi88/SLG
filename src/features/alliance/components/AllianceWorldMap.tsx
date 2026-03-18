@@ -13,6 +13,13 @@ const statusColor = (s: CityStatus) => {
   return '#f44336';
 };
 
+const cityTypeLabel = (t: string) => {
+  if (t === 'capital') return '州府';
+  if (t === 'county') return '郡县';
+  if (t === 'fort') return '要塞';
+  return t;
+};
+
 export const AllianceWorldMap: React.FC<{
   onDeclareWar?: (cityId: string) => void;
   currentAllianceId?: string | null;
@@ -75,9 +82,13 @@ export const AllianceWorldMap: React.FC<{
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div>归属：{owner}</div>
-            <div>驻军：—</div>
-            <div>资源产出：—</div>
-            <div>防御等级：—</div>
+            <div>
+              类型：{cityTypeLabel(c.cityType)} · Lv.{c.level}
+            </div>
+            <div>城防：{c.defense}</div>
+            <div>
+              产出：木 {c.production.woodPerMin}/分 · 矿 {c.production.orePerMin}/分 · 金 {c.production.coinPerMin}/分
+            </div>
           </div>
         </div>
       ),

@@ -18,6 +18,7 @@ import { useSearchParams } from 'react-router-dom';
 import { WorldMap } from '@/features/alliance/logic/WorldMap';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import AllianceManager from '@/features/alliance/logic/AllianceManager';
+import { createSiegeDefenderProfile } from '@/features/battle/logic/siegeDefenders';
 
 interface SiegeViewProps {
   onExit: () => void;
@@ -40,6 +41,17 @@ const SiegeBattleGame: React.FC<{
   const [speed, setSpeed] = useState<1 | 2>(1);
   const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
   const [battleResult, setBattleResult] = useState<BattleResult | null>(null);
+  const city = useMemo(() => (targetCityId ? WorldMap.getCityById(targetCityId) : null), [targetCityId]);
+  const defenderProfile = useMemo(() => (city ? createSiegeDefenderProfile(city) : null), [city]);
+  const attackerAllianceRef = useRef(attackerAlliance);
+  const activeWarRef = useRef(activeWar);
+  const targetCityIdRef = useRef(targetCityId);
+
+  useEffect(() => {
+    attackerAllianceRef.current = attackerAlliance;
+    activeWarRef.current = activeWar;
+    targetCityIdRef.current = targetCityId;
+  }, [activeWar, attackerAlliance, targetCityId]);
   const team = useSyncExternalStore(
     (listener) => Team.subscribe(listener),
     () => Team.getSnapshot(),
@@ -47,7 +59,10 @@ const SiegeBattleGame: React.FC<{
   const attackerTeam = useMemo(() => getTeamHeroes(team.heroIds).slice(0, 5), [team.heroIds]);
 
   const attackerPower = useMemo(() => computeTeamPower(attackerTeam), [attackerTeam]);
-  const defenderPower = useMemo(() => computeTeamPower([WALL_HERO]), []);
+  const defenderPower = useMemo(() => {
+    if (defenderProfile) return computeTeamPower([defenderProfile.wall, ...defenderProfile.defenders]);
+    return computeTeamPower([WALL_HERO]);
+  }, [defenderProfile]);
 
   const report = useMemo<BattleReport>(() => {
     if (!battleResult) return { title: '攻城战', entries: [{ label: '状态', value: '战斗进行中', tone: 'normal' }] };
@@ -67,7 +82,10 @@ const SiegeBattleGame: React.FC<{
   }, [attackerPower, battleResult?.winner]);
 
   useEffect(() => {
-    if (gameRef.current) return;
+    if (gameRef.current) {
+      gameRef.current.destroy(true);
+      gameRef.current = null;
+    }
 
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
@@ -96,25 +114,32 @@ const SiegeBattleGame: React.FC<{
     // We can just stop and restart.
     setTimeout(() => {
       if (game.scene.getScene('SiegeBattleScene')) {
-        game.scene.start('SiegeBattleScene', { attackerHeroes: attackerTeam, battleId: battleIdRef.current });
+        game.scene.start('SiegeBattleScene', {
+          attackerHeroes: attackerTeam,
+          battleId: battleIdRef.current,
+          defenderProfile: defenderProfile ?? undefined,
+        });
       }
     }, 100);
 
     const onBattleEnd = (result: BattleResult) => {
       setBattleResult(result);
       BattleHistory.add(result);
-      if (targetCityId && attackerAlliance) {
+      const cityId = targetCityIdRef.current;
+      const aa = attackerAllianceRef.current;
+      const war = activeWarRef.current;
+      if (cityId && aa) {
         if (result.winner === 'attacker') {
-          WorldMap.setOwner(targetCityId, attackerAlliance.id, attackerAlliance.name);
+          WorldMap.setOwner(cityId, aa.id, aa.name);
         }
-        if (activeWar && activeWar.targetCityId === targetCityId && activeWar.status !== 'finished') {
+        if (war && war.targetCityId === cityId && war.status !== 'finished') {
           const winnerId =
             result.winner === 'attacker'
-              ? attackerAlliance.id
+              ? aa.id
               : result.winner === 'defender'
-                ? activeWar.defenderId
+                ? war.defenderId
                 : null;
-          AllianceManager.getInstance().finishWarBySiege({ targetCityId, winnerId });
+          AllianceManager.getInstance().finishWarBySiege({ targetCityId: cityId, winnerId });
         }
       }
     };
@@ -125,7 +150,7 @@ const SiegeBattleGame: React.FC<{
       game.destroy(true);
       gameRef.current = null;
     };
-  }, [activeWar, attackerAlliance, attackerTeam, auto, speed, targetCityId]);
+  }, [attackerTeam, defenderProfile]);
 
   useEffect(() => {
     const game = gameRef.current;
@@ -169,7 +194,7 @@ const SiegeBattleGame: React.FC<{
             { label: '战力', value: String(attackerPower) },
           ]}
           right={[
-            { label: '目标', value: targetCityName || '城墙' },
+            { label: '目标', value: defenderProfile?.cityName || targetCityName || '城墙' },
             { label: '战力', value: String(defenderPower) },
           ]}
           actions={[

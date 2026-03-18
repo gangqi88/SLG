@@ -13,6 +13,7 @@ import {
   type BattleResult,
   type BattleStatsAccumulator,
 } from '@/shared/logic/battleResult';
+import type { SiegeDefenderProfile } from '@/features/battle/logic/siegeDefenders';
 
 export class SiegeBattleScene extends Phaser.Scene {
   private battleSystem!: BattleSystem;
@@ -25,6 +26,7 @@ export class SiegeBattleScene extends Phaser.Scene {
   private battleId: string = '';
   private attackerNames: string[] = [];
   private defenderNames: string[] = [];
+  private defenderProfile?: SiegeDefenderProfile;
   private endEmitted: boolean = false;
   private sideByUnitId: Map<string, 'attacker' | 'defender'> = new Map();
   private heroIdByUnitId: Map<string, string> = new Map();
@@ -57,13 +59,15 @@ export class SiegeBattleScene extends Phaser.Scene {
     super('SiegeBattleScene');
   }
 
-  init(data: { attackerHeroes: Hero[]; battleId?: string }) {
+  init(data: { attackerHeroes: Hero[]; battleId?: string; defenderProfile?: SiegeDefenderProfile }) {
     // Phase 1: Attackers vs Wall
-    this.battleSystem = new BattleSystem(data.attackerHeroes, [WALL_HERO]);
+    this.defenderProfile = data.defenderProfile;
+    const wall = data.defenderProfile?.wall ?? WALL_HERO;
+    this.battleSystem = new BattleSystem(data.attackerHeroes, [wall]);
     this.wallBroken = false;
     this.battleId = data.battleId ?? '';
     this.attackerNames = data.attackerHeroes.map((h) => h.name);
-    this.defenderNames = ['城墙'];
+    this.defenderNames = [wall.name];
     this.endEmitted = false;
     this.sideByUnitId = new Map();
     this.heroIdByUnitId = new Map();
@@ -392,7 +396,9 @@ export class SiegeBattleScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     // Spawn Defenders
-    STREET_FIGHT_DEFENDERS.forEach((hero) => {
+    const nextDefenders = this.defenderProfile?.defenders ?? STREET_FIGHT_DEFENDERS;
+    this.defenderNames = [this.defenderNames[0], ...nextDefenders.map((h) => h.name)];
+    nextDefenders.forEach((hero) => {
       this.battleSystem.addUnit(hero, 'defender');
       // We need to find the newly added unit to create visual
       // The new unit is the last one in units array
