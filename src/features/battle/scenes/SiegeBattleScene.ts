@@ -242,13 +242,58 @@ export class SiegeBattleScene extends Phaser.Scene {
   }
 
   private handleSkillEvent(_event: BattleEvent) {
-    // Simplified
-    this.isProcessingEvent = false;
+    const event = _event;
+    const source = this.visualUnits.get(event.sourceId!);
+    const target = this.visualUnits.get(event.targetId!);
+
+    if (source && target) {
+      this.effectManager.playEffect(target.getPosition(), source.getPosition(), event.skillId || 'skill');
+      const settings = this.getBattleSettings();
+      this.time.delayedCall(240 / settings.speed, () => {
+        target.playHit();
+        this.effectManager.playFloatingText(
+          target.container.x,
+          target.container.y,
+          `-${event.value} (Skill)`,
+          '#ff00ff',
+        );
+        const unit = this.battleSystem.units.find((u) => u.uniqueId === event.targetId);
+        if (unit) {
+          const visual = this.visualUnits.get(unit.uniqueId);
+          if (visual) visual.updateHp(unit.currentHp, unit.maxHp);
+        }
+        this.isProcessingEvent = false;
+      });
+    } else {
+      this.isProcessingEvent = false;
+    }
   }
 
   private handleHealEvent(_event: BattleEvent) {
-    // Simplified
-    this.isProcessingEvent = false;
+    const event = _event;
+    const source = this.visualUnits.get(event.sourceId!);
+    const target = this.visualUnits.get(event.targetId!);
+
+    if (source && target) {
+      this.effectManager.playEffect(target.getPosition(), source.getPosition(), 'heal');
+      const settings = this.getBattleSettings();
+      this.time.delayedCall(180 / settings.speed, () => {
+        this.effectManager.playFloatingText(
+          target.container.x,
+          target.container.y,
+          `+${event.value}`,
+          '#00ff00',
+        );
+        const unit = this.battleSystem.units.find((u) => u.uniqueId === event.targetId);
+        if (unit) {
+          const visual = this.visualUnits.get(unit.uniqueId);
+          if (visual) visual.updateHp(unit.currentHp, unit.maxHp);
+        }
+        this.isProcessingEvent = false;
+      });
+    } else {
+      this.isProcessingEvent = false;
+    }
   }
 
   private handleDeathEvent(event: BattleEvent) {
