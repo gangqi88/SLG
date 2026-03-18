@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { TestOnlyWorldMap } from '@/features/alliance/tests/TestOnlyWorldMap';
 
 const STORAGE_KEY = 'slg_world_map_v1';
 
@@ -22,7 +23,7 @@ describe('WorldMap migration', () => {
     });
 
     const { WorldMap } = await import('@/features/alliance/logic/WorldMap');
-    WorldMap.ensureMigrated();
+    TestOnlyWorldMap.ensureMigrated();
 
     const raw = localStorage.getItem(STORAGE_KEY);
     expect(raw).toBeTruthy();
@@ -37,7 +38,7 @@ describe('WorldMap migration', () => {
       },
     });
     const { WorldMap } = await import('@/features/alliance/logic/WorldMap');
-    WorldMap.ensureMigrated();
+    TestOnlyWorldMap.ensureMigrated();
     const city = WorldMap.getCityById('c3');
     expect(city?.ownerAllianceId).toBe('npc_enemy_1');
     expect(city?.ownerAllianceName).toBeTruthy();
@@ -46,7 +47,7 @@ describe('WorldMap migration', () => {
   it('keeps null owner and writes version', async () => {
     setStorage({ owners: { c2: { ownerAllianceId: null, ownerAllianceName: null } } });
     const { WorldMap } = await import('@/features/alliance/logic/WorldMap');
-    WorldMap.ensureMigrated();
+    TestOnlyWorldMap.ensureMigrated();
     const city = WorldMap.getCityById('c2');
     expect(city?.ownerAllianceId).toBeNull();
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) as string) as { version?: number };

@@ -43,6 +43,7 @@ describe('alliance string policy', () => {
         expect(txt, `${path.relative(process.cwd(), file)} contains forbidden literal ${re}`).not.toMatch(re);
       });
       expect(txt, `${path.relative(process.cwd(), file)} imports legacyAllianceIds`).not.toMatch(/legacyAllianceIds/);
+      expect(txt, `${path.relative(process.cwd(), file)} imports TestOnlyWorldMap`).not.toMatch(/TestOnlyWorldMap/);
     }
   });
 });

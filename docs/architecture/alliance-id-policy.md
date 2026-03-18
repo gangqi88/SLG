@@ -22,10 +22,11 @@
 
 - 历史占位 ID（例如 `a_self/a_enemy`）不允许出现在生产运行时代码
 - 若需要在测试阶段覆盖历史数据迁移场景，使用 `src/features/alliance/tests/legacyAllianceIds.ts` 的测试专用常量
+- 测试触发迁移加载通过 `src/features/alliance/tests/TestOnlyWorldMap.ts`，生产代码不得引用该模块
 
 ## 验证
 
 - 单元测试：
   - `npcAlliances.test.ts`：覆盖字典访问接口
   - `allianceStringPolicy.test.ts`：静态扫描，确保运行时代码不存在 legacy/NPC 字面量
-
+  - `WorldMap.api.test.ts`：确保生产 API 不暴露测试触发接口

@@ -187,10 +187,6 @@ class WorldMapStore {
     }
   }
 
-  ensureMigrated() {
-    this.load();
-  }
-
   private save() {
     if (typeof localStorage === 'undefined') return;
     const owners: Persisted['owners'] = {};
