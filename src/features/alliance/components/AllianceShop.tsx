@@ -2,17 +2,17 @@ import React from 'react';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import styles from './AllianceShop.module.css';
 import { useModal } from '@/shared/components/ModalProvider';
+import { useNavigate } from 'react-router-dom';
+import { openContributionWays } from '@/shared/logic/openContributionWays';
 
 export const AllianceShop: React.FC = () => {
   const { shopItems, playerContribution, buyShopItem } = useAlliance();
   const modal = useModal();
+  const navigate = useNavigate();
 
   const handleBuy = async (itemId: string, price: number) => {
     if (playerContribution < price) {
-      modal.openAlert({
-        title: '贡献不足',
-        message: '贡献不足。可通过签到、攻城、联盟任务等途径获取（部分待接入）。',
-      });
+      openContributionWays({ modal, navigate });
       return;
     }
     const success = await buyShopItem(itemId);

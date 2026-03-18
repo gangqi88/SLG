@@ -2,9 +2,13 @@ import React, { useState } from 'react';
 import { GachaManager, GachaResult } from '@/features/gacha/logic/GachaManager';
 import { Quality } from '@/features/hero/types/Hero';
 import { useModal } from '@/shared/components/ModalProvider';
+import { PlayerResources } from '@/shared/logic/PlayerResources';
+import { useNavigate } from 'react-router-dom';
+import { openResourceWays } from '@/shared/logic/openResourceWays';
 
 const GachaView: React.FC = () => {
   const modal = useModal();
+  const navigate = useNavigate();
   const [manager] = useState<GachaManager>(() => {
     const globalWindow = window as Window & { _gachaManager?: GachaManager };
     if (!globalWindow._gachaManager) {
@@ -25,9 +29,20 @@ const GachaView: React.FC = () => {
     // Simulate network/animation delay
     setTimeout(() => {
       try {
+        const pool = pools.find((p) => p.id === poolId);
+        const cost = pool ? pool.cost.amount * count : 0;
+        const canSpend = PlayerResources.spend('gem', cost);
+        if (!canSpend) {
+          openResourceWays({ modal, navigate, resourceKey: 'gem', title: '元宝不足' });
+          setIsDrawing(false);
+          return;
+        }
         const res = manager.draw(poolId, count);
         setResults(res);
       } catch (error) {
+        const pool = pools.find((p) => p.id === poolId);
+        const cost = pool ? pool.cost.amount * count : 0;
+        if (cost > 0) PlayerResources.add('gem', cost);
         modal.openAlert({
           title: '招募失败',
           message: error instanceof Error ? error.message : String(error),
