@@ -11,10 +11,9 @@ describe('WorldMap migration', () => {
     localStorage.clear();
   });
 
-  it('migrates legacy a_enemy to npc_enemy_1 and writes version', async () => {
+  it('writes version on load', async () => {
     setStorage({
       owners: {
-        c3: { ownerAllianceId: 'a_enemy', ownerAllianceName: '敌盟' },
         c1: { ownerAllianceId: null, ownerAllianceName: null },
       },
       defense: {
@@ -22,15 +21,26 @@ describe('WorldMap migration', () => {
       },
     });
 
-    const { WorldMap, NPC_ENEMY_ALLIANCE_ID } = await import('@/features/alliance/logic/WorldMap');
+    const { WorldMap } = await import('@/features/alliance/logic/WorldMap');
     WorldMap.ensureMigrated();
-    const city = WorldMap.getCityById('c3');
-    expect(city?.ownerAllianceId).toBe(NPC_ENEMY_ALLIANCE_ID);
 
     const raw = localStorage.getItem(STORAGE_KEY);
     expect(raw).toBeTruthy();
     const parsed = JSON.parse(raw as string) as { version?: number; owners: unknown };
     expect(parsed.version).toBe(2);
+  });
+
+  it('normalizes npc owner name', async () => {
+    setStorage({
+      owners: {
+        c3: { ownerAllianceId: 'npc_enemy_1', ownerAllianceName: null },
+      },
+    });
+    const { WorldMap } = await import('@/features/alliance/logic/WorldMap');
+    WorldMap.ensureMigrated();
+    const city = WorldMap.getCityById('c3');
+    expect(city?.ownerAllianceId).toBe('npc_enemy_1');
+    expect(city?.ownerAllianceName).toBeTruthy();
   });
 
   it('keeps null owner and writes version', async () => {
