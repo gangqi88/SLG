@@ -14,7 +14,8 @@ import styles from './AllianceDashboard.module.css';
 import { useModal } from '@/shared/components/ModalProvider';
 import { useNavigate } from 'react-router-dom';
 import { formatRemaining } from '@/shared/logic/time';
-import { allHeroes } from '@/features/hero/data/heroes';
+import { Team } from '@/shared/logic/Team';
+import { TeamEditor } from '@/shared/components/TeamEditor';
 
 type TabType = 'info' | 'members' | 'checkin' | 'chat' | 'shop' | 'trade' | 'tech' | 'war' | 'ad';
 
@@ -207,34 +208,11 @@ export const AllianceDashboard: React.FC = () => {
   }, []);
 
   const openRally = () => {
-    const defaultTeam = allHeroes.slice(0, 5).map((h) => h.name);
     modal.openModal({
       title: '集结队伍',
       content: (
         <div>
-          <div style={{ color: 'var(--game-text-muted)', marginBottom: 10 }}>
-            队伍配置（最多 5 人）待接入真实编队与上阵逻辑。
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {defaultTeam.map((n) => (
-              <div
-                key={n}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  padding: '8px 10px',
-                  borderRadius: 12,
-                  border: '1px solid rgba(58,58,90,0.7)',
-                  background: 'rgba(0,0,0,0.16)',
-                }}
-              >
-                <span>{n}</span>
-                <span style={{ color: 'var(--game-text-muted)', fontFamily: 'var(--game-font-mono)' }}>
-                  已上阵
-                </span>
-              </div>
-            ))}
-          </div>
+          <TeamEditor />
         </div>
       ),
       actions: [

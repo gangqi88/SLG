@@ -1,10 +1,10 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import Phaser from 'phaser';
 import { SiegeManager, SiegePhase } from '@/features/battle/logic/SiegeManager';
 import { SneakAttackScene } from '@/features/battle/scenes/SneakAttackScene';
 import { DemolitionScene } from '@/features/battle/scenes/DemolitionScene';
 import { SiegeBattleScene } from '@/features/battle/scenes/SiegeBattleScene';
-import { HUMAN_HEROES } from '@/features/hero/data/humanHeroes';
+import { Team, getTeamHeroes } from '@/shared/logic/Team';
 import { SceneHUD } from '@/shared/components/SceneHUD';
 import { useModal } from '@/shared/components/ModalProvider';
 import { BattleReportView, createMockBattleReport } from '@/shared/logic/battleReports';
@@ -21,6 +21,11 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const gameRef = useRef<Phaser.Game | null>(null);
   const modal = useModal();
   const claimKeyRef = useRef<string>(newClaimKey('siege'));
+  const team = useSyncExternalStore(
+    (listener) => Team.subscribe(listener),
+    () => Team.getSnapshot(),
+  );
+  const attackerTeam = useMemo(() => getTeamHeroes(team.heroIds).slice(0, 5), [team.heroIds]);
 
   const report = useMemo(
     () => createMockBattleReport({ title: '攻城战', attacker: '本盟', defender: '敌盟' }),
@@ -61,7 +66,7 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     // We can just stop and restart.
     setTimeout(() => {
       if (game.scene.getScene('SiegeBattleScene')) {
-        game.scene.start('SiegeBattleScene', { attackerHeroes: HUMAN_HEROES });
+        game.scene.start('SiegeBattleScene', { attackerHeroes: attackerTeam });
       }
     }, 100);
 
@@ -69,7 +74,7 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
       game.destroy(true);
       gameRef.current = null;
     };
-  }, []);
+  }, [attackerTeam]);
 
   return (
     <div

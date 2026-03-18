@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import Phaser from 'phaser';
 import { PreloadScene } from '@/shared/scenes/PreloadScene';
 import { GatheringScene } from '@/features/resource/scenes/GatheringScene';
@@ -7,6 +7,8 @@ import { SceneHUD } from '@/shared/components/SceneHUD';
 import { useModal } from '@/shared/components/ModalProvider';
 import { formatRemaining } from '@/shared/logic/time';
 import { applyRewards, type Reward } from '@/shared/logic/rewards';
+import { Team } from '@/shared/logic/Team';
+import { TeamEditor } from '@/shared/components/TeamEditor';
 
 interface GatheringViewProps {
   onExit: () => void;
@@ -15,6 +17,10 @@ interface GatheringViewProps {
 const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
   const gameRef = useRef<Phaser.Game | null>(null);
   const modal = useModal();
+  const team = useSyncExternalStore(
+    (listener) => Team.subscribe(listener),
+    () => Team.getSnapshot(),
+  );
   const startRef = useRef<number>(Date.now());
   const [tick, setTick] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -122,7 +128,7 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
       <SceneHUD
         title="资源采集"
         left={[
-          { label: '队伍', value: '≤5' },
+          { label: '队伍', value: `${team.heroIds.length}/${team.maxSize}` },
           { label: '时长', value: sessionLabel },
         ]}
         right={[{ label: '进度', value: `${progress}%` }]}
@@ -131,7 +137,12 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
             key: 'team',
             label: '队伍',
             variant: 'primary',
-            onClick: () => modal.openAlert({ title: '队伍配置', message: '队伍配置面板待接入。' }),
+            onClick: () =>
+              modal.openModal({
+                title: '队伍配置',
+                content: <TeamEditor />,
+                actions: [{ key: 'close', label: '关闭', variant: 'primary', onClick: () => modal.close() }],
+              }),
           },
           {
             key: 'offline',
