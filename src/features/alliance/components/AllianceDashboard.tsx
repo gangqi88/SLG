@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import { AllianceInfoPanel } from './AllianceInfoPanel';
 import { AllianceMemberList } from './AllianceMemberList';
@@ -12,6 +12,9 @@ import { AllianceAd } from './AllianceAd';
 import { AllianceWorldMap } from './AllianceWorldMap';
 import styles from './AllianceDashboard.module.css';
 import { useModal } from '@/shared/components/ModalProvider';
+import { useNavigate } from 'react-router-dom';
+import { formatRemaining } from '@/shared/logic/time';
+import { allHeroes } from '@/features/hero/data/heroes';
 
 type TabType = 'info' | 'members' | 'checkin' | 'chat' | 'shop' | 'trade' | 'tech' | 'war' | 'ad';
 
@@ -27,14 +30,17 @@ export const AllianceDashboard: React.FC = () => {
     playerRole,
     playerContribution,
     declareWar,
+    activeWar,
   } = useAlliance();
 
   const modal = useModal();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>('info');
   const [createName, setCreateName] = useState('');
   const [joinId, setJoinId] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
+  const [tick, setTick] = useState(0);
 
   const handleCreate = async () => {
     if (!createName.trim()) return;
@@ -195,6 +201,57 @@ export const AllianceDashboard: React.FC = () => {
     });
   };
 
+  useEffect(() => {
+    const t = setInterval(() => setTick((v) => v + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const openRally = () => {
+    const defaultTeam = allHeroes.slice(0, 5).map((h) => h.name);
+    modal.openModal({
+      title: '集结队伍',
+      content: (
+        <div>
+          <div style={{ color: 'var(--game-text-muted)', marginBottom: 10 }}>
+            队伍配置（最多 5 人）待接入真实编队与上阵逻辑。
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {defaultTeam.map((n) => (
+              <div
+                key={n}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '8px 10px',
+                  borderRadius: 12,
+                  border: '1px solid rgba(58,58,90,0.7)',
+                  background: 'rgba(0,0,0,0.16)',
+                }}
+              >
+                <span>{n}</span>
+                <span style={{ color: 'var(--game-text-muted)', fontFamily: 'var(--game-font-mono)' }}>
+                  已上阵
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ),
+      actions: [
+        { key: 'close', label: '关闭', variant: 'secondary', onClick: () => modal.close() },
+        {
+          key: 'go',
+          label: '前往攻城战',
+          variant: 'primary',
+          onClick: () => {
+            modal.close();
+            navigate('/siege');
+          },
+        },
+      ],
+    });
+  };
+
   return (
     <div className={styles.dashboard}>
       <div className={styles.topGrid}>
@@ -233,6 +290,35 @@ export const AllianceDashboard: React.FC = () => {
             </button>
           </div>
 
+          {activeWar && (
+            <div style={{ marginTop: 12 }}>
+              <div style={{ color: 'var(--game-title)', fontWeight: 900, marginBottom: 8 }}>
+                宣战状态
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                <div className={styles.metaItem}>目标：{activeWar.defenderName}</div>
+                <div className={styles.metaItem}>
+                  倒计时：{formatRemaining(activeWar.endTime - Date.now())}
+                </div>
+                <div className={styles.metaItem}>阶段：{activeWar.status === 'active' ? '进行中' : '准备中'}</div>
+              </div>
+              <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+                <button type="button" className={styles.entryBtn} onClick={openRally}>
+                  集结队伍
+                </button>
+                <button
+                  type="button"
+                  className={styles.entryBtn}
+                  onClick={() => {
+                    navigate('/siege');
+                  }}
+                >
+                  前往攻城
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className={styles.content}>{renderContent()}</div>
         </div>
 
@@ -248,7 +334,34 @@ export const AllianceDashboard: React.FC = () => {
               primaryText: '确认',
               secondaryText: '取消',
               onConfirm: async () => {
-                await declareWar('mock_target_alliance');
+                const war = await declareWar('mock_target_alliance');
+                if (war) {
+                  modal.openModal({
+                    title: '宣战成功',
+                    content: (
+                      <div>
+                        <div style={{ marginBottom: 8 }}>已对敌方联盟发起宣战。</div>
+                        <div style={{ color: 'var(--game-text-muted)' }}>
+                          剩余时间：{formatRemaining(war.endTime - Date.now())}
+                        </div>
+                      </div>
+                    ),
+                    actions: [
+                      { key: 'close', label: '关闭', variant: 'secondary', onClick: () => modal.close() },
+                      {
+                        key: 'rally',
+                        label: '集结队伍',
+                        variant: 'primary',
+                        onClick: () => {
+                          modal.close();
+                          openRally();
+                        },
+                      },
+                    ],
+                  });
+                } else {
+                  modal.openAlert({ title: '宣战失败', message: '当前无法宣战，请稍后再试。' });
+                }
               },
             });
           }}

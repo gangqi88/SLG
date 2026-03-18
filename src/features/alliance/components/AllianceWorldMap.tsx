@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import styles from './AllianceWorldMap.module.css';
 import { useModal } from '@/shared/components/ModalProvider';
+import { BattleReportView, createMockBattleReport } from '@/shared/logic/battleReports';
 
 type CityStatus = 'friendly' | 'neutral' | 'enemy';
 
@@ -92,7 +93,15 @@ export const AllianceWorldMap: React.FC<{
           label: '战报',
           variant: 'secondary',
           onClick: () => {
-            modal.openAlert({ title: '战报', message: '战报弹窗待接入。' });
+            modal.openModal({
+              title: '战报',
+              content: (
+                <BattleReportView
+                  report={createMockBattleReport({ title: c.name, attacker: '本盟', defender: '敌盟' })}
+                />
+              ),
+              actions: [{ key: 'close', label: '关闭', variant: 'primary', onClick: () => modal.close() }],
+            });
           },
         },
         {

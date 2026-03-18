@@ -7,6 +7,7 @@ import { getBattleSceneAssetFeatures } from '@/shared/config/assets/sceneAssetFe
 import { BattleMode } from '@/features/battle/types/battleMode';
 import { SceneHUD } from '@/shared/components/SceneHUD';
 import { useModal } from '@/shared/components/ModalProvider';
+import { BattleReportView, createMockBattleReport } from '@/shared/logic/battleReports';
 
 interface BattleViewProps {
   attackerHeroes: Hero[];
@@ -95,7 +96,20 @@ const BattleView: React.FC<BattleViewProps> = ({
           {
             key: 'result',
             label: '结算',
-            onClick: () => modal.openAlert({ title: '结算', message: '战斗结算面板待接入。' }),
+            onClick: () =>
+              modal.openModal({
+                title: '战报',
+                content: (
+                  <BattleReportView
+                    report={createMockBattleReport({
+                      title: battleMode,
+                      attacker: `我方(${attackerHeroes.length})`,
+                      defender: `敌方(${defenderHeroes.length})`,
+                    })}
+                  />
+                ),
+                actions: [{ key: 'close', label: '关闭', variant: 'primary', onClick: () => modal.close() }],
+              }),
           },
         ]}
         onExit={onExit}
