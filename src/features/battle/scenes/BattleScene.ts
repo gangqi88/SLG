@@ -122,6 +122,15 @@ export class BattleScene extends Phaser.Scene {
 
       // Update Logic
       this.battleSystem.update(dt);
+      const cooldowns: Record<string, number> = {};
+      this.battleSystem.units.forEach((u) => {
+        if (u.side !== 'attacker' || u.isDead) return;
+        const sid = u.activeSkill?.id;
+        if (!sid) return;
+        const cd = u.cooldowns[sid] || 0;
+        cooldowns[u.id] = Math.max(0, cd);
+      });
+      this.registry.set('battleCooldowns', cooldowns);
 
       // Sync positions
       this.battleSystem.units.forEach((unit) => {

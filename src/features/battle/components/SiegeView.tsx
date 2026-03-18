@@ -26,6 +26,7 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const claimKeyRef = useRef<string>(newClaimKey('siege'));
   const [auto, setAuto] = useState(true);
   const [speed, setSpeed] = useState<1 | 2>(1);
+  const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
   const team = useSyncExternalStore(
     (listener) => Team.subscribe(listener),
     () => Team.getSnapshot(),
@@ -106,6 +107,16 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     game.registry.set('battleSettings', { auto, speed });
   }, [auto, speed]);
 
+  useEffect(() => {
+    const t = setInterval(() => {
+      const game = gameRef.current;
+      if (!game) return;
+      const next = (game.registry.get('battleCooldowns') as Record<string, number> | undefined) ?? {};
+      setCooldowns(next);
+    }, 200);
+    return () => clearInterval(t);
+  }, []);
+
   return (
     <div
       style={{
@@ -155,9 +166,13 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                   title: '技能',
                   content: (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      {attackerTeam.map((h) => (
-                        <div
-                          key={h.id}
+                      {attackerTeam.map((h) => {
+                        const cd = cooldowns[h.id] ?? 0;
+                        const cdText = cd > 0 ? ` · 冷却 ${cd.toFixed(1)}s` : '';
+                        const canCast = !auto && cd <= 0;
+                        return (
+                          <div
+                            key={h.id}
                           style={{
                             display: 'grid',
                             gridTemplateColumns: 'minmax(0, 1fr) auto',
@@ -174,11 +189,12 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                             <div style={{ color: 'var(--game-text-muted)', fontFamily: 'var(--game-font-mono)', fontSize: 12 }}>
                               {h.activeSkill.name}
                               {h.activeSkill.cooldown ? ` · CD ${h.activeSkill.cooldown}s` : ''}
+                              {cdText}
                             </div>
                           </div>
                           <button
                             type="button"
-                            disabled={auto}
+                            disabled={!canCast}
                             onClick={() => {
                               const game = gameRef.current;
                               if (!game) return;
@@ -189,22 +205,23 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                               game.registry.set('battleCommands', next);
                               modal.close();
                             }}
-                            title={auto ? '关闭自动后可手动施放' : '施放技能'}
+                            title={auto ? '关闭自动后可手动施放' : cd > 0 ? '冷却中' : '施放技能'}
                             style={{
                               height: 36,
                               borderRadius: 10,
                               border: '1px solid rgba(0,0,0,0.2)',
-                              background: auto ? 'rgba(255,255,255,0.06)' : 'var(--game-btn-info)',
+                              background: canCast ? 'var(--game-btn-info)' : 'rgba(255,255,255,0.06)',
                               color: 'var(--game-text)',
                               fontWeight: 900,
                               padding: '0 10px',
-                              opacity: auto ? 0.6 : 1,
+                              opacity: canCast ? 1 : 0.6,
                             }}
                           >
                             施放
                           </button>
                         </div>
-                      ))}
+                        );
+                      })}
                       <div style={{ color: 'var(--game-text-muted)', fontSize: 12 }}>
                         关闭自动后可手动施放（当前仅影响逻辑层技能事件与伤害）。
                       </div>

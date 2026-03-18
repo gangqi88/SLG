@@ -26,6 +26,8 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
   const startRef = useRef<number>(Date.now());
   const [tick, setTick] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [sessionGain, setSessionGain] = useState({ wood: 0, ore: 0 });
+  const remainderRef = useRef({ wood: 0, ore: 0 });
 
   const teamHeroes = useMemo(() => getTeamHeroes(team.heroIds), [team.heroIds]);
   const rates = useMemo(() => computeGatherRates(teamHeroes), [teamHeroes]);
@@ -87,9 +89,22 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
         const next = p + rates.progressPerSec;
         return next >= 100 ? 0 : next;
       });
+
+      const addWoodFloat = remainderRef.current.wood + rates.woodPerMin / 60;
+      const addOreFloat = remainderRef.current.ore + rates.orePerMin / 60;
+      const addWood = Math.floor(addWoodFloat);
+      const addOre = Math.floor(addOreFloat);
+      remainderRef.current = { wood: addWoodFloat - addWood, ore: addOreFloat - addOre };
+      if (addWood > 0 || addOre > 0) {
+        applyRewards([
+          ...(addWood > 0 ? ([{ type: 'resource', id: 'wood', amount: addWood }] as const) : []),
+          ...(addOre > 0 ? ([{ type: 'resource', id: 'ore', amount: addOre }] as const) : []),
+        ]);
+        setSessionGain((g) => ({ wood: g.wood + addWood, ore: g.ore + addOre }));
+      }
     }, 1000);
     return () => clearInterval(t);
-  }, [rates.progressPerSec]);
+  }, [rates.orePerMin, rates.progressPerSec, rates.woodPerMin]);
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -143,6 +158,7 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
           { label: '进度', value: `${Math.floor(progress)}%` },
           { label: '木材', value: `${rates.woodPerMin}/分` },
           { label: '矿石', value: `${rates.orePerMin}/分` },
+          { label: '本次', value: `+${sessionGain.wood}/+${sessionGain.ore}` },
         ]}
         actions={[
           {

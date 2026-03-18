@@ -31,6 +31,7 @@ const BattleView: React.FC<BattleViewProps> = ({
   const claimKeyRef = useRef<string>(newClaimKey('battle'));
   const [auto, setAuto] = useState(true);
   const [speed, setSpeed] = useState<1 | 2>(1);
+  const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
 
   const sim = useMemo(() => simulateBattle(attackerHeroes, defenderHeroes), [attackerHeroes, defenderHeroes]);
   const attackerPower = useMemo(() => computeTeamPower(attackerHeroes), [attackerHeroes]);
@@ -110,6 +111,16 @@ const BattleView: React.FC<BattleViewProps> = ({
     game.registry.set('battleSettings', { auto, speed });
   }, [auto, speed]);
 
+  useEffect(() => {
+    const t = setInterval(() => {
+      const game = gameRef.current;
+      if (!game) return;
+      const next = (game.registry.get('battleCooldowns') as Record<string, number> | undefined) ?? {};
+      setCooldowns(next);
+    }, 200);
+    return () => clearInterval(t);
+  }, []);
+
   return (
     <div style={{ position: 'relative', width: '800px', height: '600px', margin: '0 auto' }}>
       <div id="phaser-container" />
@@ -143,7 +154,11 @@ const BattleView: React.FC<BattleViewProps> = ({
                 title: '技能',
                 content: (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {attackerHeroes.map((h) => (
+                    {attackerHeroes.map((h) => {
+                      const cd = cooldowns[h.id] ?? 0;
+                      const cdText = cd > 0 ? ` · 冷却 ${cd.toFixed(1)}s` : '';
+                      const canCast = !auto && cd <= 0;
+                      return (
                       <div
                         key={h.id}
                         style={{
@@ -162,11 +177,12 @@ const BattleView: React.FC<BattleViewProps> = ({
                           <div style={{ color: 'var(--game-text-muted)', fontFamily: 'var(--game-font-mono)', fontSize: 12 }}>
                             {h.activeSkill.name}
                             {h.activeSkill.cooldown ? ` · CD ${h.activeSkill.cooldown}s` : ''}
+                            {cdText}
                           </div>
                         </div>
                         <button
                           type="button"
-                          disabled={auto}
+                          disabled={!canCast}
                           onClick={() => {
                             const game = gameRef.current;
                             if (!game) return;
@@ -177,22 +193,23 @@ const BattleView: React.FC<BattleViewProps> = ({
                             game.registry.set('battleCommands', next);
                             modal.close();
                           }}
-                          title={auto ? '关闭自动后可手动施放' : '施放技能'}
+                          title={auto ? '关闭自动后可手动施放' : cd > 0 ? '冷却中' : '施放技能'}
                           style={{
                             height: 36,
                             borderRadius: 10,
                             border: '1px solid rgba(0,0,0,0.2)',
-                            background: auto ? 'rgba(255,255,255,0.06)' : 'var(--game-btn-info)',
+                            background: canCast ? 'var(--game-btn-info)' : 'rgba(255,255,255,0.06)',
                             color: 'var(--game-text)',
                             fontWeight: 900,
                             padding: '0 10px',
-                            opacity: auto ? 0.6 : 1,
+                            opacity: canCast ? 1 : 0.6,
                           }}
                         >
                           施放
                         </button>
                       </div>
-                    ))}
+                      );
+                    })}
                     <div style={{ color: 'var(--game-text-muted)', fontSize: 12 }}>
                       关闭自动后可手动施放（当前仅影响逻辑层技能事件与伤害）。
                     </div>
