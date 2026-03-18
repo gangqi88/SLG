@@ -15,7 +15,7 @@ class PlayerResourcesStore {
     ore: 300,
     bun: 120,
   };
-  private listeners: Set<Listener> = new Set();
+  private readonly listeners: Set<Listener> = new Set();
 
   constructor() {
     this.load();
@@ -27,8 +27,10 @@ class PlayerResourcesStore {
       inventory.subscribe(() => {
         const items = inventory.getItems();
         const bun = items.find((i) => i.item.id === 'item_hero_exp')?.quantity ?? 0;
-        const wood = items.find((i) => i.item.id === 'resource_wood')?.quantity ?? this.resources.wood;
-        const ore = items.find((i) => i.item.id === 'resource_stone')?.quantity ?? this.resources.ore;
+        const wood =
+          items.find((i) => i.item.id === 'resource_wood')?.quantity ?? this.resources.wood;
+        const ore =
+          items.find((i) => i.item.id === 'resource_stone')?.quantity ?? this.resources.ore;
         const next = {
           ...this.resources,
           bun,
@@ -48,7 +50,8 @@ class PlayerResourcesStore {
 
       const items = inventory.getItems();
       const bun = items.find((i) => i.item.id === 'item_hero_exp')?.quantity ?? 0;
-      const wood = items.find((i) => i.item.id === 'resource_wood')?.quantity ?? this.resources.wood;
+      const wood =
+        items.find((i) => i.item.id === 'resource_wood')?.quantity ?? this.resources.wood;
       const ore = items.find((i) => i.item.id === 'resource_stone')?.quantity ?? this.resources.ore;
       this.resources = { ...this.resources, bun, wood, ore };
       this.emit();

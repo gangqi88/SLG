@@ -7,7 +7,11 @@ import { SiegeBattleScene } from '@/features/battle/scenes/SiegeBattleScene';
 import { Team, getTeamHeroes } from '@/shared/logic/Team';
 import { SceneHUD } from '@/shared/components/SceneHUD';
 import { useModal } from '@/shared/components/ModalProvider';
-import { BattleReportView, createBattleReportFromResult, type BattleReport } from '@/shared/logic/battleReports';
+import {
+  BattleReportView,
+  createBattleReportFromResult,
+  type BattleReport,
+} from '@/shared/logic/battleReports';
 import { applyRewards, formatRewardLines, type Reward } from '@/shared/logic/rewards';
 import { hasClaimed, markClaimed, newClaimKey } from '@/shared/logic/claimLedger';
 import { computeTeamPower } from '@/shared/logic/teamMetrics';
@@ -41,7 +45,10 @@ const SiegeBattleGame: React.FC<{
   const [speed, setSpeed] = useState<1 | 2>(1);
   const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
   const [battleResult, setBattleResult] = useState<BattleResult | null>(null);
-  const city = useMemo(() => (targetCityId ? WorldMap.getCityById(targetCityId) : null), [targetCityId]);
+  const city = useMemo(
+    () => (targetCityId ? WorldMap.getCityById(targetCityId) : null),
+    [targetCityId],
+  );
   const defenderProfile = useMemo(() => (city ? createSiegeDefenderProfile(city) : null), [city]);
   const attackerAllianceRef = useRef(attackerAlliance);
   const activeWarRef = useRef(activeWar);
@@ -60,12 +67,14 @@ const SiegeBattleGame: React.FC<{
 
   const attackerPower = useMemo(() => computeTeamPower(attackerTeam), [attackerTeam]);
   const defenderPower = useMemo(() => {
-    if (defenderProfile) return computeTeamPower([defenderProfile.wall, ...defenderProfile.defenders]);
+    if (defenderProfile)
+      return computeTeamPower([defenderProfile.wall, ...defenderProfile.defenders]);
     return computeTeamPower([WALL_HERO]);
   }, [defenderProfile]);
 
   const report = useMemo<BattleReport>(() => {
-    if (!battleResult) return { title: '攻城战', entries: [{ label: '状态', value: '战斗进行中', tone: 'normal' }] };
+    if (!battleResult)
+      return { title: '攻城战', entries: [{ label: '状态', value: '战斗进行中', tone: 'normal' }] };
     return createBattleReportFromResult(battleResult);
   }, [battleResult]);
 
@@ -129,12 +138,12 @@ const SiegeBattleGame: React.FC<{
       const before = cityId ? WorldMap.getCityById(cityId) : null;
       const ok = cityId
         ? WorldMap.applySiegeOutcome({
-          cityId,
-          winner: result.winner,
-          attackerDamage: result.stats.attacker.damage,
-          attackerAllianceId: aa?.id ?? null,
-          attackerAllianceName: aa?.name ?? null,
-        })
+            cityId,
+            winner: result.winner,
+            attackerDamage: result.stats.attacker.damage,
+            attackerAllianceId: aa?.id ?? null,
+            attackerAllianceName: aa?.name ?? null,
+          })
         : false;
       const after = ok && cityId ? WorldMap.getCityById(cityId) : before;
       const enriched: BattleResult = {
@@ -149,10 +158,10 @@ const SiegeBattleGame: React.FC<{
       setBattleResult(enriched);
       BattleHistory.add(enriched);
       if (cityId) {
-        if (war && war.targetCityId === cityId && war.status !== 'finished') {
+        if (war?.targetCityId === cityId && war.status !== 'finished') {
           const winnerId =
             result.winner === 'attacker'
-              ? aa?.id ?? null
+              ? (aa?.id ?? null)
               : result.winner === 'defender'
                 ? war.defenderId
                 : null;
@@ -167,7 +176,7 @@ const SiegeBattleGame: React.FC<{
       game.destroy(true);
       gameRef.current = null;
     };
-  }, [attackerTeam, defenderProfile]);
+  }, [attackerTeam, auto, defenderProfile, speed]);
 
   useEffect(() => {
     const game = gameRef.current;
@@ -179,7 +188,8 @@ const SiegeBattleGame: React.FC<{
     const t = setInterval(() => {
       const game = gameRef.current;
       if (!game) return;
-      const next = (game.registry.get('battleCooldowns') as Record<string, number> | undefined) ?? {};
+      const next =
+        (game.registry.get('battleCooldowns') as Record<string, number> | undefined) ?? {};
       setCooldowns(next);
     }, 200);
     return () => clearInterval(t);
@@ -241,53 +251,67 @@ const SiegeBattleGame: React.FC<{
                         return (
                           <div
                             key={h.id}
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'minmax(0, 1fr) auto',
-                            alignItems: 'center',
-                            gap: 10,
-                            padding: '8px 10px',
-                            borderRadius: 12,
-                            border: '1px solid rgba(58,58,90,0.7)',
-                            background: 'rgba(0,0,0,0.16)',
-                          }}
-                        >
-                          <div style={{ minWidth: 0 }}>
-                            <div style={{ fontWeight: 900 }}>{h.name}</div>
-                            <div style={{ color: 'var(--game-text-muted)', fontFamily: 'var(--game-font-mono)', fontSize: 12 }}>
-                              {h.activeSkill.name}
-                              {h.activeSkill.cooldown ? ` · CD ${h.activeSkill.cooldown}s` : ''}
-                              {cdText}
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            disabled={!canCast}
-                            onClick={() => {
-                              const game = gameRef.current;
-                              if (!game) return;
-                              const prev = (game.registry.get('battleCommands') as unknown) as
-                                | { type: 'cast'; heroId: string; side: 'attacker' | 'defender' }[]
-                                | undefined;
-                              const next = (prev ?? []).concat([{ type: 'cast', heroId: h.id, side: 'attacker' }]);
-                              game.registry.set('battleCommands', next);
-                              modal.close();
-                            }}
-                            title={auto ? '关闭自动后可手动施放' : cd > 0 ? '冷却中' : '施放技能'}
                             style={{
-                              height: 36,
-                              borderRadius: 10,
-                              border: '1px solid rgba(0,0,0,0.2)',
-                              background: canCast ? 'var(--game-btn-info)' : 'rgba(255,255,255,0.06)',
-                              color: 'var(--game-text)',
-                              fontWeight: 900,
-                              padding: '0 10px',
-                              opacity: canCast ? 1 : 0.6,
+                              display: 'grid',
+                              gridTemplateColumns: 'minmax(0, 1fr) auto',
+                              alignItems: 'center',
+                              gap: 10,
+                              padding: '8px 10px',
+                              borderRadius: 12,
+                              border: '1px solid rgba(58,58,90,0.7)',
+                              background: 'rgba(0,0,0,0.16)',
                             }}
                           >
-                            施放
-                          </button>
-                        </div>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontWeight: 900 }}>{h.name}</div>
+                              <div
+                                style={{
+                                  color: 'var(--game-text-muted)',
+                                  fontFamily: 'var(--game-font-mono)',
+                                  fontSize: 12,
+                                }}
+                              >
+                                {h.activeSkill.name}
+                                {h.activeSkill.cooldown ? ` · CD ${h.activeSkill.cooldown}s` : ''}
+                                {cdText}
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              disabled={!canCast}
+                              onClick={() => {
+                                const game = gameRef.current;
+                                if (!game) return;
+                                const prev = game.registry.get('battleCommands') as unknown as
+                                  | {
+                                      type: 'cast';
+                                      heroId: string;
+                                      side: 'attacker' | 'defender';
+                                    }[]
+                                  | undefined;
+                                const next = (prev ?? []).concat([
+                                  { type: 'cast', heroId: h.id, side: 'attacker' },
+                                ]);
+                                game.registry.set('battleCommands', next);
+                                modal.close();
+                              }}
+                              title={auto ? '关闭自动后可手动施放' : cd > 0 ? '冷却中' : '施放技能'}
+                              style={{
+                                height: 36,
+                                borderRadius: 10,
+                                border: '1px solid rgba(0,0,0,0.2)',
+                                background: canCast
+                                  ? 'var(--game-btn-info)'
+                                  : 'rgba(255,255,255,0.06)',
+                                color: 'var(--game-text)',
+                                fontWeight: 900,
+                                padding: '0 10px',
+                                opacity: canCast ? 1 : 0.6,
+                              }}
+                            >
+                              施放
+                            </button>
+                          </div>
                         );
                       })}
                       <div style={{ color: 'var(--game-text-muted)', fontSize: 12 }}>
@@ -295,7 +319,14 @@ const SiegeBattleGame: React.FC<{
                       </div>
                     </div>
                   ),
-                  actions: [{ key: 'close', label: '关闭', variant: 'primary', onClick: () => modal.close() }],
+                  actions: [
+                    {
+                      key: 'close',
+                      label: '关闭',
+                      variant: 'primary',
+                      onClick: () => modal.close(),
+                    },
+                  ],
                 }),
             },
             {
@@ -305,7 +336,14 @@ const SiegeBattleGame: React.FC<{
                 modal.openModal({
                   title: '战报',
                   content: <BattleReportView report={report} />,
-                  actions: [{ key: 'close', label: '关闭', variant: 'primary', onClick: () => modal.close() }],
+                  actions: [
+                    {
+                      key: 'close',
+                      label: '关闭',
+                      variant: 'primary',
+                      onClick: () => modal.close(),
+                    },
+                  ],
                 }),
             },
             {
@@ -328,14 +366,24 @@ const SiegeBattleGame: React.FC<{
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                       <BattleReportView report={report} />
                       <div>
-                        <div style={{ color: 'var(--game-title)', fontWeight: 900, marginBottom: 8 }}>
+                        <div
+                          style={{ color: 'var(--game-title)', fontWeight: 900, marginBottom: 8 }}
+                        >
                           奖励
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                           {lines.map((l, idx) => (
-                            <div key={`${l.label}-${idx}`} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <div
+                              key={`${l.label}-${idx}`}
+                              style={{ display: 'flex', justifyContent: 'space-between' }}
+                            >
                               <span>{l.label}</span>
-                              <span style={{ fontFamily: 'var(--game-font-mono)', color: 'var(--game-title)' }}>
+                              <span
+                                style={{
+                                  fontFamily: 'var(--game-font-mono)',
+                                  color: 'var(--game-title)',
+                                }}
+                              >
                                 +{l.amount}
                               </span>
                             </div>
@@ -345,7 +393,12 @@ const SiegeBattleGame: React.FC<{
                     </div>
                   ),
                   actions: [
-                    { key: 'close', label: '关闭', variant: 'secondary', onClick: () => modal.close() },
+                    {
+                      key: 'close',
+                      label: '关闭',
+                      variant: 'secondary',
+                      onClick: () => modal.close(),
+                    },
                     {
                       key: 'claim',
                       label: '领取奖励',
@@ -519,7 +572,10 @@ const DemolitionGame: React.FC<{ onComplete: (score: number) => void; onExit: ()
 const SiegeView: React.FC<SiegeViewProps> = ({ onExit }) => {
   const [searchParams] = useSearchParams();
   const targetCityId = searchParams.get('cityId');
-  const targetCity = useMemo(() => (targetCityId ? WorldMap.getCityById(targetCityId) : null), [targetCityId]);
+  const targetCity = useMemo(
+    () => (targetCityId ? WorldMap.getCityById(targetCityId) : null),
+    [targetCityId],
+  );
   const { alliance, activeWar } = useAlliance();
   const [phase, setPhase] = useState<SiegePhase>(SiegePhase.None);
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
@@ -546,8 +602,8 @@ const SiegeView: React.FC<SiegeViewProps> = ({ onExit }) => {
   };
 
   const handleSetDebugTime = () => {
-    const hour = parseInt(debugHour);
-    if (!isNaN(hour) && hour >= 0 && hour <= 23) {
+    const hour = Number.parseInt(debugHour);
+    if (!Number.isNaN(hour) && hour >= 0 && hour <= 23) {
       siegeManager.setDebugTime(hour);
       updateState();
       setMessage(`Debug time set to ${hour}:30`);
@@ -573,8 +629,7 @@ const SiegeView: React.FC<SiegeViewProps> = ({ onExit }) => {
     if (phase === SiegePhase.Attack) {
       if (
         targetCityId &&
-        activeWar &&
-        activeWar.targetCityId === targetCityId &&
+        activeWar?.targetCityId === targetCityId &&
         activeWar.status !== 'active'
       ) {
         setMessage('宣战倒计时未结束，无法开始攻城。');
@@ -638,7 +693,7 @@ const SiegeView: React.FC<SiegeViewProps> = ({ onExit }) => {
           </p>
           <p>
             <strong>Current Phase:</strong>{' '}
-            <span style={{ color: phase !== SiegePhase.None ? '#e74c3c' : '#95a5a6' }}>
+            <span style={{ color: phase === SiegePhase.None ? '#95a5a6' : '#e74c3c' }}>
               {phase}
             </span>
           </p>
@@ -776,7 +831,15 @@ const SiegeView: React.FC<SiegeViewProps> = ({ onExit }) => {
           targetCityId={targetCityId}
           targetCityName={targetCity?.name ?? null}
           attackerAlliance={alliance ? { id: alliance.id, name: alliance.name } : null}
-          activeWar={activeWar ? { defenderId: activeWar.defenderId, status: activeWar.status, targetCityId: activeWar.targetCityId } : undefined}
+          activeWar={
+            activeWar
+              ? {
+                  defenderId: activeWar.defenderId,
+                  status: activeWar.status,
+                  targetCityId: activeWar.targetCityId,
+                }
+              : undefined
+          }
         />
       )}
     </div>

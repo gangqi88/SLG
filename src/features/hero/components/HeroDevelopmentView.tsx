@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { Hero } from '@/features/hero/types/Hero';
 import { HeroLogic } from '@/features/hero/logic/HeroLogic';
 import InventoryManager from '@/features/resource/logic/InventoryManager';
@@ -10,13 +10,16 @@ import { PlayerResources } from '@/shared/logic/PlayerResources';
 
 interface HeroDevelopmentViewProps {
   hero: Hero;
-  onClose: () => void;
   onUpdate: () => void; // Callback to refresh parent view
 }
 
-const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose, onUpdate }) => {
+const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onUpdate }) => {
   const modal = useModal();
   const navigate = useNavigate();
+  const resources = useSyncExternalStore(
+    (listener) => PlayerResources.subscribe(listener),
+    () => PlayerResources.getSnapshot(),
+  );
   const [stats, setStats] = useState(HeroLogic.getStats(hero));
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [lastSuccess, setLastSuccess] = useState<string | null>(null);
@@ -25,19 +28,6 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
     setStats(HeroLogic.getStats(hero));
     setInventory(InventoryManager.getItems());
   }, [hero]);
-
-  const handleOverlayKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      onClose();
-    }
-  };
-
-  const handleOverlayClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      onClose();
-    }
-  };
 
   useEffect(() => {
     updateData();
@@ -58,7 +48,7 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
         resourceKey: 'bun',
         title: '包子不足',
         needAmount: levelUpCost,
-        haveAmount: PlayerResources.getSnapshot().bun,
+        haveAmount: resources.bun,
       });
     }
   };
@@ -81,67 +71,18 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
     }
   };
 
-  const expItem = inventory.find((i) => i.item.id === 'item_hero_exp');
   const fragItem = inventory.find((i) => i.item.id === 'item_hero_fragment');
 
   const levelUpCost = HeroLogic.getLevelUpCost(hero.level);
   const starUpCost = HeroLogic.getStarUpCost(hero.starRating);
-  const canLevelUp = (expItem?.quantity || 0) >= levelUpCost;
+  const canLevelUp = resources.bun >= levelUpCost;
   const canStarUp = (fragItem?.quantity || 0) >= starUpCost && hero.starRating < 5;
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.9)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1100,
-      }}
-      onClick={handleOverlayClick}
-      onKeyDown={handleOverlayKeyDown}
-      role="button"
-      tabIndex={0}
-      aria-label="Close hero development"
-    >
-      <div
-        style={{
-          backgroundColor: '#333',
-          padding: '24px',
-          borderRadius: '12px',
-          maxWidth: '500px',
-          width: '90%',
-          color: '#fff',
-          border: '1px solid #555',
-          boxShadow: '0 0 20px rgba(0,0,0,0.8)',
-        }}
-        role="dialog"
-        aria-modal="true"
-        tabIndex={-1}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <h2 style={{ margin: 0 }}>
-            {hero.name} 养成{lastSuccess ? ` · ${lastSuccess}` : ''}
-          </h2>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#fff',
-              fontSize: '24px',
-              cursor: 'pointer',
-            }}
-          >
-            ×
-          </button>
-        </div>
-
+    <div>
+      <div style={{ marginBottom: 14, color: lastSuccess ? 'var(--game-btn-confirm)' : 'var(--game-text-muted)' }}>
+        {lastSuccess ? lastSuccess : '养成会消耗资源并提升属性'}
+      </div>
         <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
           <div style={{ flex: 1 }}>
             <h3>Level: {hero.level}</h3>
@@ -155,7 +96,7 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
                 marginBottom: '10px',
               }}
             >
-              当前拥有：{expItem?.quantity || 0} 包子
+              当前拥有：{resources.bun} 包子
             </div>
             <button
               onClick={handleLevelUp}
@@ -215,7 +156,14 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
           </div>
         </div>
 
-        <div style={{ backgroundColor: '#222', padding: '15px', borderRadius: '8px' }}>
+        <div
+          style={{
+            backgroundColor: 'rgba(0,0,0,0.25)',
+            padding: '15px',
+            borderRadius: '12px',
+            border: '1px solid var(--game-border)',
+          }}
+        >
           <h3>当前属性</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
@@ -232,7 +180,6 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 };

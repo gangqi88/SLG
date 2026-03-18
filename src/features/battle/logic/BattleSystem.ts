@@ -111,7 +111,7 @@ export class BattleSystem {
         positionIndex: index,
         shield: 0,
         lifesteal: 0,
-        attackSpeed: 1.0,
+        attackSpeed: 1,
         normalAttackCooldown: Math.random(), // Randomize start to avoid synchronized attacks
         x: startX,
         y: startY,
@@ -143,7 +143,7 @@ export class BattleSystem {
     // 1. Cavalry: Prioritize Back Row (highest index)
     if (unit.troopType === TroopType.CAVALRY) {
       // Sort by position index descending
-      return enemies.sort((a, b) => b.positionIndex - a.positionIndex)[0];
+      return enemies.slice().sort((a, b) => b.positionIndex - a.positionIndex)[0];
     }
 
     // 2. Archer: Kiting / Focus Fire Weakest?
@@ -170,7 +170,7 @@ export class BattleSystem {
 
     // Default (Infantry, Mage, Siege): Attack Front Row (lowest index)
     // Sort by position index ascending (0 is front)
-    return enemies.sort((a, b) => a.positionIndex - b.positionIndex)[0];
+    return enemies.slice().sort((a, b) => a.positionIndex - b.positionIndex)[0];
   }
 
   public update(deltaTime: number) {
@@ -235,7 +235,7 @@ export class BattleSystem {
           if (unit.normalAttackCooldown <= 0) {
             this.performNormalAttack(unit);
             // Reset cooldown
-            unit.normalAttackCooldown = 1.0 / (unit.attackSpeed || 1.0);
+            unit.normalAttackCooldown = 1 / (unit.attackSpeed || 1);
           }
         }
       }
@@ -250,7 +250,7 @@ export class BattleSystem {
       if (target) {
         const dx = target.x - unit.x;
         const dy = target.y - unit.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        const dist = Math.hypot(dx, dy);
 
         if (dist > unit.range) {
           const angle = Math.atan2(dy, dx);
@@ -365,7 +365,7 @@ export class BattleSystem {
       targets.forEach((target) => {
         // Coefficient assumption: 1.5 for single, 0.8 for AOE?
         // Document says "Strategy * 1.0~1.8". Let's use 1.5 default.
-        const coeff = isAoe ? 1.0 : 1.5;
+        const coeff = isAoe ? 1 : 1.5;
         const result = calculateSkillDamage(
           attacker.currentStats,
           attacker.race,
@@ -402,7 +402,7 @@ export class BattleSystem {
 
   private findLowestHpAlly(unit: BattleUnit): BattleUnit | undefined {
     const allies = this.units.filter((u) => u.side === unit.side && !u.isDead);
-    return allies.sort((a, b) => a.currentHp / a.maxHp - b.currentHp / b.maxHp)[0];
+    return allies.slice().sort((a, b) => a.currentHp / a.maxHp - b.currentHp / b.maxHp)[0];
   }
 
   private applyDamage(unit: BattleUnit, damage: number) {

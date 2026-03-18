@@ -18,8 +18,8 @@ class UINotificationsStore {
     mailUnreadCount: 0,
     activityCount: 0,
   };
-  private listeners: Set<Listener> = new Set();
-  private taskManager = getTaskManager();
+  private readonly listeners: Set<Listener> = new Set();
+  private readonly taskManager = getTaskManager();
 
   constructor() {
     this.recompute();

@@ -11,7 +11,7 @@ type Listener = () => void;
 const STORAGE_KEY = 'slg_team_v1';
 
 class TeamStore {
-  private listeners: Set<Listener> = new Set();
+  private readonly listeners: Set<Listener> = new Set();
   private snapshot: TeamSnapshot = { heroIds: [], maxSize: 5 };
 
   constructor() {
@@ -91,4 +91,3 @@ export const getTeamHeroes = (heroIds: string[]) => {
   allHeroes.forEach((h) => map.set(h.id, h));
   return heroIds.map((id) => map.get(id)).filter((h): h is Hero => Boolean(h));
 };
-

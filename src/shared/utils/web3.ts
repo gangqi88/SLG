@@ -18,7 +18,7 @@ export interface WalletAccount {
 
 export class Web3Manager {
   static isUniSatInstalled(): boolean {
-    return typeof window.unisat !== 'undefined';
+    return window.unisat !== undefined;
   }
 
   static async connectWallet(): Promise<WalletAccount | null> {

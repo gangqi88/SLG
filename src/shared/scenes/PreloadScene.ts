@@ -25,7 +25,9 @@ export class PreloadScene extends Phaser.Scene {
     }
   }
 
-  preload() {}
+  preload() {
+    /* TODO document why this method 'preload' is empty */
+  }
 
   create() {
     void this.loadAssetsAndStart();

@@ -1,4 +1,8 @@
-import { getNpcAlliance, getNpcAllianceOrNull, NPC_ENEMY_ALLIANCE_ID } from '@/features/alliance/config/npcAlliances';
+import {
+  getNpcAlliance,
+  getNpcAllianceOrNull,
+  NPC_ENEMY_ALLIANCE_ID,
+} from '@/features/alliance/config/npcAlliances';
 
 type Listener = () => void;
 
@@ -113,10 +117,12 @@ const baseCities: WorldCity[] = [
   },
 ];
 
-const clampInt = (v: number, min: number, max: number) => Math.max(min, Math.min(max, Math.floor(v)));
+const clampInt = (v: number, min: number, max: number) =>
+  Math.max(min, Math.min(max, Math.floor(v)));
 
 const computeDefenseAt = (s: CityDefenseState, nowMs: number) => {
-  if (!s.repairFromMs || !s.repairToMs) return { cur: clampInt(s.cur, 0, s.max), repairing: false, remainingMs: 0 };
+  if (!s.repairFromMs || !s.repairToMs)
+    return { cur: clampInt(s.cur, 0, s.max), repairing: false, remainingMs: 0 };
   if (nowMs >= s.repairToMs) return { cur: s.max, repairing: false, remainingMs: 0 };
   const dur = Math.max(1, s.repairToMs - s.repairFromMs);
   const p = (nowMs - s.repairFromMs) / dur;
@@ -173,8 +179,8 @@ class WorldMapStore {
           defenseState.repairFromMs = typeof d.repairFromMs === 'number' ? d.repairFromMs : null;
           defenseState.repairToMs = typeof d.repairToMs === 'number' ? d.repairToMs : null;
         }
-        let ownerAllianceId = o ? (o.ownerAllianceId ?? null) : c.ownerAllianceId;
-        let ownerAllianceName = o ? (o.ownerAllianceName ?? null) : c.ownerAllianceName;
+        const ownerAllianceId = o ? (o.ownerAllianceId ?? null) : c.ownerAllianceId;
+        const ownerAllianceName = o ? (o.ownerAllianceName ?? null) : c.ownerAllianceName;
         const normalized = normalizeOwner(ownerAllianceId, ownerAllianceName);
         return { ...c, ...normalized, defenseState };
       });

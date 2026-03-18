@@ -4,14 +4,15 @@ import { allHeroes } from '@/features/hero/data/heroes';
 import { HeroLogic } from '@/features/hero/logic/HeroLogic';
 import HeroDevelopmentView from './HeroDevelopmentView';
 import styles from './HeroView.module.css';
+import { useModal } from '@/shared/components/ModalProvider';
 
 const HeroList: React.FC = () => {
+  const modal = useModal();
   const [selectedHeroId, setSelectedHeroId] = useState<string>(() => allHeroes[0]?.id ?? '');
   const [filterCamp, setFilterCamp] = useState<string>('All');
   const [filterQuality, setFilterQuality] = useState<string>('All');
   const [filterRole, setFilterRole] = useState<string>('All');
   const [query, setQuery] = useState('');
-  const [showDev, setShowDev] = useState(false);
   const [, setVersion] = useState(0);
 
   const selectedHero = useMemo(
@@ -179,7 +180,26 @@ const HeroList: React.FC = () => {
                 </div>
               </div>
               <div className={styles.actions}>
-                <button type="button" className={styles.btnPrimary} onClick={() => setShowDev(true)}>
+                <button
+                  type="button"
+                  className={styles.btnPrimary}
+                  onClick={() => {
+                    modal.openModal({
+                      title: `${selectedHero.name} 养成`,
+                      content: (
+                        <HeroDevelopmentView
+                          hero={selectedHero}
+                          onUpdate={() => {
+                            setVersion((v) => v + 1);
+                          }}
+                        />
+                      ),
+                      actions: [
+                        { key: 'close', label: '关闭', variant: 'secondary', onClick: () => modal.close() },
+                      ],
+                    });
+                  }}
+                >
                   养成
                 </button>
               </div>
@@ -252,14 +272,6 @@ const HeroList: React.FC = () => {
           <div className={styles.empty}>请选择一个武将</div>
         )}
       </div>
-
-      {selectedHero && showDev && (
-        <HeroDevelopmentView
-          hero={selectedHero}
-          onClose={() => setShowDev(false)}
-          onUpdate={() => setVersion((v) => v + 1)}
-        />
-      )}
     </div>
   );
 };

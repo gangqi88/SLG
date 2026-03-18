@@ -15,7 +15,7 @@ import {
 
 export class BattleScene extends Phaser.Scene {
   private battleSystem!: BattleSystem;
-  private visualUnits: Map<string, VisualUnit> = new Map();
+  private readonly visualUnits: Map<string, VisualUnit> = new Map();
   private effectManager!: EffectManager;
   private performanceMonitor!: PerformanceMonitor;
   private battleLogText!: Phaser.GameObjects.Text;
@@ -30,17 +30,19 @@ export class BattleScene extends Phaser.Scene {
   private acc: BattleStatsAccumulator = createBattleAccumulator();
 
   // Animation Queue
-  private eventQueue: BattleEvent[] = [];
+  private readonly eventQueue: BattleEvent[] = [];
   private isProcessingEvent: boolean = false;
   private getBattleSettings() {
-    const raw = this.registry.get('battleSettings') as { auto?: boolean; speed?: number } | undefined;
+    const raw = this.registry.get('battleSettings') as
+      | { auto?: boolean; speed?: number }
+      | undefined;
     const auto = raw?.auto ?? true;
     const speed = raw?.speed ?? 1;
     return { auto, speed: speed === 2 ? 2 : 1 };
   }
 
   private consumeCommands() {
-    const cmds = (this.registry.get('battleCommands') as unknown) as
+    const cmds = this.registry.get('battleCommands') as unknown as
       | { type: 'cast'; heroId: string; side: 'attacker' | 'defender' }[]
       | undefined;
     if (!cmds || cmds.length === 0) return;
@@ -56,7 +58,12 @@ export class BattleScene extends Phaser.Scene {
     super('BattleScene');
   }
 
-  init(data: { attackerHeroes: Hero[]; defenderHeroes: Hero[]; battleId?: string; battleMode?: string }) {
+  init(data: {
+    attackerHeroes: Hero[];
+    defenderHeroes: Hero[];
+    battleId?: string;
+    battleMode?: string;
+  }) {
     this.battleSystem = new BattleSystem(data.attackerHeroes, data.defenderHeroes);
     this.battleId = data.battleId ?? '';
     this.mode = data.battleMode ?? 'battle';
@@ -173,10 +180,19 @@ export class BattleScene extends Phaser.Scene {
       accumulateFromEvents(this.acc, newEvents, this.sideByUnitId, this.heroIdByUnitId);
       this.eventQueue.push(...newEvents);
 
-      const attackersAlive = this.battleSystem.units.some((u) => u.side === 'attacker' && !u.isDead);
-      const defendersAlive = this.battleSystem.units.some((u) => u.side === 'defender' && !u.isDead);
+      const attackersAlive = this.battleSystem.units.some(
+        (u) => u.side === 'attacker' && !u.isDead,
+      );
+      const defendersAlive = this.battleSystem.units.some(
+        (u) => u.side === 'defender' && !u.isDead,
+      );
       if ((!attackersAlive || !defendersAlive) && !this.endEmitted) {
-        const winner = attackersAlive && !defendersAlive ? 'attacker' : !attackersAlive && defendersAlive ? 'defender' : 'draw';
+        const winner =
+          attackersAlive && !defendersAlive
+            ? 'attacker'
+            : !attackersAlive && defendersAlive
+              ? 'defender'
+              : 'draw';
         const result: BattleResult = {
           battleId: this.battleId,
           mode: this.mode,

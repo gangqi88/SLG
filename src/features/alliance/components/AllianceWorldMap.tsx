@@ -81,31 +81,36 @@ export const AllianceWorldMap: React.FC<{
   };
 
   const openCity = (c: (typeof cities)[number]) => {
+    const dot = '·';
     const owner = c.ownerAllianceName || (c.ownerAllianceId ? '未知联盟' : '无主');
     const isSelf = Boolean(currentAllianceId && c.ownerAllianceId === currentAllianceId);
     const isNeutral = !c.ownerAllianceId;
-    const isWarTarget = Boolean(activeWar && activeWar.status !== 'finished' && activeWar.targetCityId === c.id);
+    const isWarTarget = Boolean(
+      activeWar && activeWar.status !== 'finished' && activeWar.targetCityId === c.id,
+    );
+    const warStageLabel = activeWar?.status === 'active' ? '攻城中' : '宣战中';
     const statusLabel = isSelf ? '己方' : isNeutral ? '无主' : '敌方';
     modal.openModal({
       title: `城池：${c.name}`,
       content: (
         <div>
           <div style={{ color: 'var(--game-text-muted)', marginBottom: 10 }}>
-            状态：{statusLabel}{isWarTarget ? ` · ${activeWar?.status === 'active' ? '攻城中' : '宣战中'}` : ''}
+            状态：{statusLabel}
+            {isWarTarget ? ` ${dot} ${warStageLabel}` : ''}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div>归属：{owner}</div>
             <div>
-              类型：{cityTypeLabel(c.cityType)} · Lv.{c.level}
+              类型：{cityTypeLabel(c.cityType)} / Lv.{c.level}
             </div>
             <div>
               城防耐久：{c.defenseState.cur}/{c.defenseState.max}
               {c.defenseState.repairToMs && Date.now() < c.defenseState.repairToMs
-                ? ` · 修复中 ${formatRemaining(c.defenseState.repairToMs - Date.now())}`
+                ? ` ${dot} 修复中 ${formatRemaining(c.defenseState.repairToMs - Date.now())}`
                 : ''}
             </div>
             <div>
-              产出：木 {c.production.woodPerMin}/分 · 矿 {c.production.orePerMin}/分 · 金 {c.production.coinPerMin}/分
+              产出：木 {c.production.woodPerMin}/分 / 矿 {c.production.orePerMin}/分 / 金 {c.production.coinPerMin}/分
             </div>
           </div>
         </div>
@@ -185,12 +190,19 @@ export const AllianceWorldMap: React.FC<{
     return cities.map((c) => {
       const isSelf = Boolean(currentAllianceId && c.ownerAllianceId === currentAllianceId);
       const isNeutral = !c.ownerAllianceId;
-      const isWarTarget = Boolean(activeWar && activeWar.status !== 'finished' && activeWar.targetCityId === c.id);
-      const status: CityStatus = isWarTarget ? 'war' : isSelf ? 'friendly' : isNeutral ? 'neutral' : 'enemy';
+      const isWarTarget = Boolean(
+        activeWar && activeWar.status !== 'finished' && activeWar.targetCityId === c.id,
+      );
+      let status: CityStatus = 'enemy';
+      if (isWarTarget) status = 'war';
+      else if (isSelf) status = 'friendly';
+      else if (isNeutral) status = 'neutral';
       const max = c.defenseState.max || 1;
       const cur = c.defenseState.cur ?? max;
       const ratio = Math.max(0, Math.min(1, cur / max));
-      const repairing = Boolean(c.defenseState.repairToMs && Date.now() < c.defenseState.repairToMs);
+      const repairing = Boolean(
+        c.defenseState.repairToMs && Date.now() < c.defenseState.repairToMs,
+      );
       return { c, status, ratio, repairing };
     });
   }, [activeWar, cities, currentAllianceId]);
@@ -199,7 +211,7 @@ export const AllianceWorldMap: React.FC<{
     <div className={styles.wrap}>
       <div className={styles.header}>
         <h3 className={styles.title}>世界城池地图</h3>
-        <div className={styles.hint}>拖拽移动 · 滚轮缩放</div>
+        <div className={styles.hint}>拖拽移动 / 滚轮缩放</div>
       </div>
 
       <div
@@ -226,9 +238,18 @@ export const AllianceWorldMap: React.FC<{
               role="button"
               tabIndex={0}
               onClick={() => openCity(c)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  openCity(c);
+                }
+              }}
             >
               <div className={styles.defenseBar} aria-label="城防耐久">
-                <div className={styles.defenseFill} style={{ width: `${Math.round(ratio * 100)}%` }} />
+                <div
+                  className={styles.defenseFill}
+                  style={{ width: `${Math.round(ratio * 100)}%` }}
+                />
               </div>
               <span className={styles.cityName}>{c.name}</span>
             </div>
@@ -239,19 +260,19 @@ export const AllianceWorldMap: React.FC<{
       <div className={styles.legend}>
         <div className={styles.legendItem}>
           <span className={styles.dot} style={{ background: '#4caf50' }} />
-          己方
+          <span>己方</span>
         </div>
         <div className={styles.legendItem}>
           <span className={styles.dot} style={{ background: '#ffc107' }} />
-          可宣战
+          <span>可宣战</span>
         </div>
         <div className={styles.legendItem}>
           <span className={styles.dot} style={{ background: '#8e24aa' }} />
-          宣战中
+          <span>宣战中</span>
         </div>
         <div className={styles.legendItem}>
           <span className={styles.dot} style={{ background: '#f44336' }} />
-          敌方
+          <span>敌方</span>
         </div>
       </div>
     </div>

@@ -247,7 +247,7 @@
 }
 
 .entryBtn {
-  min-height: 44px;
+  min-height: var(--game-hit);
   border-radius: 12px;
   border: 1px solid var(--game-border);
   background: rgba(0, 0, 0, 0.18);
@@ -261,7 +261,7 @@
 }
 
 .entryBtnDanger {
-  min-height: 44px;
+  min-height: var(--game-hit);
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.2);
   background: var(--game-btn-battle);

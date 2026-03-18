@@ -105,4 +105,3 @@ export const TeamEditor: React.FC = () => {
     </div>
   );
 };
-

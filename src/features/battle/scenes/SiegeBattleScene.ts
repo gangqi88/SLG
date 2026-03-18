@@ -17,7 +17,7 @@ import type { SiegeDefenderProfile } from '@/features/battle/logic/siegeDefender
 
 export class SiegeBattleScene extends Phaser.Scene {
   private battleSystem!: BattleSystem;
-  private visualUnits: Map<string, VisualUnit> = new Map();
+  private readonly visualUnits: Map<string, VisualUnit> = new Map();
   private effectManager!: EffectManager;
   private performanceMonitor!: PerformanceMonitor;
   private battleLogText!: Phaser.GameObjects.Text;
@@ -33,17 +33,19 @@ export class SiegeBattleScene extends Phaser.Scene {
   private acc: BattleStatsAccumulator = createBattleAccumulator();
 
   // Animation Queue
-  private eventQueue: BattleEvent[] = [];
+  private readonly eventQueue: BattleEvent[] = [];
   private isProcessingEvent: boolean = false;
   private getBattleSettings() {
-    const raw = this.registry.get('battleSettings') as { auto?: boolean; speed?: number } | undefined;
+    const raw = this.registry.get('battleSettings') as
+      | { auto?: boolean; speed?: number }
+      | undefined;
     const auto = raw?.auto ?? true;
     const speed = raw?.speed ?? 1;
     return { auto, speed: speed === 2 ? 2 : 1 };
   }
 
   private consumeCommands() {
-    const cmds = (this.registry.get('battleCommands') as unknown) as
+    const cmds = this.registry.get('battleCommands') as unknown as
       | { type: 'cast'; heroId: string; side: 'attacker' | 'defender' }[]
       | undefined;
     if (!cmds || cmds.length === 0) return;
@@ -59,7 +61,11 @@ export class SiegeBattleScene extends Phaser.Scene {
     super('SiegeBattleScene');
   }
 
-  init(data: { attackerHeroes: Hero[]; battleId?: string; defenderProfile?: SiegeDefenderProfile }) {
+  init(data: {
+    attackerHeroes: Hero[];
+    battleId?: string;
+    defenderProfile?: SiegeDefenderProfile;
+  }) {
     // Phase 1: Attackers vs Wall
     this.defenderProfile = data.defenderProfile;
     const wall = data.defenderProfile?.wall ?? WALL_HERO;
@@ -317,7 +323,11 @@ export class SiegeBattleScene extends Phaser.Scene {
     const target = this.visualUnits.get(event.targetId!);
 
     if (source && target) {
-      this.effectManager.playEffect(target.getPosition(), source.getPosition(), event.skillId || 'skill');
+      this.effectManager.playEffect(
+        target.getPosition(),
+        source.getPosition(),
+        event.skillId || 'skill',
+      );
       const settings = this.getBattleSettings();
       this.time.delayedCall(240 / settings.speed, () => {
         target.playHit();
@@ -405,7 +415,11 @@ export class SiegeBattleScene extends Phaser.Scene {
       const newUnit = this.battleSystem.units[this.battleSystem.units.length - 1];
       this.sideByUnitId.set(newUnit.uniqueId, newUnit.side);
       this.heroIdByUnitId.set(newUnit.uniqueId, newUnit.id);
-      ensureHeroInAccumulator(this.acc, { heroId: newUnit.id, name: newUnit.name, side: newUnit.side });
+      ensureHeroInAccumulator(this.acc, {
+        heroId: newUnit.id,
+        name: newUnit.name,
+        side: newUnit.side,
+      });
       this.createVisualUnit(newUnit);
     });
 

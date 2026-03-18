@@ -211,10 +211,18 @@ export const useAlliance = (): UseAllianceReturn => {
     return await manager.upgradeTech(techId);
   }, []);
 
-  const declareWar = useCallback(async (targetAllianceId: string, targetCityId?: string, targetCityName?: string, defenderName?: string) => {
-    const manager = AllianceManager.getInstance();
-    return await manager.declareWar(targetAllianceId, targetCityId, targetCityName, defenderName);
-  }, []);
+  const declareWar = useCallback(
+    async (
+      targetAllianceId: string,
+      targetCityId?: string,
+      targetCityName?: string,
+      defenderName?: string,
+    ) => {
+      const manager = AllianceManager.getInstance();
+      return await manager.declareWar(targetAllianceId, targetCityId, targetCityName, defenderName);
+    },
+    [],
+  );
 
   const submitWarScore = useCallback((score: number) => {
     const manager = AllianceManager.getInstance();
