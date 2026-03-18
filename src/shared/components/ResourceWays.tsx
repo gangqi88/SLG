@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useMemo, useSyncExternalStore } from 'react';
 import type { PlayerResourceKey } from '@/shared/logic/PlayerResources';
+import { Team, getTeamHeroes } from '@/shared/logic/Team';
+import { computeGatherRates } from '@/shared/logic/teamMetrics';
 
 type Way = { key: string; title: string; desc: string; to?: string };
 
@@ -91,6 +93,14 @@ const sortWays = (resourceKey: ResourceNeedKey, ways: Way[]) => {
   return withIndex.map((x) => x.w);
 };
 
+const formatEta = (minutes: number) => {
+  const m = Math.max(0, Math.ceil(minutes));
+  if (m < 60) return `约 ${m} 分钟`;
+  const h = Math.floor(m / 60);
+  const mm = m % 60;
+  return mm === 0 ? `约 ${h} 小时` : `约 ${h} 小时 ${mm} 分钟`;
+};
+
 export const ResourceWaysContent: React.FC<{
   resourceKey: ResourceNeedKey;
   needAmount?: number;
@@ -102,6 +112,19 @@ export const ResourceWaysContent: React.FC<{
   const need = typeof needAmount === 'number' ? Math.max(0, Math.floor(needAmount)) : null;
   const have = typeof haveAmount === 'number' ? Math.max(0, Math.floor(haveAmount)) : null;
   const deficit = need !== null && have !== null ? Math.max(0, need - have) : null;
+  const team = useSyncExternalStore(
+    (listener) => Team.subscribe(listener),
+    () => Team.getSnapshot(),
+  );
+  const teamHeroes = useMemo(() => getTeamHeroes(team.heroIds), [team.heroIds]);
+  const gather = useMemo(() => computeGatherRates(teamHeroes), [teamHeroes]);
+  const gatherEta = useMemo(() => {
+    if (deficit === null || deficit <= 0) return null;
+    if (resourceKey !== 'wood' && resourceKey !== 'ore') return null;
+    const perMin = resourceKey === 'wood' ? gather.woodPerMin : gather.orePerMin;
+    if (perMin <= 0) return null;
+    return { perMin, etaText: formatEta(deficit / perMin) };
+  }, [deficit, gather.orePerMin, gather.woodPerMin, resourceKey]);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ color: 'var(--game-text-muted)' }}>
@@ -124,6 +147,11 @@ export const ResourceWaysContent: React.FC<{
           <span style={{ fontFamily: 'var(--game-font-mono)', color: deficit > 0 ? 'var(--game-btn-battle)' : 'var(--game-title)' }}>
             {have}/{need}
           </span>
+        </div>
+      )}
+      {gatherEta && (
+        <div style={{ color: 'var(--game-text-muted)', fontSize: 12 }}>
+          按当前编队采集产速（{gatherEta.perMin}/分），预计 {gatherEta.etaText} 可补齐缺口。
         </div>
       )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
