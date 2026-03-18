@@ -17,6 +17,25 @@ export class BattleScene extends Phaser.Scene {
   // Animation Queue
   private eventQueue: BattleEvent[] = [];
   private isProcessingEvent: boolean = false;
+  private getBattleSettings() {
+    const raw = this.registry.get('battleSettings') as { auto?: boolean; speed?: number } | undefined;
+    const auto = raw?.auto ?? true;
+    const speed = raw?.speed ?? 1;
+    return { auto, speed: speed === 2 ? 2 : 1 };
+  }
+
+  private consumeCommands() {
+    const cmds = (this.registry.get('battleCommands') as unknown) as
+      | { type: 'cast'; heroId: string; side: 'attacker' | 'defender' }[]
+      | undefined;
+    if (!cmds || cmds.length === 0) return;
+    this.registry.set('battleCommands', []);
+    cmds.forEach((c) => {
+      if (c.type === 'cast') {
+        this.battleSystem.castActiveSkillByHeroId(c.heroId, c.side);
+      }
+    });
+  }
 
   constructor() {
     super('BattleScene');
@@ -84,6 +103,10 @@ export class BattleScene extends Phaser.Scene {
 
     if (this.isPaused) return;
 
+    const settings = this.getBattleSettings();
+    this.battleSystem.setAutoSkillEnabled(settings.auto);
+    this.consumeCommands();
+
     // Process Animation Queue
     if (this.isProcessingEvent) return; // Wait for current animation
 
@@ -95,7 +118,7 @@ export class BattleScene extends Phaser.Scene {
     } else {
       // If no animations pending, advance logic
       // Convert delta to seconds
-      const dt = delta / 1000;
+      const dt = (delta / 1000) * settings.speed;
 
       // Update Logic
       this.battleSystem.update(dt);
@@ -189,7 +212,8 @@ export class BattleScene extends Phaser.Scene {
     }
 
     // Delay next event slightly to let combo text show
-    this.time.delayedCall(1000, () => {
+    const settings = this.getBattleSettings();
+    this.time.delayedCall(1000 / settings.speed, () => {
       this.isProcessingEvent = false;
     });
   }
@@ -205,7 +229,8 @@ export class BattleScene extends Phaser.Scene {
       });
 
       // Delay hit effect slightly to match animation impact
-      this.time.delayedCall(150, () => {
+      const settings = this.getBattleSettings();
+      this.time.delayedCall(150 / settings.speed, () => {
         target.playHit();
         this.effectManager.playFloatingText(
           target.container.x,
@@ -229,7 +254,8 @@ export class BattleScene extends Phaser.Scene {
       // For now, instant effect with delay
       this.effectManager.playEffect(target.getPosition(), source.getPosition(), event.skillId);
 
-      this.time.delayedCall(300, () => {
+      const settings = this.getBattleSettings();
+      this.time.delayedCall(300 / settings.speed, () => {
         target.playHit();
         this.effectManager.playFloatingText(
           target.container.x,
@@ -252,7 +278,8 @@ export class BattleScene extends Phaser.Scene {
     if (source && target) {
       this.effectManager.playEffect(target.getPosition(), source.getPosition(), 'heal');
 
-      this.time.delayedCall(200, () => {
+      const settings = this.getBattleSettings();
+      this.time.delayedCall(200 / settings.speed, () => {
         this.effectManager.playFloatingText(
           target.container.x,
           target.container.y,

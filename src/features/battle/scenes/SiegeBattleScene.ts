@@ -19,6 +19,25 @@ export class SiegeBattleScene extends Phaser.Scene {
   // Animation Queue
   private eventQueue: BattleEvent[] = [];
   private isProcessingEvent: boolean = false;
+  private getBattleSettings() {
+    const raw = this.registry.get('battleSettings') as { auto?: boolean; speed?: number } | undefined;
+    const auto = raw?.auto ?? true;
+    const speed = raw?.speed ?? 1;
+    return { auto, speed: speed === 2 ? 2 : 1 };
+  }
+
+  private consumeCommands() {
+    const cmds = (this.registry.get('battleCommands') as unknown) as
+      | { type: 'cast'; heroId: string; side: 'attacker' | 'defender' }[]
+      | undefined;
+    if (!cmds || cmds.length === 0) return;
+    this.registry.set('battleCommands', []);
+    cmds.forEach((c) => {
+      if (c.type === 'cast') {
+        this.battleSystem.castActiveSkillByHeroId(c.heroId, c.side);
+      }
+    });
+  }
 
   constructor() {
     super('SiegeBattleScene');
@@ -84,13 +103,17 @@ export class SiegeBattleScene extends Phaser.Scene {
 
     if (this.isProcessingEvent) return;
 
+    const settings = this.getBattleSettings();
+    this.battleSystem.setAutoSkillEnabled(settings.auto);
+    this.consumeCommands();
+
     if (this.eventQueue.length > 0) {
       const event = this.eventQueue.shift();
       if (event) {
         this.processBattleEvent(event);
       }
     } else {
-      const dt = delta / 1000;
+      const dt = (delta / 1000) * settings.speed;
       this.battleSystem.update(dt);
 
       // Sync positions
@@ -203,7 +226,8 @@ export class SiegeBattleScene extends Phaser.Scene {
         this.isProcessingEvent = false;
       });
 
-      this.time.delayedCall(150, () => {
+      const settings = this.getBattleSettings();
+      this.time.delayedCall(150 / settings.speed, () => {
         target.playHit();
         this.effectManager.playFloatingText(
           target.container.x,

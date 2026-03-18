@@ -24,7 +24,7 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const gameRef = useRef<Phaser.Game | null>(null);
   const modal = useModal();
   const claimKeyRef = useRef<string>(newClaimKey('siege'));
-  const [auto, setAuto] = useState(false);
+  const [auto, setAuto] = useState(true);
   const [speed, setSpeed] = useState<1 | 2>(1);
   const team = useSyncExternalStore(
     (listener) => Team.subscribe(listener),
@@ -80,6 +80,8 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
 
     const game = new Phaser.Game(config);
     gameRef.current = game;
+    game.registry.set('battleSettings', { auto, speed });
+    game.registry.set('battleCommands', []);
 
     // Restart scene with data to ensure init receives it
     // Use a slight timeout to ensure scene manager is ready if needed,
@@ -96,7 +98,13 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
       game.destroy(true);
       gameRef.current = null;
     };
-  }, [attackerTeam]);
+  }, [attackerTeam, auto, speed]);
+
+  useEffect(() => {
+    const game = gameRef.current;
+    if (!game) return;
+    game.registry.set('battleSettings', { auto, speed });
+  }, [auto, speed]);
 
   return (
     <div
@@ -151,23 +159,54 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                         <div
                           key={h.id}
                           style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
+                            display: 'grid',
+                            gridTemplateColumns: 'minmax(0, 1fr) auto',
+                            alignItems: 'center',
+                            gap: 10,
                             padding: '8px 10px',
                             borderRadius: 12,
                             border: '1px solid rgba(58,58,90,0.7)',
                             background: 'rgba(0,0,0,0.16)',
                           }}
                         >
-                          <span>{h.name}</span>
-                          <span style={{ color: 'var(--game-text-muted)', fontFamily: 'var(--game-font-mono)' }}>
-                            {h.activeSkill.name}
-                            {h.activeSkill.cooldown ? ` · CD ${h.activeSkill.cooldown}s` : ''}
-                          </span>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontWeight: 900 }}>{h.name}</div>
+                            <div style={{ color: 'var(--game-text-muted)', fontFamily: 'var(--game-font-mono)', fontSize: 12 }}>
+                              {h.activeSkill.name}
+                              {h.activeSkill.cooldown ? ` · CD ${h.activeSkill.cooldown}s` : ''}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            disabled={auto}
+                            onClick={() => {
+                              const game = gameRef.current;
+                              if (!game) return;
+                              const prev = (game.registry.get('battleCommands') as unknown) as
+                                | { type: 'cast'; heroId: string; side: 'attacker' | 'defender' }[]
+                                | undefined;
+                              const next = (prev ?? []).concat([{ type: 'cast', heroId: h.id, side: 'attacker' }]);
+                              game.registry.set('battleCommands', next);
+                              modal.close();
+                            }}
+                            title={auto ? '关闭自动后可手动施放' : '施放技能'}
+                            style={{
+                              height: 36,
+                              borderRadius: 10,
+                              border: '1px solid rgba(0,0,0,0.2)',
+                              background: auto ? 'rgba(255,255,255,0.06)' : 'var(--game-btn-info)',
+                              color: 'var(--game-text)',
+                              fontWeight: 900,
+                              padding: '0 10px',
+                              opacity: auto ? 0.6 : 1,
+                            }}
+                          >
+                            施放
+                          </button>
                         </div>
                       ))}
                       <div style={{ color: 'var(--game-text-muted)', fontSize: 12 }}>
-                        自动/加速/冷却与施放逻辑待与 Phaser 场景联动。
+                        关闭自动后可手动施放（当前仅影响逻辑层技能事件与伤害）。
                       </div>
                     </div>
                   ),

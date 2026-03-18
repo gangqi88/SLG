@@ -12,6 +12,7 @@ export class BattleSystem {
   currentTime: number = 0; // In seconds
   activeCombos: ComboSkill[] = [];
   comboTimer: number = 0;
+  private autoSkillEnabled: boolean = true;
 
   constructor(attackerHeroes: Hero[], defenderHeroes: Hero[]) {
     this.initializeUnits(attackerHeroes, 'attacker');
@@ -47,6 +48,20 @@ export class BattleSystem {
     const events = [...this.eventQueue];
     this.eventQueue = [];
     return events;
+  }
+
+  public setAutoSkillEnabled(enabled: boolean) {
+    this.autoSkillEnabled = enabled;
+  }
+
+  public castActiveSkillByHeroId(heroId: string, side: 'attacker' | 'defender') {
+    const unit = this.units.find((u) => u.side === side && !u.isDead && u.id === heroId);
+    if (!unit) return false;
+    const skill = unit.activeSkill;
+    if (skill.cooldown && (unit.cooldowns[skill.id] || 0) > 0) return false;
+    this.useSkill(unit, skill);
+    if (skill.cooldown) unit.cooldowns[skill.id] = skill.cooldown;
+    return true;
   }
 
   private initializeUnits(heroes: Hero[], side: 'attacker' | 'defender') {
@@ -207,7 +222,11 @@ export class BattleSystem {
       if (dist <= unit.range) {
         // Check Active Skill
         const activeSkill = unit.activeSkill;
-        if (activeSkill.cooldown && (unit.cooldowns[activeSkill.id] || 0) <= 0) {
+        if (
+          this.autoSkillEnabled &&
+          activeSkill.cooldown &&
+          (unit.cooldowns[activeSkill.id] || 0) <= 0
+        ) {
           this.useSkill(unit, activeSkill);
           unit.cooldowns[activeSkill.id] = activeSkill.cooldown;
         } else {
