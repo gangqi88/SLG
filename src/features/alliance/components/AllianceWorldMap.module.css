@@ -61,9 +61,34 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
+.cityRepairing {
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.35),
+    0 0 0 3px rgba(142, 36, 170, 0.35);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
 .city:active {
   transform: scale(0.92);
   filter: brightness(1.08);
+}
+
+.defenseBar {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 34px;
+  height: 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.defenseFill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(244, 67, 54, 0.95), rgba(255, 193, 7, 0.95), rgba(76, 175, 80, 0.95));
 }
 
 .cityName {
@@ -100,3 +125,14 @@
   border: 1px solid rgba(0, 0, 0, 0.35);
 }
 
+@keyframes pulse {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.12);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}

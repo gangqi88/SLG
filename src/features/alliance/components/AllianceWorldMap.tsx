@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import styles from './AllianceWorldMap.module.css';
 import { useModal } from '@/shared/components/ModalProvider';
 import type { AllianceWar } from '@/features/alliance/types/Alliance';
@@ -33,11 +33,19 @@ export const AllianceWorldMap: React.FC<{
 
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [, forceTick] = useState(0);
 
   const cities = useSyncExternalStore(
     (listener) => WorldMap.subscribe(listener),
     () => WorldMap.getSnapshot(),
   );
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      forceTick((v) => (v + 1) % 100000);
+    }, 1000);
+    return () => clearInterval(t);
+  }, []);
 
   const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
@@ -134,7 +142,11 @@ export const AllianceWorldMap: React.FC<{
       const isNeutral = !c.ownerAllianceId;
       const isWarTarget = Boolean(activeWar && activeWar.status !== 'finished' && activeWar.targetCityId === c.id);
       const status: CityStatus = isWarTarget ? 'war' : isSelf ? 'friendly' : isNeutral ? 'neutral' : 'enemy';
-      return { c, status };
+      const max = c.defenseState.max || 1;
+      const cur = c.defenseState.cur ?? max;
+      const ratio = Math.max(0, Math.min(1, cur / max));
+      const repairing = Boolean(c.defenseState.repairToMs && Date.now() < c.defenseState.repairToMs);
+      return { c, status, ratio, repairing };
     });
   }, [activeWar, cities, currentAllianceId]);
 
@@ -157,10 +169,10 @@ export const AllianceWorldMap: React.FC<{
           className={styles.canvas}
           style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}
         >
-          {cityNodes.map(({ c, status }) => (
+          {cityNodes.map(({ c, status, ratio, repairing }) => (
             <div
               key={c.id}
-              className={styles.city}
+              className={`${styles.city} ${repairing ? styles.cityRepairing : ''}`}
               style={{
                 left: c.x,
                 top: c.y,
@@ -170,6 +182,9 @@ export const AllianceWorldMap: React.FC<{
               tabIndex={0}
               onClick={() => openCity(c)}
             >
+              <div className={styles.defenseBar} aria-label="城防耐久">
+                <div className={styles.defenseFill} style={{ width: `${Math.round(ratio * 100)}%` }} />
+              </div>
               <span className={styles.cityName}>{c.name}</span>
             </div>
           ))}
