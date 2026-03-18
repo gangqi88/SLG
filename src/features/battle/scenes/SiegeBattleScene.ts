@@ -6,7 +6,13 @@ import { VisualUnit } from '@/shared/visuals/VisualUnit';
 import { EffectManager } from '@/shared/visuals/EffectManager';
 import { PerformanceMonitor } from '@/shared/visuals/PerformanceMonitor';
 import { WALL_HERO, STREET_FIGHT_DEFENDERS } from '@/features/hero/data/siegeHeroes';
-import { accumulateStatsFromEvents, emptySideStats, type BattleResult } from '@/shared/logic/battleResult';
+import {
+  accumulateFromEvents,
+  createBattleAccumulator,
+  ensureHeroInAccumulator,
+  type BattleResult,
+  type BattleStatsAccumulator,
+} from '@/shared/logic/battleResult';
 
 export class SiegeBattleScene extends Phaser.Scene {
   private battleSystem!: BattleSystem;
@@ -21,7 +27,8 @@ export class SiegeBattleScene extends Phaser.Scene {
   private defenderNames: string[] = [];
   private endEmitted: boolean = false;
   private sideByUnitId: Map<string, 'attacker' | 'defender'> = new Map();
-  private stats = { attacker: emptySideStats(), defender: emptySideStats() };
+  private heroIdByUnitId: Map<string, string> = new Map();
+  private acc: BattleStatsAccumulator = createBattleAccumulator();
 
   // Animation Queue
   private eventQueue: BattleEvent[] = [];
@@ -59,8 +66,13 @@ export class SiegeBattleScene extends Phaser.Scene {
     this.defenderNames = ['城墙'];
     this.endEmitted = false;
     this.sideByUnitId = new Map();
-    this.battleSystem.units.forEach((u) => this.sideByUnitId.set(u.uniqueId, u.side));
-    this.stats = { attacker: emptySideStats(), defender: emptySideStats() };
+    this.heroIdByUnitId = new Map();
+    this.acc = createBattleAccumulator();
+    this.battleSystem.units.forEach((u) => {
+      this.sideByUnitId.set(u.uniqueId, u.side);
+      this.heroIdByUnitId.set(u.uniqueId, u.id);
+      ensureHeroInAccumulator(this.acc, { heroId: u.id, name: u.name, side: u.side });
+    });
   }
 
   create() {
@@ -149,7 +161,7 @@ export class SiegeBattleScene extends Phaser.Scene {
       });
 
       const newEvents = this.battleSystem.getEvents();
-      accumulateStatsFromEvents(this.stats, newEvents, this.sideByUnitId);
+      accumulateFromEvents(this.acc, newEvents, this.sideByUnitId, this.heroIdByUnitId);
       this.eventQueue.push(...newEvents);
 
       // Check win condition
@@ -172,9 +184,11 @@ export class SiegeBattleScene extends Phaser.Scene {
             mode: 'siege',
             winner: 'defender',
             durationSec: Math.round(this.battleSystem.currentTime * 10) / 10,
+            endedAtMs: Date.now(),
             attacker: { names: this.attackerNames },
             defender: { names: this.defenderNames },
-            stats: this.stats,
+            stats: this.acc.sides,
+            heroes: Object.values(this.acc.heroes),
           };
           this.endEmitted = true;
           this.game.events.emit('battleEnd', result);
@@ -203,9 +217,11 @@ export class SiegeBattleScene extends Phaser.Scene {
             mode: 'siege',
             winner: 'attacker',
             durationSec: Math.round(this.battleSystem.currentTime * 10) / 10,
+            endedAtMs: Date.now(),
             attacker: { names: this.attackerNames },
             defender: { names: this.defenderNames },
-            stats: this.stats,
+            stats: this.acc.sides,
+            heroes: Object.values(this.acc.heroes),
           };
           this.endEmitted = true;
           this.game.events.emit('battleEnd', result);
@@ -382,6 +398,8 @@ export class SiegeBattleScene extends Phaser.Scene {
       // The new unit is the last one in units array
       const newUnit = this.battleSystem.units[this.battleSystem.units.length - 1];
       this.sideByUnitId.set(newUnit.uniqueId, newUnit.side);
+      this.heroIdByUnitId.set(newUnit.uniqueId, newUnit.id);
+      ensureHeroInAccumulator(this.acc, { heroId: newUnit.id, name: newUnit.name, side: newUnit.side });
       this.createVisualUnit(newUnit);
     });
 

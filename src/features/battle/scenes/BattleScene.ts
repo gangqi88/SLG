@@ -5,7 +5,13 @@ import { Hero } from '@/features/hero/types/Hero';
 import { VisualUnit } from '@/shared/visuals/VisualUnit';
 import { EffectManager } from '@/shared/visuals/EffectManager';
 import { PerformanceMonitor } from '@/shared/visuals/PerformanceMonitor';
-import { accumulateStatsFromEvents, emptySideStats, type BattleResult } from '@/shared/logic/battleResult';
+import {
+  accumulateFromEvents,
+  createBattleAccumulator,
+  ensureHeroInAccumulator,
+  type BattleResult,
+  type BattleStatsAccumulator,
+} from '@/shared/logic/battleResult';
 
 export class BattleScene extends Phaser.Scene {
   private battleSystem!: BattleSystem;
@@ -20,7 +26,8 @@ export class BattleScene extends Phaser.Scene {
   private defenderNames: string[] = [];
   private endEmitted: boolean = false;
   private sideByUnitId: Map<string, 'attacker' | 'defender'> = new Map();
-  private stats = { attacker: emptySideStats(), defender: emptySideStats() };
+  private heroIdByUnitId: Map<string, string> = new Map();
+  private acc: BattleStatsAccumulator = createBattleAccumulator();
 
   // Animation Queue
   private eventQueue: BattleEvent[] = [];
@@ -57,8 +64,13 @@ export class BattleScene extends Phaser.Scene {
     this.defenderNames = data.defenderHeroes.map((h) => h.name);
     this.endEmitted = false;
     this.sideByUnitId = new Map();
-    this.battleSystem.units.forEach((u) => this.sideByUnitId.set(u.uniqueId, u.side));
-    this.stats = { attacker: emptySideStats(), defender: emptySideStats() };
+    this.heroIdByUnitId = new Map();
+    this.acc = createBattleAccumulator();
+    this.battleSystem.units.forEach((u) => {
+      this.sideByUnitId.set(u.uniqueId, u.side);
+      this.heroIdByUnitId.set(u.uniqueId, u.id);
+      ensureHeroInAccumulator(this.acc, { heroId: u.id, name: u.name, side: u.side });
+    });
   }
 
   create() {
@@ -158,7 +170,7 @@ export class BattleScene extends Phaser.Scene {
 
       // Fetch new events
       const newEvents = this.battleSystem.getEvents();
-      accumulateStatsFromEvents(this.stats, newEvents, this.sideByUnitId);
+      accumulateFromEvents(this.acc, newEvents, this.sideByUnitId, this.heroIdByUnitId);
       this.eventQueue.push(...newEvents);
 
       const attackersAlive = this.battleSystem.units.some((u) => u.side === 'attacker' && !u.isDead);
@@ -170,9 +182,11 @@ export class BattleScene extends Phaser.Scene {
           mode: this.mode,
           winner,
           durationSec: Math.round(this.battleSystem.currentTime * 10) / 10,
+          endedAtMs: Date.now(),
           attacker: { names: this.attackerNames },
           defender: { names: this.defenderNames },
-          stats: this.stats,
+          stats: this.acc.sides,
+          heroes: Object.values(this.acc.heroes),
         };
         this.endEmitted = true;
         this.isPaused = true;

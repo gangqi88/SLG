@@ -13,6 +13,7 @@ import { hasClaimed, markClaimed, newClaimKey } from '@/shared/logic/claimLedger
 import { computeTeamPower } from '@/shared/logic/teamMetrics';
 import { WALL_HERO } from '@/features/hero/data/siegeHeroes';
 import type { BattleResult } from '@/shared/logic/battleResult';
+import { BattleHistory } from '@/shared/logic/battleHistory';
 
 interface SiegeViewProps {
   onExit: () => void;
@@ -91,6 +92,7 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
 
     const onBattleEnd = (result: BattleResult) => {
       setBattleResult(result);
+      BattleHistory.add(result);
     };
     game.events.on('battleEnd', onBattleEnd);
 

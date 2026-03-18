@@ -12,6 +12,7 @@ import { applyRewards, formatRewardLines, type Reward } from '@/shared/logic/rew
 import { hasClaimed, markClaimed, newClaimKey } from '@/shared/logic/claimLedger';
 import { computeTeamPower } from '@/shared/logic/teamMetrics';
 import type { BattleResult } from '@/shared/logic/battleResult';
+import { BattleHistory } from '@/shared/logic/battleHistory';
 
 interface BattleViewProps {
   attackerHeroes: Hero[];
@@ -97,6 +98,7 @@ const BattleView: React.FC<BattleViewProps> = ({
 
     const onBattleEnd = (result: BattleResult) => {
       setBattleResult(result);
+      BattleHistory.add(result);
     };
     game.events.on('battleEnd', onBattleEnd);
 

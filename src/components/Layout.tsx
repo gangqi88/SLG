@@ -50,6 +50,7 @@ const LayoutInner: React.FC = () => {
       }}
       topActions={[
         { key: 'settings', label: '设置', icon: '⚙', onClick: () => navigate('/style-guide') },
+        { key: 'reports', label: '战报', icon: '📜', onClick: () => navigate('/reports') },
         {
           key: 'mail',
           label: '邮件',
