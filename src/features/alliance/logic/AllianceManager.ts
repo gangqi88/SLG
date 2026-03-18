@@ -17,6 +17,7 @@ import {
   LEAVE_PENALTY_RATE,
   WAR_DECLARE_REQUIRED_LEVEL,
   WAR_DECLARE_DEPOSIT,
+  WAR_PREPARE_DURATION,
   WAR_DURATION,
 } from '../types/Alliance';
 import { STORAGE_KEY, getUpgradeCost, getMaxMembers } from '@/features/alliance/config/alliance';
@@ -589,7 +590,12 @@ class AllianceManager {
     return bonuses;
   }
 
-  public async declareWar(targetAllianceId: string): Promise<AllianceWar | null> {
+  public async declareWar(
+    targetAllianceId: string,
+    targetCityId?: string,
+    targetCityName?: string,
+    defenderName?: string,
+  ): Promise<AllianceWar | null> {
     if (!this.state.currentAlliance) {
       return null;
     }
@@ -598,7 +604,7 @@ class AllianceManager {
       return null;
     }
 
-    if (this.state.activeWar && this.state.activeWar.status === 'active') {
+    if (this.state.activeWar && this.state.activeWar.status !== 'finished') {
       return null;
     }
 
@@ -607,12 +613,14 @@ class AllianceManager {
       attackerId: this.state.currentAlliance.id,
       attackerName: this.state.currentAlliance.name,
       defenderId: targetAllianceId,
-      defenderName: 'Enemy Alliance',
+      defenderName: defenderName ?? '敌方联盟',
+      targetCityId,
+      targetCityName,
       startTime: Date.now(),
-      endTime: Date.now() + WAR_DURATION,
+      endTime: Date.now() + WAR_PREPARE_DURATION,
       attackerScore: 0,
       defenderScore: 0,
-      status: 'active',
+      status: 'preparing',
       winnerId: null,
       attackerDeposit: WAR_DECLARE_DEPOSIT,
       defenderDeposit: WAR_DECLARE_DEPOSIT,
@@ -629,6 +637,58 @@ class AllianceManager {
     });
 
     return war;
+  }
+
+  public tickWar(): AllianceWar | null {
+    const war = this.state.activeWar;
+    if (!war) return null;
+
+    if (war.status === 'preparing') {
+      if (Date.now() >= war.endTime) {
+        war.status = 'active';
+        war.startTime = Date.now();
+        war.endTime = Date.now() + WAR_DURATION;
+        this.saveState();
+        this.emit('war', war);
+      }
+      return war;
+    }
+
+    if (war.status === 'active') {
+      if (Date.now() >= war.endTime) {
+        war.status = 'finished';
+        if (war.attackerScore > war.defenderScore) {
+          war.winnerId = war.attackerId;
+        } else if (war.defenderScore > war.attackerScore) {
+          war.winnerId = war.defenderId;
+        }
+        if (war.winnerId === this.state.currentAlliance?.id) {
+          this.state.playerContribution += war.reward;
+        }
+        this.saveState();
+        this.emit('war', war);
+      }
+      return war;
+    }
+
+    return war;
+  }
+
+  public finishWarBySiege(args: { targetCityId: string; winnerId: string | null }) {
+    const war = this.state.activeWar;
+    if (!war) return false;
+    if (war.status === 'finished') return false;
+    if (!war.targetCityId || war.targetCityId !== args.targetCityId) return false;
+
+    war.status = 'finished';
+    war.endTime = Date.now();
+    war.winnerId = args.winnerId;
+    if (war.winnerId === this.state.currentAlliance?.id) {
+      this.state.playerContribution += war.reward;
+    }
+    this.saveState();
+    this.emit('war', war);
+    return true;
   }
 
   public getWarInfo(): AllianceWar | null {

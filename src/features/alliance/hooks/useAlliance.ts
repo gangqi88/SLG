@@ -53,7 +53,12 @@ interface UseAllianceReturn {
   cancelTradeRequest: (tradeId: string) => boolean;
   placeAdBid: (amount: number) => Promise<AdBid>;
   upgradeTech: (techId: string) => Promise<boolean>;
-  declareWar: (targetAllianceId: string) => Promise<AllianceWar | null>;
+  declareWar: (
+    targetAllianceId: string,
+    targetCityId?: string,
+    targetCityName?: string,
+    defenderName?: string,
+  ) => Promise<AllianceWar | null>;
   submitWarScore: (score: number) => boolean;
   contributeResource: (type: 'wood' | 'stone' | 'food' | 'gold', amount: number) => number;
   save: () => Promise<boolean>;
@@ -103,7 +108,12 @@ export const useAlliance = (): UseAllianceReturn => {
       syncState();
     });
 
+    const t = setInterval(() => {
+      manager.tickWar();
+    }, 1000);
+
     return () => {
+      clearInterval(t);
       unsubscribe();
     };
   }, []);
@@ -201,9 +211,9 @@ export const useAlliance = (): UseAllianceReturn => {
     return await manager.upgradeTech(techId);
   }, []);
 
-  const declareWar = useCallback(async (targetAllianceId: string) => {
+  const declareWar = useCallback(async (targetAllianceId: string, targetCityId?: string, targetCityName?: string, defenderName?: string) => {
     const manager = AllianceManager.getInstance();
-    return await manager.declareWar(targetAllianceId);
+    return await manager.declareWar(targetAllianceId, targetCityId, targetCityName, defenderName);
   }, []);
 
   const submitWarScore = useCallback((score: number) => {

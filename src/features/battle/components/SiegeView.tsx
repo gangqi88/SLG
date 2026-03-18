@@ -14,6 +14,10 @@ import { computeTeamPower } from '@/shared/logic/teamMetrics';
 import { WALL_HERO } from '@/features/hero/data/siegeHeroes';
 import type { BattleResult } from '@/shared/logic/battleResult';
 import { BattleHistory } from '@/shared/logic/battleHistory';
+import { useSearchParams } from 'react-router-dom';
+import { WorldMap } from '@/features/alliance/logic/WorldMap';
+import { useAlliance } from '@/features/alliance/hooks/useAlliance';
+import AllianceManager from '@/features/alliance/logic/AllianceManager';
 
 interface SiegeViewProps {
   onExit: () => void;
@@ -21,7 +25,13 @@ interface SiegeViewProps {
 
 const siegeManager = new SiegeManager();
 
-const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
+const SiegeBattleGame: React.FC<{
+  onExit: () => void;
+  targetCityId?: string | null;
+  targetCityName?: string | null;
+  attackerAlliance?: { id: string; name: string } | null;
+  activeWar?: { defenderId: string; status: string; targetCityId?: string };
+}> = ({ onExit, targetCityId, targetCityName, attackerAlliance, activeWar }) => {
   const gameRef = useRef<Phaser.Game | null>(null);
   const modal = useModal();
   const battleIdRef = useRef<string>(newClaimKey('siege'));
@@ -93,6 +103,20 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     const onBattleEnd = (result: BattleResult) => {
       setBattleResult(result);
       BattleHistory.add(result);
+      if (targetCityId && attackerAlliance) {
+        if (result.winner === 'attacker') {
+          WorldMap.setOwner(targetCityId, attackerAlliance.id, attackerAlliance.name);
+        }
+        if (activeWar && activeWar.targetCityId === targetCityId && activeWar.status !== 'finished') {
+          const winnerId =
+            result.winner === 'attacker'
+              ? attackerAlliance.id
+              : result.winner === 'defender'
+                ? activeWar.defenderId
+                : null;
+          AllianceManager.getInstance().finishWarBySiege({ targetCityId, winnerId });
+        }
+      }
     };
     game.events.on('battleEnd', onBattleEnd);
 
@@ -101,7 +125,7 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
       game.destroy(true);
       gameRef.current = null;
     };
-  }, [attackerTeam, auto, speed]);
+  }, [activeWar, attackerAlliance, attackerTeam, auto, speed, targetCityId]);
 
   useEffect(() => {
     const game = gameRef.current;
@@ -145,7 +169,7 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
             { label: '战力', value: String(attackerPower) },
           ]}
           right={[
-            { label: '目标', value: '城墙' },
+            { label: '目标', value: targetCityName || '城墙' },
             { label: '战力', value: String(defenderPower) },
           ]}
           actions={[
@@ -451,6 +475,10 @@ const DemolitionGame: React.FC<{ onComplete: (score: number) => void; onExit: ()
 };
 
 const SiegeView: React.FC<SiegeViewProps> = ({ onExit }) => {
+  const [searchParams] = useSearchParams();
+  const targetCityId = searchParams.get('cityId');
+  const targetCity = useMemo(() => (targetCityId ? WorldMap.getCityById(targetCityId) : null), [targetCityId]);
+  const { alliance, activeWar } = useAlliance();
   const [phase, setPhase] = useState<SiegePhase>(SiegePhase.None);
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
   const [debugHour, setDebugHour] = useState<string>('');
@@ -501,6 +529,15 @@ const SiegeView: React.FC<SiegeViewProps> = ({ onExit }) => {
 
   const handleAttack = () => {
     if (phase === SiegePhase.Attack) {
+      if (
+        targetCityId &&
+        activeWar &&
+        activeWar.targetCityId === targetCityId &&
+        activeWar.status !== 'active'
+      ) {
+        setMessage('宣战倒计时未结束，无法开始攻城。');
+        return;
+      }
       setShowBattle(true);
       setMessage('Attack Launched! Glory to the alliance!');
     }
@@ -519,6 +556,11 @@ const SiegeView: React.FC<SiegeViewProps> = ({ onExit }) => {
         }}
       >
         <h2>Siege Warfare</h2>
+        {targetCity && (
+          <div style={{ color: '#f1c40f', fontWeight: 700 }}>
+            目标城池：{targetCity.name}（{targetCity.ownerAllianceName || '无主'}）
+          </div>
+        )}
         <button onClick={onExit} style={{ padding: '8px 16px', cursor: 'pointer' }}>
           Back to City
         </button>
@@ -686,7 +728,15 @@ const SiegeView: React.FC<SiegeViewProps> = ({ onExit }) => {
         />
       )}
 
-      {showBattle && <SiegeBattleGame onExit={() => setShowBattle(false)} />}
+      {showBattle && (
+        <SiegeBattleGame
+          onExit={() => setShowBattle(false)}
+          targetCityId={targetCityId}
+          targetCityName={targetCity?.name ?? null}
+          attackerAlliance={alliance ? { id: alliance.id, name: alliance.name } : null}
+          activeWar={activeWar ? { defenderId: activeWar.defenderId, status: activeWar.status, targetCityId: activeWar.targetCityId } : undefined}
+        />
+      )}
     </div>
   );
 };

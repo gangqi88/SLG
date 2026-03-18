@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatRemaining } from '@/shared/logic/time';
 import { Team } from '@/shared/logic/Team';
 import { TeamEditor } from '@/shared/components/TeamEditor';
+import { WorldMap } from '@/features/alliance/logic/WorldMap';
 
 type TabType = 'info' | 'members' | 'checkin' | 'chat' | 'shop' | 'trade' | 'tech' | 'war' | 'ad';
 
@@ -207,7 +208,7 @@ export const AllianceDashboard: React.FC = () => {
     return () => clearInterval(t);
   }, []);
 
-  const openRally = () => {
+  const openRally = (targetCityId?: string | null) => {
     modal.openModal({
       title: '集结队伍',
       content: (
@@ -223,7 +224,7 @@ export const AllianceDashboard: React.FC = () => {
           variant: 'primary',
           onClick: () => {
             modal.close();
-            navigate('/siege');
+            navigate(targetCityId ? `/siege?cityId=${encodeURIComponent(targetCityId)}` : '/siege');
           },
         },
       ],
@@ -274,21 +275,34 @@ export const AllianceDashboard: React.FC = () => {
                 宣战状态
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                <div className={styles.metaItem}>目标：{activeWar.defenderName}</div>
+                <div className={styles.metaItem}>
+                  目标：{activeWar.targetCityName ? `${activeWar.targetCityName} · ` : ''}
+                  {activeWar.defenderName}
+                </div>
                 <div className={styles.metaItem}>
                   倒计时：{formatRemaining(activeWar.endTime - Date.now())}
                 </div>
-                <div className={styles.metaItem}>阶段：{activeWar.status === 'active' ? '进行中' : '准备中'}</div>
+                <div className={styles.metaItem}>
+                  阶段：{activeWar.status === 'active' ? '攻城中' : activeWar.status === 'preparing' ? '宣战中' : '已结束'}
+                </div>
               </div>
               <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
-                <button type="button" className={styles.entryBtn} onClick={openRally}>
+                <button
+                  type="button"
+                  className={styles.entryBtn}
+                  onClick={() => openRally(activeWar.targetCityId)}
+                >
                   集结队伍
                 </button>
                 <button
                   type="button"
                   className={styles.entryBtn}
                   onClick={() => {
-                    navigate('/siege');
+                    if (activeWar.status !== 'active') {
+                      modal.openAlert({ title: '未开始', message: '宣战倒计时结束后才能开始攻城。' });
+                      return;
+                    }
+                    navigate(activeWar.targetCityId ? `/siege?cityId=${encodeURIComponent(activeWar.targetCityId)}` : '/siege');
                   }}
                 >
                   前往攻城
@@ -301,18 +315,31 @@ export const AllianceDashboard: React.FC = () => {
         </div>
 
         <AllianceWorldMap
-          onDeclareWar={async () => {
+          currentAllianceId={alliance?.id ?? null}
+          activeWar={activeWar}
+          onDeclareWar={async (cityId) => {
             if ((alliance?.level || 0) < 5) {
               modal.openAlert({ title: '未解锁', message: '联盟等级达到 Lv.5 解锁攻城战。' });
               return;
             }
+            const city = WorldMap.getCityById(cityId);
+            if (!city) {
+              modal.openAlert({ title: '宣战失败', message: '未找到目标城池。' });
+              return;
+            }
+            if (city.ownerAllianceId === alliance?.id || city.ownerAllianceId === 'a_self') {
+              modal.openAlert({ title: '提示', message: '无法对己方城池宣战。' });
+              return;
+            }
+            const targetAllianceId = city.ownerAllianceId ?? 'neutral';
+            const defenderName = city.ownerAllianceName ?? (city.ownerAllianceId ? '敌方联盟' : '无主城池');
             modal.openConfirm({
               title: '宣战',
-              message: '宣战将消耗联盟押金并进入倒计时，确认继续？',
+              message: `目标：${city.name}。宣战将消耗联盟押金并进入倒计时，确认继续？`,
               primaryText: '确认',
               secondaryText: '取消',
               onConfirm: async () => {
-                const war = await declareWar('mock_target_alliance');
+                const war = await declareWar(targetAllianceId, city.id, city.name, defenderName);
                 if (war) {
                   modal.openModal({
                     title: '宣战成功',
@@ -332,7 +359,7 @@ export const AllianceDashboard: React.FC = () => {
                         variant: 'primary',
                         onClick: () => {
                           modal.close();
-                          openRally();
+                          openRally(war.targetCityId);
                         },
                       },
                     ],

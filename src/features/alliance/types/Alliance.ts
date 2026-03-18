@@ -105,6 +105,8 @@ export interface AllianceWar {
   attackerName: string;
   defenderId: string;
   defenderName: string;
+  targetCityId?: string;
+  targetCityName?: string;
   startTime: number;
   endTime: number;
   attackerScore: number;
@@ -323,4 +325,5 @@ export const CHECK_IN_REWARD = 50;
 export const LEAVE_PENALTY_RATE = 0.5;
 export const WAR_DECLARE_REQUIRED_LEVEL = 5;
 export const WAR_DECLARE_DEPOSIT = 50000;
+export const WAR_PREPARE_DURATION = 60 * 1000;
 export const WAR_DURATION = 24 * 60 * 60 * 1000;
