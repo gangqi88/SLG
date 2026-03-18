@@ -1,0 +1,91 @@
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.top {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.panel {
+  pointer-events: auto;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(58, 58, 90, 0.7);
+  border-radius: 12px;
+  padding: 8px 10px;
+  color: var(--game-text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.title {
+  font-weight: 900;
+  color: var(--game-title);
+  font-size: 14px;
+}
+
+.stat {
+  font-family: var(--game-font-mono);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.exitBtn {
+  pointer-events: auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: var(--game-btn-battle);
+  color: var(--game-text);
+  font-weight: 900;
+  padding: 0;
+}
+
+.exitBtn:active {
+  transform: scale(0.95);
+  filter: brightness(1.08);
+}
+
+.bottom {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.btn {
+  pointer-events: auto;
+  min-width: 88px;
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(58, 58, 90, 0.7);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--game-text);
+  font-weight: 800;
+}
+
+.btn:active {
+  transform: scale(0.95);
+  filter: brightness(1.08);
+}
+
+.btnPrimary {
+  background: var(--game-btn-info);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
