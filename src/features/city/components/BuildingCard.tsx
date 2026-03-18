@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Building } from '@/features/city/types/MainCity';
 import { BuildingUpgrade } from './BuildingUpgrade';
 import { useMainCity } from '@/features/city/hooks/useMainCity';
@@ -16,7 +16,6 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
   const { getUpgradeCost, startUpgrade, currentResources } = useMainCity();
   const modal = useModal();
   const navigate = useNavigate();
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [countdown, setCountdown] = useState<string>('');
 
   const upgradeCost = getUpgradeCost(building.type, building.level);
@@ -63,38 +62,68 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
       modal.openAlert({ title: '提示', message: '已达到最高等级。' });
       return;
     }
-    setShowUpgradeModal(true);
-  };
-
-  const handleUpgradeConfirm = async () => {
-    const success = await startUpgrade(building.id);
-    if (success) {
-      setShowUpgradeModal(false);
-    } else {
-      const primary = pickMostDeficient([
-        { key: 'wood', need: upgradeCost.wood, have: currentResources.wood },
-        { key: 'ore', need: upgradeCost.stone, have: currentResources.stone },
-        { key: 'coin', need: upgradeCost.gold, have: currentResources.gold },
-      ]);
-      if (primary) {
-        const title = primary.key === 'wood' ? '木材不足' : primary.key === 'ore' ? '矿石不足' : '金币不足';
-        const needAmount =
-          primary.key === 'wood' ? upgradeCost.wood : primary.key === 'ore' ? upgradeCost.stone : upgradeCost.gold;
-        const haveAmount =
-          primary.key === 'wood'
-            ? currentResources.wood
-            : primary.key === 'ore'
-              ? currentResources.stone
-              : currentResources.gold;
-        openResourceWays({ modal, navigate, resourceKey: primary.key, title, needAmount, haveAmount });
-        return;
-      }
-      modal.openAlert({ title: '升级失败', message: '当前无法升级，请稍后再试。' });
-    }
-  };
-
-  const handleUpgradeCancel = () => {
-    setShowUpgradeModal(false);
+    modal.openModal({
+      title: '建筑升级',
+      content: (
+        <BuildingUpgrade
+          building={building}
+          upgradeCost={upgradeCost}
+          currentResources={currentResources}
+          onOpenWays={({ resourceKey, title, needAmount, haveAmount }) => {
+            modal.close();
+            openResourceWays({ modal, navigate, resourceKey, title, needAmount, haveAmount });
+          }}
+        />
+      ),
+      actions: [
+        { key: 'cancel', label: '取消', variant: 'secondary', onClick: () => modal.close() },
+        {
+          key: 'upgrade',
+          label: '升级',
+          variant: 'primary',
+          onClick: async () => {
+            const success = await startUpgrade(building.id);
+            if (success) {
+              modal.close();
+              return;
+            }
+            const primary = pickMostDeficient([
+              { key: 'wood', need: upgradeCost.wood, have: currentResources.wood },
+              { key: 'ore', need: upgradeCost.stone, have: currentResources.stone },
+              { key: 'coin', need: upgradeCost.gold, have: currentResources.gold },
+            ]);
+            if (primary) {
+              let title = '金币不足';
+              if (primary.key === 'wood') title = '木材不足';
+              else if (primary.key === 'ore') title = '矿石不足';
+              const needAmount =
+                primary.key === 'wood'
+                  ? upgradeCost.wood
+                  : primary.key === 'ore'
+                    ? upgradeCost.stone
+                    : upgradeCost.gold;
+              const haveAmount =
+                primary.key === 'wood'
+                  ? currentResources.wood
+                  : primary.key === 'ore'
+                    ? currentResources.stone
+                    : currentResources.gold;
+              modal.close();
+              openResourceWays({
+                modal,
+                navigate,
+                resourceKey: primary.key,
+                title,
+                needAmount,
+                haveAmount,
+              });
+              return;
+            }
+            modal.openAlert({ title: '升级失败', message: '当前无法升级，请稍后再试。' });
+          },
+        },
+      ],
+    });
   };
 
   const getBuildingName = (type: string): string => {
@@ -118,38 +147,26 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
   };
 
   return (
-    <>
-      <div className={styles.card}>
-        <div className={styles.icon}>{building.type.charAt(0).toUpperCase()}</div>
-        <div className={styles.info}>
-          <h3 className={styles.name}>{getBuildingName(building.type)}</h3>
-          <p className={styles.level}>
-            等级 {building.level} / {building.maxLevel}
-          </p>
-          {building.isUpgrading ? (
-            <div className={styles.upgrading}>{countdown || 'Upgrading...'}</div>
-          ) : building.level >= building.maxLevel ? (
-            <div className={styles.maxLevel}>MAX</div>
-          ) : null}
-        </div>
-        <button
-          className={styles.upgradeButton}
-          onClick={handleUpgradeClick}
-          disabled={building.isUpgrading || building.level >= building.maxLevel}
-        >
-          {building.level >= building.maxLevel ? '已满级' : '升级'}
-        </button>
+    <div className={styles.card}>
+      <div className={styles.icon}>{building.type.charAt(0).toUpperCase()}</div>
+      <div className={styles.info}>
+        <h3 className={styles.name}>{getBuildingName(building.type)}</h3>
+        <p className={styles.level}>
+          等级 {building.level} / {building.maxLevel}
+        </p>
+        {building.isUpgrading ? (
+          <div className={styles.upgrading}>{countdown || 'Upgrading...'}</div>
+        ) : building.level >= building.maxLevel ? (
+          <div className={styles.maxLevel}>MAX</div>
+        ) : null}
       </div>
-
-      {showUpgradeModal && (
-        <BuildingUpgrade
-          building={building}
-          upgradeCost={upgradeCost}
-          currentResources={currentResources}
-          onUpgrade={handleUpgradeConfirm}
-          onCancel={handleUpgradeCancel}
-        />
-      )}
-    </>
+      <button
+        className={styles.upgradeButton}
+        onClick={handleUpgradeClick}
+        disabled={building.isUpgrading || building.level >= building.maxLevel}
+      >
+        {building.level >= building.maxLevel ? '已满级' : '升级'}
+      </button>
+    </div>
   );
 };

@@ -1,32 +1,20 @@
 import React from 'react';
 import { Building, BuildingUpgradeCost } from '@/features/city/types/MainCity';
 import styles from './BuildingUpgrade.module.css';
-import { useModal } from '@/shared/components/ModalProvider';
-import { useNavigate } from 'react-router-dom';
-import { openResourceWays } from '@/shared/logic/openResourceWays';
 
 interface BuildingUpgradeProps {
   building: Building;
   upgradeCost: BuildingUpgradeCost;
   currentResources: { wood: number; stone: number; gold: number };
-  onUpgrade: () => void;
-  onCancel: () => void;
+  onOpenWays: (args: { resourceKey: 'wood' | 'ore' | 'coin'; title: string; needAmount: number; haveAmount: number }) => void;
 }
 
 export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
   building,
   upgradeCost,
   currentResources,
-  onUpgrade,
-  onCancel,
+  onOpenWays,
 }) => {
-  const modal = useModal();
-  const navigate = useNavigate();
-  const canAfford =
-    currentResources.wood >= upgradeCost.wood &&
-    currentResources.stone >= upgradeCost.stone &&
-    currentResources.gold >= upgradeCost.gold;
-
   const needWood = currentResources.wood < upgradeCost.wood;
   const needStone = currentResources.stone < upgradeCost.stone;
   const needGold = currentResources.gold < upgradeCost.gold;
@@ -61,117 +49,88 @@ export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.container}>
-        <h3 className={styles.title}>
-          升级 {getBuildingName(building.type)} 至 {building.level + 1} 级
-        </h3>
+    <div className={styles.container}>
+      <h3 className={styles.title}>
+        升级 {getBuildingName(building.type)} 至 {building.level + 1} 级
+      </h3>
 
-        <div className={styles.cost}>
-          <div className={styles.costItem}>
-            <span>木材:</span>
-            <span
-              className={
-                currentResources.wood >= upgradeCost.wood ? styles.affordable : styles.expensive
+      <div className={styles.cost}>
+        <div className={styles.costItem}>
+          <span>木材:</span>
+          <span className={currentResources.wood >= upgradeCost.wood ? styles.affordable : styles.expensive}>
+            {upgradeCost.wood}
+          </span>
+          {needWood ? (
+            <button
+              type="button"
+              className={styles.wayButton}
+              onClick={() =>
+                onOpenWays({
+                  resourceKey: 'wood',
+                  title: '木材不足',
+                  needAmount: upgradeCost.wood,
+                  haveAmount: currentResources.wood,
+                })
               }
             >
-              {upgradeCost.wood}
-            </span>
-            {needWood ? (
-              <button
-                type="button"
-                className={styles.wayButton}
-                onClick={() =>
-                  openResourceWays({
-                    modal,
-                    navigate,
-                    resourceKey: 'wood',
-                    title: '木材不足',
-                    needAmount: upgradeCost.wood,
-                    haveAmount: currentResources.wood,
-                  })
-                }
-              >
-                获取
-              </button>
-            ) : (
-              <span />
-            )}
-          </div>
-          <div className={styles.costItem}>
-            <span>矿石:</span>
-            <span
-              className={
-                currentResources.stone >= upgradeCost.stone ? styles.affordable : styles.expensive
-              }
-            >
-              {upgradeCost.stone}
-            </span>
-            {needStone ? (
-              <button
-                type="button"
-                className={styles.wayButton}
-                onClick={() =>
-                  openResourceWays({
-                    modal,
-                    navigate,
-                    resourceKey: 'ore',
-                    title: '矿石不足',
-                    needAmount: upgradeCost.stone,
-                    haveAmount: currentResources.stone,
-                  })
-                }
-              >
-                获取
-              </button>
-            ) : (
-              <span />
-            )}
-          </div>
-          <div className={styles.costItem}>
-            <span>金币:</span>
-            <span
-              className={
-                currentResources.gold >= upgradeCost.gold ? styles.affordable : styles.expensive
-              }
-            >
-              {upgradeCost.gold}
-            </span>
-            {needGold ? (
-              <button
-                type="button"
-                className={styles.wayButton}
-                onClick={() =>
-                  openResourceWays({
-                    modal,
-                    navigate,
-                    resourceKey: 'coin',
-                    title: '金币不足',
-                    needAmount: upgradeCost.gold,
-                    haveAmount: currentResources.gold,
-                  })
-                }
-              >
-                获取
-              </button>
-            ) : (
-              <span />
-            )}
-          </div>
-          <div className={styles.costItem}>
-            <span>耗时:</span>
-            <span>{formatTime(upgradeCost.time)}</span>
+              获取
+            </button>
+          ) : (
             <span />
-          </div>
+          )}
         </div>
-
-        <div className={styles.actions}>
-          <button className={styles.upgradeButton} onClick={onUpgrade} disabled={!canAfford}>
-            升级
-          </button>
-          <button className={styles.cancelButton} onClick={onCancel}>
-            取消
-          </button>
+        <div className={styles.costItem}>
+          <span>矿石:</span>
+          <span className={currentResources.stone >= upgradeCost.stone ? styles.affordable : styles.expensive}>
+            {upgradeCost.stone}
+          </span>
+          {needStone ? (
+            <button
+              type="button"
+              className={styles.wayButton}
+              onClick={() =>
+                onOpenWays({
+                  resourceKey: 'ore',
+                  title: '矿石不足',
+                  needAmount: upgradeCost.stone,
+                  haveAmount: currentResources.stone,
+                })
+              }
+            >
+              获取
+            </button>
+          ) : (
+            <span />
+          )}
+        </div>
+        <div className={styles.costItem}>
+          <span>金币:</span>
+          <span className={currentResources.gold >= upgradeCost.gold ? styles.affordable : styles.expensive}>
+            {upgradeCost.gold}
+          </span>
+          {needGold ? (
+            <button
+              type="button"
+              className={styles.wayButton}
+              onClick={() =>
+                onOpenWays({
+                  resourceKey: 'coin',
+                  title: '金币不足',
+                  needAmount: upgradeCost.gold,
+                  haveAmount: currentResources.gold,
+                })
+              }
+            >
+              获取
+            </button>
+          ) : (
+            <span />
+          )}
+        </div>
+        <div className={styles.costItem}>
+          <span>耗时:</span>
+          <span>{formatTime(upgradeCost.time)}</span>
+          <span />
         </div>
       </div>
     </div>
