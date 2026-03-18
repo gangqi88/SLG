@@ -4,6 +4,8 @@ import { HeroLogic } from '@/features/hero/logic/HeroLogic';
 import InventoryManager from '@/features/resource/logic/InventoryManager';
 import { InventoryItem } from '@/features/gacha/types/LootBox';
 import { useModal } from '@/shared/components/ModalProvider';
+import { openResourceWays } from '@/shared/logic/openResourceWays';
+import { useNavigate } from 'react-router-dom';
 
 interface HeroDevelopmentViewProps {
   hero: Hero;
@@ -13,6 +15,7 @@ interface HeroDevelopmentViewProps {
 
 const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose, onUpdate }) => {
   const modal = useModal();
+  const navigate = useNavigate();
   const [stats, setStats] = useState(HeroLogic.getStats(hero));
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [lastSuccess, setLastSuccess] = useState<string | null>(null);
@@ -48,10 +51,7 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
       setLastSuccess('升级成功');
       setTimeout(() => setLastSuccess(null), 900);
     } else {
-      modal.openAlert({
-        title: '资源不足',
-        message: '包子不足，无法升级。',
-      });
+      openResourceWays({ modal, navigate, resourceKey: 'bun', title: '包子不足' });
     }
   };
 
@@ -62,10 +62,7 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
       setLastSuccess('升星成功');
       setTimeout(() => setLastSuccess(null), 900);
     } else {
-      modal.openAlert({
-        title: '资源不足',
-        message: '碎片不足，无法升星。',
-      });
+      openResourceWays({ modal, navigate, resourceKey: 'fragment', title: '碎片不足' });
     }
   };
 

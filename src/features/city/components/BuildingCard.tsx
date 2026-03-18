@@ -4,6 +4,8 @@ import { BuildingUpgrade } from './BuildingUpgrade';
 import { useMainCity } from '@/features/city/hooks/useMainCity';
 import styles from './BuildingCard.module.css';
 import { useModal } from '@/shared/components/ModalProvider';
+import { useNavigate } from 'react-router-dom';
+import { openResourceWays } from '@/shared/logic/openResourceWays';
 
 interface BuildingCardProps {
   building: Building;
@@ -12,6 +14,7 @@ interface BuildingCardProps {
 export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
   const { getUpgradeCost, startUpgrade, currentResources } = useMainCity();
   const modal = useModal();
+  const navigate = useNavigate();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [countdown, setCountdown] = useState<string>('');
 
@@ -67,10 +70,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
     if (success) {
       setShowUpgradeModal(false);
     } else {
-      modal.openAlert({
-        title: '资源不足',
-        message: '资源不足，无法开始升级。请前往采集/任务/活动获取。',
-      });
+      openResourceWays({ modal, navigate, resourceKey: 'wood', title: '资源不足' });
     }
   };
 

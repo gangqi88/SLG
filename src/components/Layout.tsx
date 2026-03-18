@@ -4,6 +4,7 @@ import { GameShell } from '@/shared/components/GameShell';
 import { ModalProvider, useModal } from '@/shared/components/ModalProvider';
 import type { WalletAccount } from '@/shared/utils/web3';
 import { UINotifications } from '@/shared/logic/UINotifications';
+import { openResourceWays } from '@/shared/logic/openResourceWays';
 
 const WalletConnect = React.lazy(() => import('@/shared/components/WalletConnect'));
 
@@ -36,17 +37,7 @@ const LayoutInner: React.FC = () => {
       onBack={() => (canGoBack ? navigate(-1) : navigate('/'))}
       onHome={() => navigate('/')}
       onResourceClick={(key) => {
-        modal.openAlert({
-          title: '资源',
-          message: (
-            <div>
-              <div>点击了资源：{key}</div>
-              <div style={{ marginTop: 8, color: 'var(--game-text-muted)' }}>
-                资源产出跳转与获取途径面板待接入。
-              </div>
-            </div>
-          ),
-        });
+        openResourceWays({ modal, navigate, resourceKey: key, title: '资源获取途径' });
       }}
       topActions={[
         { key: 'settings', label: '设置', icon: '⚙', onClick: () => navigate('/style-guide') },
