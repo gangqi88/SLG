@@ -31,17 +31,18 @@ const loadManifestEntries = async () => {
   if (manifestFiles.length === 0) {
     throw new Error('No manifest json files found in assets/manifests');
   }
-  const entries = [];
-  for (const file of manifestFiles) {
+  const entriesByFile = await Promise.all(
+    manifestFiles.map(async (file) => {
     const filePath = path.join(manifestsDir, file);
     const raw = await readFile(filePath, 'utf8');
     const manifest = JSON.parse(raw);
     if (!Array.isArray(manifest)) {
-      throw new Error(`${file} must be an array`);
+      throw new TypeError(`${file} must be an array`);
     }
-    entries.push(...manifest);
-  }
-  return entries;
+      return manifest;
+    })
+  );
+  return entriesByFile.flat();
 };
 
 const validateAsset = async (asset, index, seenKeys) => {
@@ -104,9 +105,7 @@ const run = async () => {
   const manifest = await loadManifestEntries();
 
   const seenKeys = new Set();
-  for (let i = 0; i < manifest.length; i += 1) {
-    await validateAsset(manifest[i], i, seenKeys);
-  }
+  await Promise.all(manifest.map((asset, index) => validateAsset(asset, index, seenKeys)));
 
   if (errors.length > 0) {
     console.error('Asset check failed:');
@@ -120,8 +119,10 @@ const run = async () => {
   console.log(`Asset check passed: ${manifest.length} assets validated.`);
 };
 
-run().catch((error) => {
+try {
+  await run();
+} catch (error) {
   console.error('Asset check failed with runtime error:');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
-});
+}
