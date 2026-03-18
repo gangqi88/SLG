@@ -31,9 +31,17 @@ const GachaView: React.FC = () => {
       try {
         const pool = pools.find((p) => p.id === poolId);
         const cost = pool ? pool.cost.amount * count : 0;
+        const haveGem = PlayerResources.getSnapshot().gem;
         const canSpend = PlayerResources.spend('gem', cost);
         if (!canSpend) {
-          openResourceWays({ modal, navigate, resourceKey: 'gem', title: '元宝不足' });
+          openResourceWays({
+            modal,
+            navigate,
+            resourceKey: 'gem',
+            title: '元宝不足',
+            needAmount: cost,
+            haveAmount: haveGem,
+          });
           setIsDrawing(false);
           return;
         }

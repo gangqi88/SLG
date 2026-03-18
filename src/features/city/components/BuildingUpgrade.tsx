@@ -81,7 +81,16 @@ export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
               <button
                 type="button"
                 className={styles.wayButton}
-                onClick={() => openResourceWays({ modal, navigate, resourceKey: 'wood', title: '木材不足' })}
+                onClick={() =>
+                  openResourceWays({
+                    modal,
+                    navigate,
+                    resourceKey: 'wood',
+                    title: '木材不足',
+                    needAmount: upgradeCost.wood,
+                    haveAmount: currentResources.wood,
+                  })
+                }
               >
                 获取
               </button>
@@ -102,7 +111,16 @@ export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
               <button
                 type="button"
                 className={styles.wayButton}
-                onClick={() => openResourceWays({ modal, navigate, resourceKey: 'ore', title: '矿石不足' })}
+                onClick={() =>
+                  openResourceWays({
+                    modal,
+                    navigate,
+                    resourceKey: 'ore',
+                    title: '矿石不足',
+                    needAmount: upgradeCost.stone,
+                    haveAmount: currentResources.stone,
+                  })
+                }
               >
                 获取
               </button>
@@ -123,7 +141,16 @@ export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
               <button
                 type="button"
                 className={styles.wayButton}
-                onClick={() => openResourceWays({ modal, navigate, resourceKey: 'coin', title: '金币不足' })}
+                onClick={() =>
+                  openResourceWays({
+                    modal,
+                    navigate,
+                    resourceKey: 'coin',
+                    title: '金币不足',
+                    needAmount: upgradeCost.gold,
+                    haveAmount: currentResources.gold,
+                  })
+                }
               >
                 获取
               </button>

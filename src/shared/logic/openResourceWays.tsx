@@ -7,14 +7,18 @@ export const openResourceWays = (args: {
   modal: { openModal: (p: { title: string; content: React.ReactNode; actions?: ModalAction[] }) => void; close: () => void };
   navigate: NavigateFunction;
   resourceKey: ResourceNeedKey;
+  needAmount?: number;
+  haveAmount?: number;
   title?: string;
 }) => {
-  const { modal, navigate, resourceKey, title } = args;
+  const { modal, navigate, resourceKey, title, needAmount, haveAmount } = args;
   modal.openModal({
     title: title ?? '获取途径',
     content: (
       <ResourceWaysContent
         resourceKey={resourceKey}
+        needAmount={needAmount}
+        haveAmount={haveAmount}
         onGo={(to) => {
           modal.close();
           navigate(to);

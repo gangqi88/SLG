@@ -93,15 +93,39 @@ const sortWays = (resourceKey: ResourceNeedKey, ways: Way[]) => {
 
 export const ResourceWaysContent: React.FC<{
   resourceKey: ResourceNeedKey;
+  needAmount?: number;
+  haveAmount?: number;
   onGo: (to: string) => void;
-}> = ({ resourceKey, onGo }) => {
+}> = ({ resourceKey, needAmount, haveAmount, onGo }) => {
   const ways = sortWays(resourceKey, getResourceWays(resourceKey));
   const preferredSet = new Set(preferredWayKeysByResource[resourceKey] ?? []);
+  const need = typeof needAmount === 'number' ? Math.max(0, Math.floor(needAmount)) : null;
+  const have = typeof haveAmount === 'number' ? Math.max(0, Math.floor(haveAmount)) : null;
+  const deficit = need !== null && have !== null ? Math.max(0, need - have) : null;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ color: 'var(--game-text-muted)' }}>
-        资源不足：{resourceLabel(resourceKey)}。可通过以下途径获取：
+        资源不足：{resourceLabel(resourceKey)}
+        {deficit !== null ? `（缺少 ${deficit}）` : ''}。可通过以下途径获取：
       </div>
+      {need !== null && have !== null && (
+        <div
+          style={{
+            borderRadius: 12,
+            border: '1px solid rgba(58,58,90,0.7)',
+            background: 'rgba(0,0,0,0.12)',
+            padding: '10px 12px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            gap: 10,
+          }}
+        >
+          <span style={{ color: 'var(--game-text-muted)' }}>当前/所需</span>
+          <span style={{ fontFamily: 'var(--game-font-mono)', color: deficit > 0 ? 'var(--game-btn-battle)' : 'var(--game-title)' }}>
+            {have}/{need}
+          </span>
+        </div>
+      )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {ways.map((w) => (
           <div

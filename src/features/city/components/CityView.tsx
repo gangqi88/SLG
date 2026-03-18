@@ -82,7 +82,14 @@ const CityView: React.FC<CityViewProps> = ({ onExit }) => {
           variant: 'primary',
           onClick: () => {
             modal.close();
-            openResourceWays({ modal, navigate, resourceKey: 'wood', title: '木材不足' });
+            openResourceWays({
+              modal,
+              navigate,
+              resourceKey: 'wood',
+              title: '木材不足',
+              needAmount: payload.costWood,
+              haveAmount: payload.haveWood,
+            });
           },
         });
       }
@@ -93,7 +100,14 @@ const CityView: React.FC<CityViewProps> = ({ onExit }) => {
           variant: 'primary',
           onClick: () => {
             modal.close();
-            openResourceWays({ modal, navigate, resourceKey: 'ore', title: '矿石不足' });
+            openResourceWays({
+              modal,
+              navigate,
+              resourceKey: 'ore',
+              title: '矿石不足',
+              needAmount: payload.costStone,
+              haveAmount: payload.haveStone,
+            });
           },
         });
       }
@@ -104,7 +118,14 @@ const CityView: React.FC<CityViewProps> = ({ onExit }) => {
           variant: 'secondary',
           onClick: () => {
             modal.close();
-            openResourceWays({ modal, navigate, resourceKey: 'wood', title: '木材不足' });
+            openResourceWays({
+              modal,
+              navigate,
+              resourceKey: 'wood',
+              title: '木材不足',
+              needAmount: payload.costWood,
+              haveAmount: payload.haveWood,
+            });
           },
         });
       }
@@ -115,7 +136,14 @@ const CityView: React.FC<CityViewProps> = ({ onExit }) => {
           variant: 'secondary',
           onClick: () => {
             modal.close();
-            openResourceWays({ modal, navigate, resourceKey: 'ore', title: '矿石不足' });
+            openResourceWays({
+              modal,
+              navigate,
+              resourceKey: 'ore',
+              title: '矿石不足',
+              needAmount: payload.costStone,
+              haveAmount: payload.haveStone,
+            });
           },
         });
       }

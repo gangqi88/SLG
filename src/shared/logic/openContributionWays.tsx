@@ -6,12 +6,16 @@ import { ContributionWaysContent } from '@/shared/components/ContributionWays';
 export const openContributionWays = (args: {
   modal: { openModal: (p: { title: string; content: React.ReactNode; actions?: ModalAction[] }) => void; close: () => void };
   navigate: NavigateFunction;
+  needAmount?: number;
+  haveAmount?: number;
 }) => {
-  const { modal, navigate } = args;
+  const { modal, navigate, needAmount, haveAmount } = args;
   modal.openModal({
     title: '贡献获取途径',
     content: (
       <ContributionWaysContent
+        needAmount={needAmount}
+        haveAmount={haveAmount}
         onGo={(to) => {
           modal.close();
           navigate(to);
@@ -21,4 +25,3 @@ export const openContributionWays = (args: {
     actions: [{ key: 'close', label: '关闭', variant: 'secondary', onClick: () => modal.close() }],
   });
 };
-

@@ -78,7 +78,15 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ building }) => {
       ]);
       if (primary) {
         const title = primary.key === 'wood' ? '木材不足' : primary.key === 'ore' ? '矿石不足' : '金币不足';
-        openResourceWays({ modal, navigate, resourceKey: primary.key, title });
+        const needAmount =
+          primary.key === 'wood' ? upgradeCost.wood : primary.key === 'ore' ? upgradeCost.stone : upgradeCost.gold;
+        const haveAmount =
+          primary.key === 'wood'
+            ? currentResources.wood
+            : primary.key === 'ore'
+              ? currentResources.stone
+              : currentResources.gold;
+        openResourceWays({ modal, navigate, resourceKey: primary.key, title, needAmount, haveAmount });
         return;
       }
       modal.openAlert({ title: '升级失败', message: '当前无法升级，请稍后再试。' });

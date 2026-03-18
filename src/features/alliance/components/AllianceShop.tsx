@@ -12,7 +12,7 @@ export const AllianceShop: React.FC = () => {
 
   const handleBuy = async (itemId: string, price: number) => {
     if (playerContribution < price) {
-      openContributionWays({ modal, navigate });
+      openContributionWays({ modal, navigate, needAmount: price, haveAmount: playerContribution });
       return;
     }
     const success = await buyShopItem(itemId);

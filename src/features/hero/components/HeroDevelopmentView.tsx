@@ -6,6 +6,7 @@ import { InventoryItem } from '@/features/gacha/types/LootBox';
 import { useModal } from '@/shared/components/ModalProvider';
 import { openResourceWays } from '@/shared/logic/openResourceWays';
 import { useNavigate } from 'react-router-dom';
+import { PlayerResources } from '@/shared/logic/PlayerResources';
 
 interface HeroDevelopmentViewProps {
   hero: Hero;
@@ -51,7 +52,14 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
       setLastSuccess('升级成功');
       setTimeout(() => setLastSuccess(null), 900);
     } else {
-      openResourceWays({ modal, navigate, resourceKey: 'bun', title: '包子不足' });
+      openResourceWays({
+        modal,
+        navigate,
+        resourceKey: 'bun',
+        title: '包子不足',
+        needAmount: levelUpCost,
+        haveAmount: PlayerResources.getSnapshot().bun,
+      });
     }
   };
 
@@ -62,7 +70,14 @@ const HeroDevelopmentView: React.FC<HeroDevelopmentViewProps> = ({ hero, onClose
       setLastSuccess('升星成功');
       setTimeout(() => setLastSuccess(null), 900);
     } else {
-      openResourceWays({ modal, navigate, resourceKey: 'fragment', title: '碎片不足' });
+      openResourceWays({
+        modal,
+        navigate,
+        resourceKey: 'fragment',
+        title: '碎片不足',
+        needAmount: starUpCost,
+        haveAmount: fragItem?.quantity || 0,
+      });
     }
   };
 
