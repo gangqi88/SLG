@@ -41,6 +41,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
+        handle: { title: '主界面' },
         element: (
           <Suspense fallback={<Loading />}>
             <GameMain />
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'heroes',
+        handle: { title: '武将' },
         element: (
           <Suspense fallback={<Loading />}>
             <HeroList />
@@ -57,6 +59,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'city',
+        handle: { title: '主城（场景）' },
         element: (
           <Suspense fallback={<Loading />}>
             <WithExit Component={CityView} />
@@ -65,6 +68,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'main-city',
+        handle: { title: '主城' },
         element: (
           <Suspense fallback={<Loading />}>
             <MainCityView />
@@ -73,6 +77,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'gathering',
+        handle: { title: '资源采集' },
         element: (
           <Suspense fallback={<Loading />}>
             <WithExit Component={GatheringView} />
@@ -81,6 +86,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'tasks',
+        handle: { title: '任务' },
         element: (
           <Suspense fallback={<Loading />}>
             <TaskView />
@@ -89,6 +95,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'gacha',
+        handle: { title: '招募' },
         element: (
           <Suspense fallback={<Loading />}>
             <GachaView />
@@ -97,6 +104,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'lootbox',
+        handle: { title: '背包' },
         element: (
           <Suspense fallback={<Loading />}>
             <WithExit Component={LootBoxView} />
@@ -105,6 +113,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'tower-defense',
+        handle: { title: '守桥' },
         element: (
           <Suspense fallback={<Loading />}>
             <WithExit Component={TowerDefenseView} />
@@ -113,6 +122,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'cooking',
+        handle: { title: '厨神大赛' },
         element: (
           <Suspense fallback={<Loading />}>
             <WithExit Component={CookingView} />
@@ -121,6 +131,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'siege',
+        handle: { title: '攻城战' },
         element: (
           <Suspense fallback={<Loading />}>
             <WithExit Component={SiegeView} />
@@ -129,6 +140,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'battle',
+        handle: { title: '战斗' },
         element: (
           <Suspense fallback={<Loading />}>
             <BattleRoute />
@@ -137,6 +149,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'alliance',
+        handle: { title: '联盟' },
         element: (
           <Suspense fallback={<Loading />}>
             <AllianceDashboard />
@@ -145,6 +158,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'style-guide',
+        handle: { title: '视觉规范' },
         element: (
           <Suspense fallback={<Loading />}>
             <StyleGuide />

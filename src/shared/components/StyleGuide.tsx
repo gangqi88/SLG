@@ -7,6 +7,79 @@ const StyleGuide: React.FC = () => {
         Style Guide
       </h1>
 
+      <section style={{ marginBottom: 'var(--spacing-48)' }}>
+        <h2 style={{ fontSize: 'var(--font-size-2xl)', marginBottom: 'var(--spacing-16)' }}>
+          Game UI Tokens
+        </h2>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+            gap: 'var(--spacing-16)',
+          }}
+        >
+          {[
+            { name: 'Game Background', var: '--game-bg' },
+            { name: 'Panel', var: '--game-panel' },
+            { name: 'Border', var: '--game-border' },
+            { name: 'Title Gold', var: '--game-title' },
+            { name: 'Text', var: '--game-text' },
+            { name: 'Text Muted', var: '--game-text-muted' },
+            { name: 'Button Confirm', var: '--game-btn-confirm' },
+            { name: 'Button Reward', var: '--game-btn-reward' },
+            { name: 'Button Battle', var: '--game-btn-battle' },
+            { name: 'Button Info', var: '--game-btn-info' },
+            { name: 'Quality Green', var: '--game-quality-green' },
+            { name: 'Quality Blue', var: '--game-quality-blue' },
+            { name: 'Quality Purple', var: '--game-quality-purple' },
+            { name: 'Quality Orange', var: '--game-quality-orange' },
+            { name: 'Quality Red', var: '--game-quality-red' },
+          ].map((token) => (
+            <div
+              key={token.var}
+              style={{
+                border: '1px solid var(--game-border)',
+                borderRadius: 'var(--game-radius-panel)',
+                overflow: 'hidden',
+                background: 'var(--game-panel)',
+              }}
+            >
+              <div style={{ height: 88, backgroundColor: `var(${token.var})` }} />
+              <div style={{ padding: 'var(--spacing-8)', color: 'var(--game-text)' }}>
+                <strong>{token.name}</strong>
+                <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--game-text-muted)' }}>
+                  var({token.var})
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 'var(--spacing-24)' }}>
+          <div style={{ color: 'var(--game-title)', fontSize: 'var(--game-font-title-xl)' }}>
+            大标题（Title XL）
+          </div>
+          <div style={{ color: 'var(--game-text)', fontSize: 'var(--game-font-title-md)' }}>
+            模块标题（Title MD）
+          </div>
+          <div style={{ color: 'var(--game-text)', fontSize: 'var(--game-font-body)' }}>
+            正文（Body）
+          </div>
+          <div style={{ color: 'var(--game-text-muted)', fontSize: 'var(--game-font-caption)' }}>
+            辅助小字（Caption）
+          </div>
+          <div
+            style={{
+              color: 'var(--game-text)',
+              fontFamily: 'var(--game-font-mono)',
+              fontSize: 'var(--game-font-body-sm)',
+            }}
+          >
+            数字属性（Monospace）：123,456
+          </div>
+        </div>
+      </section>
+
       {/* Colors Section */}
       <section style={{ marginBottom: 'var(--spacing-48)' }}>
         <h2 style={{ fontSize: 'var(--font-size-2xl)', marginBottom: 'var(--spacing-16)' }}>

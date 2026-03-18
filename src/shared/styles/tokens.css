@@ -26,4 +26,37 @@
   --font-size-xl: 1.25rem;
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 1.875rem;
+
+  --game-bg: #1a1a2a;
+  --game-panel: #25253a;
+  --game-border: #3a3a5a;
+  --game-title: #d4b87e;
+  --game-text: #ffffff;
+  --game-text-muted: #9999aa;
+
+  --game-btn-confirm: #4caf50;
+  --game-btn-reward: #ffc107;
+  --game-btn-battle: #f44336;
+  --game-btn-info: #2196f3;
+
+  --game-quality-green: #8bc34a;
+  --game-quality-blue: #2196f3;
+  --game-quality-purple: #9c27b0;
+  --game-quality-orange: #ff9800;
+  --game-quality-red: #f44336;
+
+  --game-radius-panel: 12px;
+  --game-hit: 88px;
+  --game-gap: 16px;
+
+  --game-font-title-xl: 2rem;
+  --game-font-title-lg: 1.75rem;
+  --game-font-title-md: 1.375rem;
+  --game-font-body: 1.125rem;
+  --game-font-body-sm: 1rem;
+  --game-font-caption: 0.875rem;
+
+  --game-font-mono:
+    ui-monospace, sfmono-regular, menlo, monaco, consolas, "Liberation Mono", "Courier New",
+    monospace;
 }

@@ -1,0 +1,102 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.modal {
+  width: min(520px, 100%);
+  background: var(--game-panel);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-panel);
+  color: var(--game-text);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+  transform-origin: center;
+  animation: popIn 0.22s ease-out;
+}
+
+.header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid var(--game-border);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--game-font-title-md);
+  color: var(--game-title);
+  font-weight: 800;
+}
+
+.closeBtn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 10px;
+}
+
+.body {
+  padding: 16px;
+  font-size: var(--game-font-body-sm);
+  color: var(--game-text);
+  line-height: 1.5;
+}
+
+.footer {
+  padding: 14px 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid var(--game-border);
+}
+
+.btnPrimary {
+  background: var(--game-btn-confirm);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.btnPrimary:active {
+  transform: scale(0.95);
+  filter: brightness(1.08);
+}
+
+.btnSecondary {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--game-border);
+}
+
+.btnSecondary:active {
+  transform: scale(0.95);
+  filter: brightness(1.08);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+

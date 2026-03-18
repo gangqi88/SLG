@@ -1,25 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { TaskManager, Task } from '@/features/task/logic/TaskManager';
-
-type TaskWindow = Window & {
-  _taskManager?: TaskManager;
-};
+import { getTaskManager } from '@/features/task/logic/taskSingleton';
 
 const TaskView: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  // Use a singleton instance or context in real app. Here we create one or reuse global if available.
-  // For demo, we instantiate locally but data won't persist across view changes unless lifted up.
-  // We should probably move TaskManager to a higher level or export a singleton.
-  // Let's assume we use a singleton for now to keep it simple across re-renders if we move it out.
-
-  // Quick singleton hack for demo persistence
-  const [manager] = useState(() => {
-    const globalWindow = window as TaskWindow;
-    if (!globalWindow._taskManager) {
-      globalWindow._taskManager = new TaskManager();
-    }
-    return globalWindow._taskManager;
-  });
+  const [manager] = useState<TaskManager>(() => getTaskManager());
 
   useEffect(() => {
     manager.subscribe(setTasks);
