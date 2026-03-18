@@ -39,10 +39,10 @@
 }
 
 .closeBtn {
-  width: 40px;
-  height: 40px;
+  width: var(--game-hit);
+  height: var(--game-hit);
   padding: 0;
-  border-radius: 10px;
+  border-radius: 14px;
 }
 
 .body {
@@ -63,6 +63,8 @@
 .btnPrimary {
   background: var(--game-btn-confirm);
   border: 1px solid rgba(0, 0, 0, 0.2);
+  min-width: var(--game-hit);
+  min-height: var(--game-hit);
 }
 
 .btnPrimary:active {
@@ -73,6 +75,8 @@
 .btnSecondary {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--game-border);
+  min-width: var(--game-hit);
+  min-height: var(--game-hit);
 }
 
 .btnSecondary:active {
@@ -83,6 +87,8 @@
 .btnDanger {
   background: var(--game-btn-battle);
   border: 1px solid rgba(0, 0, 0, 0.2);
+  min-width: var(--game-hit);
+  min-height: var(--game-hit);
 }
 
 .btnDanger:active {
