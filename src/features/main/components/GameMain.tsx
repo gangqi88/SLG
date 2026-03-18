@@ -2,108 +2,30 @@ import React, { useMemo, useSyncExternalStore } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useModal } from '@/shared/components/ModalProvider';
 import { UINotifications } from '@/shared/logic/UINotifications';
+import { MAIN_ENTRIES } from '@/shared/config/mainEntries';
+import { useLocale } from '@/shared/locale/LocaleProvider';
 import styles from './GameMain.module.css';
-
-type Entry = {
-  key: string;
-  title: string;
-  path: string;
-  iconUrl: string;
-  locked?: boolean;
-  unlockTip?: string;
-  badge?: number;
-  dot?: boolean;
-};
 
 const GameMain: React.FC = () => {
   const navigate = useNavigate();
   const modal = useModal();
+  const { t } = useLocale();
   const ui = useSyncExternalStore(
     (listener) => UINotifications.subscribe(listener),
     () => UINotifications.getSnapshot(),
   );
 
-  const entries = useMemo<Entry[]>(
-    () => [
-      {
-        key: 'heroes',
-        title: '武将',
-        path: '/heroes',
-        iconUrl: '/game-assets/character/hero_avatar_demo.svg',
-      },
-      {
-        key: 'main-city',
-        title: '主城',
-        path: '/main-city',
-        iconUrl: '/game-assets/ui/ui_btn_primary.svg',
-      },
-      {
-        key: 'world',
-        title: '世界地图',
-        path: '/world',
-        iconUrl: '/game-assets/ui/ui_badge_siege.svg',
-        locked: true,
-        unlockTip: '通关第 3 章解锁',
-      },
-      {
-        key: 'gathering',
-        title: '资源采集',
-        path: '/gathering',
-        iconUrl: '/game-assets/ui/ui_badge_pve.svg',
-      },
-      {
-        key: 'tasks',
-        title: '任务',
-        path: '/tasks',
-        iconUrl: '/game-assets/ui/ui_btn_primary.svg',
-        badge: ui.taskClaimableCount || undefined,
-      },
-      {
-        key: 'gacha',
-        title: '招募',
-        path: '/gacha',
-        iconUrl: '/game-assets/ui/ui_badge_pvp.svg',
-      },
-      {
-        key: 'lootbox',
-        title: '宝箱',
-        path: '/lootbox',
-        iconUrl: '/game-assets/ui/ui_btn_primary.svg',
-        badge: ui.lootBoxCount || undefined,
-      },
-      {
-        key: 'tower-defense',
-        title: '守桥',
-        path: '/tower-defense',
-        iconUrl: '/game-assets/ui/ui_badge_pve.svg',
-      },
-      {
-        key: 'cooking',
-        title: '厨神大赛',
-        path: '/cooking',
-        iconUrl: '/game-assets/ui/ui_badge_pvp.svg',
-      },
-      {
-        key: 'siege',
-        title: '攻城战',
-        path: '/siege',
-        iconUrl: '/game-assets/ui/ui_badge_siege.svg',
-      },
-      {
-        key: 'battle',
-        title: '试炼/战斗',
-        path: '/battle',
-        iconUrl: '/game-assets/ui/ui_badge_pve.svg',
-      },
-      {
-        key: 'alliance',
-        title: '联盟',
-        path: '/alliance',
-        iconUrl: '/game-assets/ui/ui_btn_primary.svg',
-      },
-    ],
-    [ui.lootBoxCount, ui.taskClaimableCount],
-  );
+  const entries = useMemo(() => {
+    const badgeByKey = {
+      taskClaimableCount: ui.taskClaimableCount,
+      lootBoxCount: ui.lootBoxCount,
+    } as const;
+    return MAIN_ENTRIES.map((e) => ({
+      ...e,
+      title: t(e.titleKey),
+      badge: e.badgeKey ? badgeByKey[e.badgeKey] || undefined : undefined,
+    }));
+  }, [t, ui.lootBoxCount, ui.taskClaimableCount]);
 
   return (
     <div className={styles.root}>
@@ -119,7 +41,7 @@ const GameMain: React.FC = () => {
               onClick={() => {
                 if (e.locked) {
                   modal.openAlert({
-                    title: '未解锁',
+                    title: t('commonLocked'),
                     message: e.unlockTip || '暂未解锁',
                   });
                   return;
