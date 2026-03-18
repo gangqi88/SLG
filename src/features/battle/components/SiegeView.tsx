@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import Phaser from 'phaser';
 import { SiegeManager, SiegePhase } from '@/features/battle/logic/SiegeManager';
 import { SneakAttackScene } from '@/features/battle/scenes/SneakAttackScene';
@@ -7,6 +7,9 @@ import { SiegeBattleScene } from '@/features/battle/scenes/SiegeBattleScene';
 import { HUMAN_HEROES } from '@/features/hero/data/humanHeroes';
 import { SceneHUD } from '@/shared/components/SceneHUD';
 import { useModal } from '@/shared/components/ModalProvider';
+import { BattleReportView, createMockBattleReport } from '@/shared/logic/battleReports';
+import { applyRewards, formatRewardLines, type Reward } from '@/shared/logic/rewards';
+import { hasClaimed, markClaimed, newClaimKey } from '@/shared/logic/claimLedger';
 
 interface SiegeViewProps {
   onExit: () => void;
@@ -17,6 +20,21 @@ const siegeManager = new SiegeManager();
 const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const gameRef = useRef<Phaser.Game | null>(null);
   const modal = useModal();
+  const claimKeyRef = useRef<string>(newClaimKey('siege'));
+
+  const report = useMemo(
+    () => createMockBattleReport({ title: '攻城战', attacker: '本盟', defender: '敌盟' }),
+    [],
+  );
+
+  const rewards = useMemo<Reward[]>(
+    () => [
+      { type: 'resource', id: 'coin', amount: 800 },
+      { type: 'item', id: 'item_hero_exp', amount: 180 },
+      { type: 'fragment', id: 'item_hero_fragment', amount: 5 },
+    ],
+    [],
+  );
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -80,13 +98,61 @@ const SiegeBattleGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
             {
               key: 'report',
               label: '战报',
-              onClick: () => modal.openAlert({ title: '战报', message: '战报弹窗待接入。' }),
+              onClick: () =>
+                modal.openModal({
+                  title: '战报',
+                  content: <BattleReportView report={report} />,
+                  actions: [{ key: 'close', label: '关闭', variant: 'primary', onClick: () => modal.close() }],
+                }),
             },
             {
               key: 'result',
               label: '结算',
               variant: 'primary',
-              onClick: () => modal.openAlert({ title: '结算', message: '攻城结算面板待接入。' }),
+              onClick: () => {
+                if (hasClaimed(claimKeyRef.current)) {
+                  modal.openAlert({ title: '结算', message: '奖励已领取。' });
+                  return;
+                }
+                const lines = formatRewardLines(rewards);
+                modal.openModal({
+                  title: '攻城结算',
+                  content: (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                      <BattleReportView report={report} />
+                      <div>
+                        <div style={{ color: 'var(--game-title)', fontWeight: 900, marginBottom: 8 }}>
+                          奖励
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          {lines.map((l, idx) => (
+                            <div key={`${l.label}-${idx}`} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <span>{l.label}</span>
+                              <span style={{ fontFamily: 'var(--game-font-mono)', color: 'var(--game-title)' }}>
+                                +{l.amount}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ),
+                  actions: [
+                    { key: 'close', label: '关闭', variant: 'secondary', onClick: () => modal.close() },
+                    {
+                      key: 'claim',
+                      label: '领取奖励',
+                      variant: 'primary',
+                      onClick: () => {
+                        applyRewards(rewards);
+                        markClaimed(claimKeyRef.current);
+                        modal.close();
+                        modal.openAlert({ title: '获得奖励', message: '奖励已发放。' });
+                      },
+                    },
+                  ],
+                });
+              },
             },
           ]}
           onExit={onExit}

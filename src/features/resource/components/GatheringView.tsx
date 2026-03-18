@@ -5,8 +5,8 @@ import { GatheringScene } from '@/features/resource/scenes/GatheringScene';
 import { getSceneAssetFeatures } from '@/shared/config/assets/sceneAssetFeatures';
 import { SceneHUD } from '@/shared/components/SceneHUD';
 import { useModal } from '@/shared/components/ModalProvider';
-import InventoryManager from '@/features/resource/logic/InventoryManager';
 import { formatRemaining } from '@/shared/logic/time';
+import { applyRewards, type Reward } from '@/shared/logic/rewards';
 
 interface GatheringViewProps {
   onExit: () => void;
@@ -35,8 +35,11 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
         const wood = minutes * 20;
         const ore = minutes * 12;
         if (minutes > 0) {
-          InventoryManager.addItem('resource_wood', wood);
-          InventoryManager.addItem('resource_stone', ore);
+          const rewards: Reward[] = [
+            { type: 'resource', id: 'wood', amount: wood },
+            { type: 'resource', id: 'ore', amount: ore },
+          ];
+          applyRewards(rewards);
           modal.openModal({
             title: '离线收益',
             content: (

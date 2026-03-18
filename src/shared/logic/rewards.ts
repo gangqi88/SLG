@@ -1,10 +1,15 @@
-import type { TaskReward } from '@/features/task/logic/TaskManager';
 import InventoryManager from '@/features/resource/logic/InventoryManager';
 import { PlayerResources } from '@/shared/logic/PlayerResources';
 
 export type RewardLine = { label: string; amount: number };
 
-export const applyRewards = (rewards: TaskReward[]) => {
+export type Reward = {
+  type: 'resource' | 'item' | 'fragment' | 'hero';
+  id: string;
+  amount: number;
+};
+
+export const applyRewards = (rewards: Reward[]) => {
   rewards.forEach((r) => {
     if (r.type === 'resource') {
       if (r.id === 'coin') {
@@ -41,7 +46,7 @@ export const applyRewards = (rewards: TaskReward[]) => {
   });
 };
 
-export const formatRewardLines = (rewards: TaskReward[]): RewardLine[] => {
+export const formatRewardLines = (rewards: Reward[]): RewardLine[] => {
   return rewards.map((r) => {
     if (r.type === 'resource') {
       const label =
@@ -63,4 +68,3 @@ export const formatRewardLines = (rewards: TaskReward[]): RewardLine[] => {
     return { label: r.id, amount: r.amount };
   });
 };
-
