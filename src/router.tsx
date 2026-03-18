@@ -42,7 +42,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        handle: { title: '主界面' },
+        handle: { titleKey: 'routeMain' },
         element: (
           <Suspense fallback={<Loading />}>
             <GameMain />
@@ -51,7 +51,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'heroes',
-        handle: { title: '武将' },
+        handle: { titleKey: 'routeHeroes' },
         element: (
           <Suspense fallback={<Loading />}>
             <HeroList />
@@ -60,7 +60,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'city',
-        handle: { title: '主城（场景）' },
+        handle: { titleKey: 'routeCityScene' },
         element: (
           <Suspense fallback={<Loading />}>
             <WithExit Component={CityView} />
@@ -69,7 +69,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'main-city',
-        handle: { title: '主城' },
+        handle: { titleKey: 'routeMainCity' },
         element: (
           <Suspense fallback={<Loading />}>
             <MainCityView />
@@ -78,7 +78,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'gathering',
-        handle: { title: '资源采集' },
+        handle: { titleKey: 'routeGathering' },
         element: (
           <Suspense fallback={<Loading />}>
             <WithExit Component={GatheringView} />
@@ -87,7 +87,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'tasks',
-        handle: { title: '任务' },
+        handle: { titleKey: 'routeTasks' },
         element: (
           <Suspense fallback={<Loading />}>
             <TaskView />
@@ -96,7 +96,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'gacha',
-        handle: { title: '招募' },
+        handle: { titleKey: 'routeGacha' },
         element: (
           <Suspense fallback={<Loading />}>
             <GachaView />
@@ -105,7 +105,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'lootbox',
-        handle: { title: '背包' },
+        handle: { titleKey: 'routeLootbox' },
         element: (
           <Suspense fallback={<Loading />}>
             <WithExit Component={LootBoxView} />
@@ -114,7 +114,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'tower-defense',
-        handle: { title: '守桥' },
+        handle: { titleKey: 'routeTowerDefense' },
         element: (
           <Suspense fallback={<Loading />}>
             <WithExit Component={TowerDefenseView} />
@@ -123,7 +123,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'cooking',
-        handle: { title: '厨神大赛' },
+        handle: { titleKey: 'routeCooking' },
         element: (
           <Suspense fallback={<Loading />}>
             <WithExit Component={CookingView} />
@@ -132,7 +132,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'siege',
-        handle: { title: '攻城战' },
+        handle: { titleKey: 'routeSiege' },
         element: (
           <Suspense fallback={<Loading />}>
             <WithExit Component={SiegeView} />
@@ -141,7 +141,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'battle',
-        handle: { title: '战斗' },
+        handle: { titleKey: 'routeBattle' },
         element: (
           <Suspense fallback={<Loading />}>
             <BattleRoute />
@@ -150,7 +150,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'reports',
-        handle: { title: '战报' },
+        handle: { titleKey: 'routeReports' },
         element: (
           <Suspense fallback={<Loading />}>
             <BattleReportsView />
@@ -159,7 +159,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'alliance',
-        handle: { title: '联盟' },
+        handle: { titleKey: 'routeAlliance' },
         element: (
           <Suspense fallback={<Loading />}>
             <AllianceDashboard />
@@ -168,7 +168,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'style-guide',
-        handle: { title: '视觉规范' },
+        handle: { titleKey: 'routeStyleGuide' },
         element: (
           <Suspense fallback={<Loading />}>
             <StyleGuide />
