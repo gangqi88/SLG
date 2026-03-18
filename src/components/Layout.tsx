@@ -5,6 +5,8 @@ import { ModalProvider, useModal } from '@/shared/components/ModalProvider';
 import type { WalletAccount } from '@/shared/utils/web3';
 import { UINotifications } from '@/shared/logic/UINotifications';
 import { openResourceWays } from '@/shared/logic/openResourceWays';
+import { useLocale } from '@/shared/locale/LocaleProvider';
+import type { StringKey } from '@/shared/locale/strings';
 
 const WalletConnect = React.lazy(() => import('@/shared/components/WalletConnect'));
 
@@ -15,6 +17,7 @@ const LayoutInner: React.FC = () => {
   const location = useLocation();
   const matches = useMatches();
   const modal = useModal();
+  const { t } = useLocale();
   const ui = useSyncExternalStore(
     (listener) => UINotifications.subscribe(listener),
     () => UINotifications.getSnapshot(),
@@ -22,11 +25,11 @@ const LayoutInner: React.FC = () => {
 
   const title = useMemo(() => {
     for (let i = matches.length - 1; i >= 0; i -= 1) {
-      const handle = matches[i].handle as { title?: string } | undefined;
-      if (handle?.title) return handle.title;
+      const handle = matches[i].handle as { titleKey?: StringKey } | undefined;
+      if (handle?.titleKey) return t(handle.titleKey);
     }
-    return '指尖无双';
-  }, [matches]);
+    return t('appName');
+  }, [matches, t]);
 
   const canGoBack = location.pathname !== '/';
 
@@ -40,33 +43,50 @@ const LayoutInner: React.FC = () => {
         openResourceWays({ modal, navigate, resourceKey: key, title: '资源获取途径' });
       }}
       topActions={[
-        { key: 'settings', label: '设置', icon: '⚙', onClick: () => navigate('/style-guide') },
-        { key: 'reports', label: '战报', icon: '📜', onClick: () => navigate('/reports') },
+        {
+          key: 'settings',
+          label: t('topSettings'),
+          icon: '⚙',
+          onClick: () => navigate('/style-guide'),
+        },
+        { key: 'reports', label: t('topReports'), icon: '📜', onClick: () => navigate('/reports') },
         {
           key: 'mail',
-          label: '邮件',
+          label: t('topMail'),
           icon: '✉',
           onClick: () =>
-            modal.openAlert({ title: '邮件', message: '邮件系统界面待接入。', primaryText: '知道了' }),
+            modal.openAlert({
+              title: '邮件',
+              message: '邮件系统界面待接入。',
+              primaryText: '知道了',
+            }),
         },
-        { key: 'welfare', label: '福利', icon: '🎁', onClick: () => navigate('/tasks') },
+        { key: 'welfare', label: t('topWelfare'), icon: '🎁', onClick: () => navigate('/tasks') },
         {
           key: 'avatar',
-          label: '头像',
+          label: t('topAvatar'),
           icon: '🙂',
           onClick: () =>
-            modal.openAlert({ title: '角色信息', message: '角色信息面板待接入。', primaryText: '知道了' }),
+            modal.openAlert({
+              title: '角色信息',
+              message: '角色信息面板待接入。',
+              primaryText: '知道了',
+            }),
         },
         {
           key: 'recharge',
-          label: '充值',
+          label: t('topRecharge'),
           icon: '＋',
           onClick: () =>
-            modal.openAlert({ title: '充值', message: '充值与商店系统待接入。', primaryText: '知道了' }),
+            modal.openAlert({
+              title: '充值',
+              message: '充值与商店系统待接入。',
+              primaryText: '知道了',
+            }),
         },
         {
           key: 'wallet',
-          label: '钱包',
+          label: t('topWallet'),
           icon: '🔗',
           onClick: () => setShowWalletPanel((v) => !v),
         },
@@ -74,14 +94,14 @@ const LayoutInner: React.FC = () => {
       bottomItems={[
         {
           key: 'bag',
-          label: '背包',
+          label: t('bottomBag'),
           icon: '🎒',
           badge: ui.lootBoxCount,
           onClick: () => navigate('/lootbox'),
         },
         {
           key: 'mail',
-          label: '邮件',
+          label: t('bottomMail'),
           icon: '✉',
           badge: ui.mailUnreadCount,
           onClick: () => modal.openAlert({ title: '邮件', message: '邮件系统界面待接入。' }),
@@ -89,21 +109,21 @@ const LayoutInner: React.FC = () => {
         },
         {
           key: 'friend',
-          label: '好友',
+          label: t('bottomFriend'),
           icon: '👥',
           onClick: () => modal.openAlert({ title: '好友', message: '好友系统界面待接入。' }),
           disabled: true,
         },
         {
           key: 'welfare',
-          label: '福利',
+          label: t('bottomWelfare'),
           icon: '🎁',
           badge: ui.taskClaimableCount,
           onClick: () => navigate('/tasks'),
         },
         {
           key: 'activity',
-          label: '活动',
+          label: t('bottomActivity'),
           icon: '🎉',
           onClick: () => modal.openAlert({ title: '活动', message: '活动系统界面待接入。' }),
           disabled: true,
