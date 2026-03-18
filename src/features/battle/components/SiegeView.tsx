@@ -123,19 +123,32 @@ const SiegeBattleGame: React.FC<{
     }, 100);
 
     const onBattleEnd = (result: BattleResult) => {
-      setBattleResult(result);
-      BattleHistory.add(result);
       const cityId = targetCityIdRef.current;
       const aa = attackerAllianceRef.current;
       const war = activeWarRef.current;
-      if (cityId) {
-        WorldMap.applySiegeOutcome({
+      const before = cityId ? WorldMap.getCityById(cityId) : null;
+      const ok = cityId
+        ? WorldMap.applySiegeOutcome({
           cityId,
           winner: result.winner,
           attackerDamage: result.stats.attacker.damage,
           attackerAllianceId: aa?.id ?? null,
           attackerAllianceName: aa?.name ?? null,
-        });
+        })
+        : false;
+      const after = ok && cityId ? WorldMap.getCityById(cityId) : before;
+      const enriched: BattleResult = {
+        ...result,
+        targetCityId: cityId,
+        targetCityName: after?.name ?? null,
+        cityDefenseBefore: before?.defenseState.cur ?? null,
+        cityDefenseAfter: after?.defenseState.cur ?? null,
+        cityOwnerBefore: before?.ownerAllianceName ?? null,
+        cityOwnerAfter: after?.ownerAllianceName ?? null,
+      };
+      setBattleResult(enriched);
+      BattleHistory.add(enriched);
+      if (cityId) {
         if (war && war.targetCityId === cityId && war.status !== 'finished') {
           const winnerId =
             result.winner === 'attacker'

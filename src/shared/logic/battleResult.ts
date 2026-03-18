@@ -24,6 +24,12 @@ export type BattleResult = {
   winner: BattleWinner;
   durationSec: number;
   endedAtMs: number;
+  targetCityId?: string | null;
+  targetCityName?: string | null;
+  cityDefenseBefore?: number | null;
+  cityDefenseAfter?: number | null;
+  cityOwnerBefore?: string | null;
+  cityOwnerAfter?: string | null;
   attacker: { names: string[] };
   defender: { names: string[] };
   stats: { attacker: BattleSideStats; defender: BattleSideStats };

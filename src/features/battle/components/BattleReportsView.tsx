@@ -82,7 +82,9 @@ export const BattleReportsView: React.FC = () => {
       const time = r.endedAtMs ? new Date(r.endedAtMs).toLocaleString() : '—';
       const left = r.attacker.names.slice(0, 2).join('、') || '—';
       const right = r.defender.names.slice(0, 2).join('、') || '—';
-      return { r, time, subtitle: `${left}  vs  ${right}` };
+      const city = r.targetCityName || r.targetCityId;
+      const subtitle = city ? `${city} · ${left}  vs  ${right}` : `${left}  vs  ${right}`;
+      return { r, time, subtitle };
     });
   }, [items]);
 
@@ -121,4 +123,3 @@ export const BattleReportsView: React.FC = () => {
 };
 
 export default BattleReportsView;
-
