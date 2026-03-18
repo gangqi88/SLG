@@ -15,6 +15,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "assets:check": "node ./scripts/assets/check-assets.mjs",
+    "assets:check:strict": "node ./scripts/assets/check-assets.mjs --strict",
     "test": "vitest",
     "test:e2e": "start-server-and-test dev http://localhost:8080 cy:run",
     "cy:run": "cypress run",

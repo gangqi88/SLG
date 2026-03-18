@@ -38,6 +38,7 @@
 2. 将素材放入 `public/game-assets/` 对应目录。
 3. 在对应分组清单中新增素材条目（如 `background.json`、`character.json`、`ui-audio.json`）。
 4. 运行 `npm run assets:check` 校验清单与文件一致性。
+4.1 若需要检查“孤儿素材文件”，运行 `npm run assets:check:strict`。
 5. 运行 `npm run dev`，验证目标场景是否正常加载素材。
 6. 若素材属于可选项，断开文件验证回退逻辑仍可进入场景。
 
@@ -60,12 +61,14 @@
 ## 提交前检查
 
 - 必跑命令：`npm run assets:check`
+- 严格模式：`npm run assets:check:strict`（额外校验未被清单引用的素材文件）
 - 涉及场景加载逻辑变更时，补跑：`npm run build`
 - 提交说明需写明实际执行过的检查项和结果
 
 ## 常见问题排查
 
 - `assets:check` 报文件不存在：确认 `url` 与 `public/game-assets/` 相对路径一致。
+- `assets:check:strict` 报孤儿文件：将文件补录到清单，或删除无用文件。
 - `assets:check` 报重复 key：为冲突条目重命名并同步更新引用方。
 - 场景显示默认背景：检查对应素材是否在清单中且 `url` 可访问。
 - 本地可见生产不可见：检查是否误用绝对文件系统路径而非站点根路径。
