@@ -80,11 +80,7 @@
 
 ## 当前已验证状态
 
-- `npm run build`：通过
-- `npx vitest run`：通过
-- `npm run lint`：未通过
-- `npx tsc --noEmit`：未通过
-- `npm run lint:style`：未通过
+质量门的实测数字与失败构成统一记录在 [quality-gates.md](../development/quality-gates.md)，本文档不重复副本。
 
 部署评估时应将这些现状视为仓库当前基线，而不是假定质量门已全绿。
 

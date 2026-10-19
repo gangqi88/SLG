@@ -42,3 +42,5 @@ GitHub Actions 会在 PR / push 时校验提交信息，发现不合规直接失
 
 - `.github/workflows/commit-message.yml`
 
+> 实现说明：该 workflow **不安装依赖**，直接调用 `scripts/git/validate-commit-range.mjs`（只依赖 Node 内置模块）。因此它不依赖 `package-lock.json`，也不会因缺少 lockfile 失败。
+

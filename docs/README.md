@@ -6,13 +6,15 @@
 
 1. [快速开始](quick-start.md)
 2. [架构概览](architecture/overview.md)
-3. [开发流程](development/workflow.md)
-4. [素材接入工作流](development/game-assets-workflow.md)
-5. [编码规范](development/coding-standards.md)
-6. [测试说明](development/testing.md)
-7. [质量门说明](development/quality-gates.md)
-8. [部署与运行说明](deployment/overview.md)
-9. [UniSat Web3 接入说明](web3/unisat-integration.md)
+3. [联盟 ID 命名策略](architecture/alliance-id-policy.md)
+4. [开发流程](development/workflow.md)
+5. [素材接入工作流](development/game-assets-workflow.md)
+6. [编码规范](development/coding-standards.md)
+7. [测试说明](development/testing.md)
+8. [质量门说明](development/quality-gates.md)
+9. [部署与运行说明](deployment/overview.md)
+10. [UniSat Web3 接入说明](web3/unisat-integration.md)
+11. [提交信息指南](Git-commit-guide.md)
 
 ## 文档分层
 
@@ -23,6 +25,7 @@
 ### 架构层
 
 - `architecture/overview.md`：当前实现结构、模块边界、主要技术选型
+- `architecture/alliance-id-policy.md`：联盟 ID 生成与字符串命名策略
 
 ### 开发层
 
@@ -31,7 +34,8 @@
 - `development/game-assets-workflow.md`：游戏素材目录、清单、校验与回退策略
 - `development/coding-standards.md`：与实际工具配置对齐的编码规范
 - `development/testing.md`：Vitest、Cypress、Hardhat 测试说明
-- `development/quality-gates.md`：质量检查命令与当前状态
+- `development/quality-gates.md`：质量检查命令、实测状态与 CI 现状（质量门结论真源）
+- `Git-commit-guide.md`：提交信息规范与本地校验脚本
 
 ### 部署与集成层
 

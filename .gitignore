@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Hardhat subproject build outputs
+test/artifacts
+test/cache
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

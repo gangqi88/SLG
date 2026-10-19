@@ -47,16 +47,6 @@ npm run node
 npm run test:local
 ```
 
-### 4. Goerli测试网测试
-
-```bash
-# 配置环境变量
-cp .env.example .env
-# 编辑 .env 添加 GOERLI_RPC_URL 和 PRIVATE_KEY
-
-npm run test:goerli
-```
-
 ## 测试覆盖率目标
 
 | 合约        | 目标覆盖率 |
@@ -78,36 +68,32 @@ REPORT_GAS=true npm test
 
 ## 合约部署
 
-### 部署到本地
-
-```bash
-npx hardhat run scripts/deploy.js --network localhost
-```
-
-### 部署到Goerli
-
-```bash
-npx hardhat run scripts/deploy.js --network goerli
-```
-
-## 智能合约地址（Goerli）
-
-部署完成后更新 `.env` 文件：
-
-```
-ALLIANCE_NFT_ADDRESS=0x...
-BUILDING_NFT_ADDRESS=0x...
-```
+当前子项目**未提供部署脚本**：`scripts/deploy.js` 不存在，也没有测试网网络配置（已下线的 Goerli 已移除）。如需部署，应先补充部署脚本与目标网络，再更新本节，避免照抄不可执行的命令。
 
 ## 测试用例数量
 
 | 合约        | 测试用例 |
 | ----------- | -------- |
-| AllianceNFT | 14       |
-| BuildingNFT | 14       |
-| **总计**    | **28**   |
+| AllianceNFT | 18       |
+| BuildingNFT | 20       |
+| **总计**    | **38**   |
 
-## 预期结果
+> 数量按 `^\s*it\(` 静态统计，**尚未实跑验证**。当前状态：
+>
+> - `hardhat.config.cjs` 的 `paths.tests` 已修正为 `'./'`，可正确发现 `test/*.js`。
+> - 合约已迁移到 OpenZeppelin v5 API（`_update` 钩子、补充 `ERC721URIStorage` 的 `override`），编译器为 `0.8.28` + `evmVersion: cancun`。`npx hardhat compile` **通过**（25 个 Solidity 文件）。
+> - `npx hardhat test` 目前被**上游传递依赖冲突**阻断，尚未跑通，报错与已定位原因见下节「已知阻塞」。
+
+## 已知阻塞（2026-10-19 实测）
+
+`npx hardhat test` 在依赖安装完成后仍无法启动，按出现顺序有两个独立原因：
+
+1. **`@noble/curves` 根导入被禁用**：`@ethereumjs/util@9.1.0` 的嵌套依赖 `@noble/curves@1.4.2` 在根入口主动 `throw new Error('root module cannot be imported: import submodules instead.')`。这是上游版本组合不兼容，不是本项目代码问题。
+2. **Windows 下 mocha 误解析 npm shim**：`mocha/lib/nodejs/esm-utils.js` 会把 `node_modules/.bin/sha.js`（npm 为 `sha.js` 包生成的 shell shim）当作模块加载，报 `SyntaxError: missing ) after argument list`。手动删除该 shim 可越过此条，但 `npm install` 会重新生成。
+
+根因是**本子项目没有 lockfile**，`^` 范围在今天解析出的依赖组合已互相不兼容。要跑通需要：提交 `test/package-lock.json` 锁定一套可工作的版本，或降低/升级冲突包（`@noble/curves`、`mocha`）。此事需单独立项，本次未处理。
+
+## 预期结果（尚未实跑验证）
 
 ```
   AllianceNFT
@@ -166,5 +152,5 @@ BUILDING_NFT_ADDRESS=0x...
       ✓ 铸造应该使用合理的Gas
       ✓ 升级应该使用合理的Gas
 
-  28 passing
+  38 passing
 ```

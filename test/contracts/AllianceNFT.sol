@@ -157,14 +157,14 @@ contract AllianceNFT is ERC721, ERC721URIStorage, AccessControl, ReentrancyGuard
     
     function _getUpgradeCost(uint8 currentLevel) internal pure returns (uint256) {
         uint256[8] memory costs = [
-            50000e18,
-            90000e18,
-            162000e18,
-            291600e18,
-            524880e18,
-            944784e18,
-            1700611e18,
-            3061100e18
+            uint256(50000e18),
+            uint256(90000e18),
+            uint256(162000e18),
+            uint256(291600e18),
+            uint256(524880e18),
+            uint256(944784e18),
+            uint256(1700611e18),
+            uint256(3061100e18)
         ];
         return costs[currentLevel - 1];
     }
@@ -184,7 +184,9 @@ contract AllianceNFT is ERC721, ERC721URIStorage, AccessControl, ReentrancyGuard
         return super.tokenURI(tokenId);
     }
     
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, AccessControl) returns (bool) {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(ERC721, ERC721URIStorage, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

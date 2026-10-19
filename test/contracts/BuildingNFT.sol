@@ -155,24 +155,24 @@ contract BuildingNFT is ERC721, ERC721URIStorage, AccessControl, ReentrancyGuard
         return woodCost + stoneCost + goldCost;
     }
     
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId,
-        uint256 batchSize
-    ) internal override {
-        super._beforeTokenTransfer(from, to, tokenId, batchSize);
-        
+    // OpenZeppelin v5 使用 _update 作为统一的转账/铸造/销毁钩子（替代 v4 的 _beforeTokenTransfer）
+    function _update(address to, uint256 tokenId, address auth) internal override returns (address) {
+        address from = super._update(to, tokenId, auth);
+
         if (from != address(0) && to != address(0)) {
             emit BuildingTransferred(tokenId, from, to, block.timestamp);
         }
+
+        return from;
     }
-    
+
     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
-    
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, AccessControl) returns (bool) {
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(ERC721, ERC721URIStorage, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

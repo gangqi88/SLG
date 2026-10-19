@@ -1,6 +1,8 @@
-# Civilization Spark / 末日生存 SLG 原型
+# 文明火种 / Civilization Spark（末日生存 SLG 原型）
 
 基于 **React 19 + TypeScript 5.7 + Vite 6 + Phaser 3.90** 的前端游戏原型项目，当前已实现城市、英雄、联盟、战斗、采集、抽卡、任务与基础 Web3 钱包接入等模块。
+
+> 命名约定：包名与仓库代号为 `civilization-spark`，中文产品名为「文明火种」，英文产品名为 `Civilization Spark`。代码中的包名属于技术标识，不随产品名调整。
 
 ## 项目现状
 
@@ -23,20 +25,22 @@
 
 ## 当前模块
 
-以 `src/router.tsx` 与 `src/features/` 为准，当前可见模块包括：
+以 `src/router.tsx` 与 `src/features/` 为准：
 
-- Hero / 英雄列表与养成
-- City / 主城
-- Gathering / 采集
-- Tasks / 任务
-- Gacha / 抽卡
-- LootBox / 宝箱
-- Tower Defense / 塔防
-- Cooking / 烹饪
-- Siege / 攻城
-- Battle / 战斗
-- Alliance / 联盟相关逻辑与状态
-- Style Guide / 样式演示页
+- Main / 主界面入口宫格（`/`）
+- Hero / 英雄列表与养成（`/heroes`）
+- City / 主城场景（`/city`）与主城经营（`/main-city`）
+- Gathering / 采集（`/gathering`）
+- Tasks / 任务（`/tasks`）
+- Gacha / 抽卡（`/gacha`）与宝箱（`/lootbox`）
+- Tower Defense / 塔防（`/tower-defense`）
+- Cooking / 烹饪（`/cooking`）
+- Siege / 攻城（`/siege`）
+- Battle / 战斗（`/battle`）与战报（`/reports`）
+- Alliance / 联盟（`/alliance`）
+- Style Guide / 样式演示（`/style-guide`）
+
+> 已知缺口：主界面配置了 `world`（`/world`）入口且标记为 `locked`，但该路由尚未注册，当前不可进入。
 
 ## 快速开始
 
@@ -82,21 +86,31 @@ npm run test:e2e
 | `npx vitest run` | 执行一次性单元测试 |
 | `npm run test` | 进入 Vitest watch 模式 |
 | `npm run test:e2e` | 启动开发服务器并执行 Cypress |
+| `npm run cy:run` | 仅执行 Cypress（不启动开发服务器） |
 | `npm run lint` | 运行 ESLint |
 | `npm run lint:style` | 运行 Stylelint |
-| `npx tsc --noEmit` | 运行 TypeScript 类型检查 |
+| `npm run assets:check` | 校验游戏素材清单 |
+| `npm run assets:check:strict` | 严格模式校验素材清单 |
+| `npm run hooks:install` | 安装本地 git hooks |
+| `npm run commit:template` | 生成提交信息模板 |
+| `npx tsc --noEmit` | 运行 TypeScript 类型检查（无 `typecheck` 脚本） |
 
 ## 工程状态说明
 
-以下状态已基于仓库实际执行结果验证：
+以下状态基于 **2026-10-19** 的实际执行结果：
 
-- `npm run build`：通过
-- `npx vitest run`：通过
-- `npm run lint`：未通过
-- `npx tsc --noEmit`：未通过
-- `npm run lint:style`：未通过
+| 命令 | 结果 |
+| --- | --- |
+| `npm run build` | 通过 |
+| `npx vitest run` | 通过 |
+| `npm run lint` | 未通过（238 问题：231 error / 7 warning，其中 231 条为 `prettier/prettier` 格式问题） |
+| `npx tsc --noEmit` | 未通过（13 个类型错误） |
+| `npm run lint:style` | 未通过（13 个样式规范错误，11 条可 `--fix`） |
 
-这意味着当前仓库属于“**可运行、可构建、已有测试，但质量门尚未完全收敛**”的状态。文档与协作流程应以此事实为准。
+这意味着当前仓库属于「**可运行、可构建、已有测试，但质量门尚未关闭**」的状态。
+
+- 逐项归类与修复路径见 [质量门说明](docs/development/quality-gates.md)。
+- 本表数字会随代码变化而漂移，变更主流程后请重新实测并同步此表。
 
 ## 目录概览
 
@@ -113,8 +127,10 @@ npm run test:e2e
 - [文档索引](docs/README.md)
 - [快速开始](docs/quick-start.md)
 - [架构概览](docs/architecture/overview.md)
+- [联盟 ID 命名策略](docs/architecture/alliance-id-policy.md)
 - [开发流程](docs/development/workflow.md)
 - [编码规范](docs/development/coding-standards.md)
+- [提交信息指南](docs/Git-commit-guide.md)
 - [测试说明](docs/development/testing.md)
 - [质量门说明](docs/development/quality-gates.md)
 - [部署与运行说明](docs/deployment/overview.md)

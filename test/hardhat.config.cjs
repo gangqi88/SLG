@@ -5,12 +5,14 @@ require('hardhat-gas-reporter');
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
-    version: '0.8.19',
+    version: '0.8.28',
     settings: {
       optimizer: {
         enabled: true,
         runs: 200,
       },
+      // OpenZeppelin v5.6 的 Bytes.sol 使用 mcopy，需要 Cancun EVM
+      evmVersion: 'cancun',
     },
   },
   networks: {
@@ -20,11 +22,6 @@ module.exports = {
     localhost: {
       url: 'http://127.0.0.1:8545',
     },
-    goerli: {
-      url: process.env.GOERLI_RPC_URL || '',
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      chainId: 5,
-    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS === 'true',
@@ -33,7 +30,7 @@ module.exports = {
   },
   paths: {
     sources: './contracts',
-    tests: './test',
+    tests: './',
     cache: './cache',
     artifacts: './artifacts',
   },

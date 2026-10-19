@@ -22,6 +22,7 @@
 - `src/features/city/`
 - `src/features/gacha/`
 - `src/features/hero/`
+- `src/features/main/`
 - `src/features/resource/`
 - `src/features/task/`
 
@@ -36,19 +37,27 @@
 
 ## 路由与页面
 
-以 `src/router.tsx` 为准，当前主要页面包括：
+以 `src/router.tsx` 为准，当前共 15 条路由：
 
-- `/`：英雄列表
-- `/city`：主城
-- `/gathering`：采集
-- `/tasks`：任务
-- `/gacha`：抽卡
-- `/lootbox`：宝箱
-- `/tower-defense`：塔防
-- `/cooking`：烹饪
-- `/siege`：攻城
-- `/battle`：战斗
-- `/style-guide`：样式演示
+| 路由 | 页面组件 | 说明 |
+| --- | --- | --- |
+| `/` | `GameMain` | 主界面入口宫格（不是英雄列表） |
+| `/heroes` | `HeroList` | 英雄列表 |
+| `/city` | `CityView` | 主城 Phaser 场景 |
+| `/main-city` | `MainCityView` | 主城经营（建筑 / 商店 / 拍卖） |
+| `/gathering` | `GatheringView` | 资源采集 |
+| `/tasks` | `TaskView` | 任务 |
+| `/gacha` | `GachaView` | 抽卡 |
+| `/lootbox` | `LootBoxView` | 宝箱 |
+| `/tower-defense` | `TowerDefenseView` | 塔防 |
+| `/cooking` | `CookingView` | 烹饪 |
+| `/siege` | `SiegeView` | 攻城 |
+| `/battle` | `BattleRoute` | 战斗 |
+| `/reports` | `BattleReportsView` | 战斗战报 |
+| `/alliance` | `AllianceDashboard` | 联盟 |
+| `/style-guide` | `StyleGuide` | 样式演示 |
+
+> 主界面配置中的 `world`（`/world`）入口标记为 `locked`，且尚未注册对应路由，当前不可进入。
 
 ## 状态管理
 
@@ -70,8 +79,10 @@
 - 当前代码主要通过 `window.unisat` 进行钱包接入
 - 钱包连接入口可见于 `src/shared/components/WalletConnect.tsx`
 - 基础能力封装位于 `src/shared/utils/web3.ts`
+- `src/shared/web3/NFTManager.ts` 目前是**演示实现**：`heroToMetadata()` 可用，`mintHero()` 仅 `setTimeout` 后返回 `true`，不发起任何链上调用
+- `test/contracts/` 下的 `AllianceNFT.sol`、`BuildingNFT.sol` 是独立的 Hardhat 子项目，**与 `src/` 没有运行时连接**
 
-因此，Web3 文档应以 **UniSat 当前实现** 为准，而不是以历史规划中的其他方案为准。
+因此，Web3 文档应以 **UniSat 当前实现 + NFT 为 mock** 为准，而不是以历史规划中的其他方案为准。
 
 ## 设计取向
 

@@ -1,5 +1,5 @@
 export const zhCN = {
-  appName: '指尖无双',
+  appName: '文明火种',
 
   routeMain: '主界面',
   routeHeroes: '武将',
@@ -45,7 +45,7 @@ export const zhCN = {
 } as const;
 
 export const enUS: Record<keyof typeof zhCN, string> = {
-  appName: 'Fingertip Warlords',
+  appName: 'Civilization Spark',
 
   routeMain: 'Main',
   routeHeroes: 'Heroes',
