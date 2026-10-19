@@ -25,7 +25,6 @@ export default defineConfig({
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
           'router-vendor': ['react-router-dom'],
-          'state-vendor': ['react-redux', '@reduxjs/toolkit'],
           phaser: ['phaser'],
         },
       },
