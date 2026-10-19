@@ -9,4 +9,3 @@ export const getTaskManager = () => {
   }
   return globalWindow._taskManager;
 };
-

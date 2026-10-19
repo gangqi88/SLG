@@ -23,4 +23,3 @@ export const pickMostDeficient = (items: ResourceDeficit[]) => {
   });
   return { key: valid[0].key, deficit: valid[0].deficit };
 };
-

@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { LEGACY_ENEMY_ALLIANCE_ID, LEGACY_SELF_ALLIANCE_ID } from '@/features/alliance/tests/legacyAllianceIds';
+import {
+  LEGACY_ENEMY_ALLIANCE_ID,
+  LEGACY_SELF_ALLIANCE_ID,
+} from '@/features/alliance/tests/legacyAllianceIds';
 
 const walk = async (dir: string): Promise<string[]> => {
   const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -40,10 +43,17 @@ describe('alliance string policy', () => {
       if (allow.has(file)) continue;
       const txt = await fs.readFile(file, 'utf8');
       forbidden.forEach((re) => {
-        expect(txt, `${path.relative(process.cwd(), file)} contains forbidden literal ${re}`).not.toMatch(re);
+        expect(
+          txt,
+          `${path.relative(process.cwd(), file)} contains forbidden literal ${re}`,
+        ).not.toMatch(re);
       });
-      expect(txt, `${path.relative(process.cwd(), file)} imports legacyAllianceIds`).not.toMatch(/legacyAllianceIds/);
-      expect(txt, `${path.relative(process.cwd(), file)} imports TestOnlyWorldMap`).not.toMatch(/TestOnlyWorldMap/);
+      expect(txt, `${path.relative(process.cwd(), file)} imports legacyAllianceIds`).not.toMatch(
+        /legacyAllianceIds/,
+      );
+      expect(txt, `${path.relative(process.cwd(), file)} imports TestOnlyWorldMap`).not.toMatch(
+        /TestOnlyWorldMap/,
+      );
     }
   });
 });

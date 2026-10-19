@@ -9,7 +9,9 @@ import {
 
 describe('commit conventions', () => {
   it('validates message with regex', () => {
-    expect(COMMIT_REGEX.test('refactor(alliance): 将 ensureMigrated 方法移至测试专用模块')).toBe(true);
+    expect(COMMIT_REGEX.test('refactor(alliance): 将 ensureMigrated 方法移至测试专用模块')).toBe(
+      true,
+    );
     expect(validateCommitMessage('feat(alliance): x')).toBe(true);
     expect(validateCommitMessage('feat(alliance): ' + 'x'.repeat(50))).toBe(true);
     expect(validateCommitMessage('feat(alliance): ' + 'x'.repeat(51))).toBe(false);
@@ -34,8 +36,11 @@ describe('commit conventions', () => {
   });
 
   it('infers single scope from multiple files', () => {
-    expect(inferScopeFromFiles(['src/features/alliance/a.ts', 'src/features/alliance/b.ts'])).toBe('alliance');
-    expect(inferScopeFromFiles(['src/features/alliance/a.ts', 'src/features/battle/b.ts'])).toBeNull();
+    expect(inferScopeFromFiles(['src/features/alliance/a.ts', 'src/features/alliance/b.ts'])).toBe(
+      'alliance',
+    );
+    expect(
+      inferScopeFromFiles(['src/features/alliance/a.ts', 'src/features/battle/b.ts']),
+    ).toBeNull();
   });
 });
-

@@ -82,8 +82,12 @@ const sortWays = (resourceKey: ResourceNeedKey, ways: Way[]) => {
   preferred.forEach((k, i) => preferredIndex.set(k, i));
   const withIndex = ways.map((w, idx) => ({ w, idx }));
   withIndex.sort((a, b) => {
-    const ap = preferredIndex.has(a.w.key) ? (preferredIndex.get(a.w.key) as number) : Number.POSITIVE_INFINITY;
-    const bp = preferredIndex.has(b.w.key) ? (preferredIndex.get(b.w.key) as number) : Number.POSITIVE_INFINITY;
+    const ap = preferredIndex.has(a.w.key)
+      ? (preferredIndex.get(a.w.key) as number)
+      : Number.POSITIVE_INFINITY;
+    const bp = preferredIndex.has(b.w.key)
+      ? (preferredIndex.get(b.w.key) as number)
+      : Number.POSITIVE_INFINITY;
     if (ap !== bp) return ap - bp;
     const ato = a.w.to ? 0 : 1;
     const bto = b.w.to ? 0 : 1;
@@ -144,7 +148,12 @@ export const ResourceWaysContent: React.FC<{
           }}
         >
           <span style={{ color: 'var(--game-text-muted)' }}>当前/所需</span>
-          <span style={{ fontFamily: 'var(--game-font-mono)', color: deficit > 0 ? 'var(--game-btn-battle)' : 'var(--game-title)' }}>
+          <span
+            style={{
+              fontFamily: 'var(--game-font-mono)',
+              color: deficit > 0 ? 'var(--game-btn-battle)' : 'var(--game-title)',
+            }}
+          >
             {have}/{need}
           </span>
         </div>

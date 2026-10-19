@@ -48,7 +48,10 @@
   row-gap: 4px;
   align-items: center;
   justify-items: start;
-  transition: transform 0.12s ease, filter 0.12s ease, background-color 0.12s ease;
+  transition:
+    transform 0.12s ease,
+    filter 0.12s ease,
+    background-color 0.12s ease;
 }
 
 .entry:hover {

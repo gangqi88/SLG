@@ -1,0 +1,20 @@
+node_modules/
+dist/
+dist-ssr/
+coverage/
+package-lock.json
+
+# 独立子项目与生成物
+test/
+public/
+cypress/screenshots/
+cypress/videos/
+
+# 文档与代理工作区（长中文文档不做全量格式化）
+docs/
+.trae/
+.workbuddy/
+README.md
+AGENTS.md
+
+*.min.*

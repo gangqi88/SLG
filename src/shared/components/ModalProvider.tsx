@@ -56,38 +56,44 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, [close, modal]);
 
-  const openModal: ModalApi['openModal'] = useCallback(({ title, content, actions }) => {
-    setModal({
-      title,
-      content,
-      actions:
-        actions && actions.length > 0
-          ? actions
-          : [
-              {
-                key: 'ok',
-                label: t('modalOk'),
-                variant: 'primary',
-                onClick: () => setModal(null),
-              },
-            ],
-    });
-  }, [t]);
+  const openModal: ModalApi['openModal'] = useCallback(
+    ({ title, content, actions }) => {
+      setModal({
+        title,
+        content,
+        actions:
+          actions && actions.length > 0
+            ? actions
+            : [
+                {
+                  key: 'ok',
+                  label: t('modalOk'),
+                  variant: 'primary',
+                  onClick: () => setModal(null),
+                },
+              ],
+      });
+    },
+    [t],
+  );
 
-  const openAlert: ModalApi['openAlert'] = useCallback(({ title, message, primaryText }) => {
-    openModal({
-      title,
-      content: message,
-      actions: [
-        {
-          key: 'ok',
-          label: primaryText ?? t('modalOk'),
-          variant: 'primary',
-          onClick: () => setModal(null),
-        },
-      ],
-    });
-  }, [openModal, t]);
+  const openAlert: ModalApi['openAlert'] = useCallback(
+    ({ title, message, primaryText }) => {
+      openModal({
+        title,
+        content: message,
+        actions: [
+          {
+            key: 'ok',
+            label: primaryText ?? t('modalOk'),
+            variant: 'primary',
+            onClick: () => setModal(null),
+          },
+        ],
+      });
+    },
+    [openModal, t],
+  );
 
   const openConfirm: ModalApi['openConfirm'] = useCallback(
     ({ title, message, primaryText, secondaryText, onConfirm, onCancel }) => {

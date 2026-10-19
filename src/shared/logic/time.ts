@@ -7,4 +7,3 @@ export const formatRemaining = (ms: number) => {
   if (m > 0) return `${m}分${s}秒`;
   return `${s}秒`;
 };
-

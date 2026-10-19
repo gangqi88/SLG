@@ -59,4 +59,3 @@ export const SceneHUD: React.FC<{
     </div>
   );
 };
-

@@ -53,10 +53,15 @@ export const BattleReportsView: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <BattleReportView report={report} />
           <div>
-            <div style={{ color: 'var(--game-title)', fontWeight: 900, marginBottom: 8 }}>输出排行</div>
+            <div style={{ color: 'var(--game-title)', fontWeight: 900, marginBottom: 8 }}>
+              输出排行
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {topDamage.map((h) => (
-                <div key={`d-${h.heroId}`} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div
+                  key={`d-${h.heroId}`}
+                  style={{ display: 'flex', justifyContent: 'space-between' }}
+                >
                   <span>{h.name}</span>
                   <span style={{ fontFamily: 'var(--game-font-mono)', color: 'var(--game-title)' }}>
                     {h.damage}
@@ -66,10 +71,15 @@ export const BattleReportsView: React.FC = () => {
             </div>
           </div>
           <div>
-            <div style={{ color: 'var(--game-title)', fontWeight: 900, marginBottom: 8 }}>治疗排行</div>
+            <div style={{ color: 'var(--game-title)', fontWeight: 900, marginBottom: 8 }}>
+              治疗排行
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {topHeal.map((h) => (
-                <div key={`h-${h.heroId}`} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div
+                  key={`h-${h.heroId}`}
+                  style={{ display: 'flex', justifyContent: 'space-between' }}
+                >
                   <span>{h.name}</span>
                   <span style={{ fontFamily: 'var(--game-font-mono)', color: 'var(--game-title)' }}>
                     {h.heal}
@@ -123,7 +133,12 @@ export const BattleReportsView: React.FC = () => {
 
       <div className={styles.list}>
         {rows.map(({ r, time, subtitle }) => (
-          <button key={r.battleId} type="button" className={styles.row} onClick={() => openDetail(r)}>
+          <button
+            key={r.battleId}
+            type="button"
+            className={styles.row}
+            onClick={() => openDetail(r)}
+          >
             <span className={styles.badge} style={{ background: outcomeColor(r.winner) }}>
               {outcomeLabel(r.winner)}
             </span>

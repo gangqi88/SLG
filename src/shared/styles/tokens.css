@@ -18,8 +18,8 @@
 
   /* Typography */
   --font-family:
-    -apple-system, blinkmacsystemfont, "Segoe UI", roboto, helvetica, arial, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, helvetica, arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.125rem;
@@ -57,6 +57,6 @@
   --game-font-caption: 0.875rem;
 
   --game-font-mono:
-    ui-monospace, sfmono-regular, menlo, monaco, consolas, "Liberation Mono", "Courier New",
+    ui-monospace, sfmono-regular, menlo, monaco, consolas, 'Liberation Mono', 'Courier New',
     monospace;
 }

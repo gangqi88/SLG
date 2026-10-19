@@ -33,7 +33,10 @@ const TaskView: React.FC = () => {
             <div style={{ color: 'var(--game-text-muted)', marginBottom: 10 }}>{task.name}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {lines.map((l, idx) => (
-                <div key={`${l.label}-${idx}`} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div
+                  key={`${l.label}-${idx}`}
+                  style={{ display: 'flex', justifyContent: 'space-between' }}
+                >
                   <span>{l.label}</span>
                   <span style={{ fontFamily: 'var(--game-font-mono)', color: 'var(--game-title)' }}>
                     +{l.amount}

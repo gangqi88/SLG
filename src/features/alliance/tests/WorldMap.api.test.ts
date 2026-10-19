@@ -6,4 +6,3 @@ describe('WorldMap public api', () => {
     expect((WorldMap as unknown as Record<string, unknown>).ensureMigrated).toBeUndefined();
   });
 });
-

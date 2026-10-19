@@ -13,7 +13,9 @@ export const ContributionWaysContent: React.FC<{
   needAmount?: number;
   haveAmount?: number;
 }> = ({ onGo, needAmount, haveAmount }) => {
-  return <ContributionWaysContentInner onGo={onGo} needAmount={needAmount} haveAmount={haveAmount} />;
+  return (
+    <ContributionWaysContentInner onGo={onGo} needAmount={needAmount} haveAmount={haveAmount} />
+  );
 };
 
 export const ContributionWaysContentInner: React.FC<{

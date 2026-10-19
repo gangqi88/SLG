@@ -15,7 +15,12 @@ export const AllianceTech: React.FC = () => {
     if (!tech) return;
 
     if (playerContribution < tech.costPerLevel) {
-      openContributionWays({ modal, navigate, needAmount: tech.costPerLevel, haveAmount: playerContribution });
+      openContributionWays({
+        modal,
+        navigate,
+        needAmount: tech.costPerLevel,
+        haveAmount: playerContribution,
+      });
       return;
     }
 

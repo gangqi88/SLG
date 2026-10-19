@@ -154,7 +154,10 @@ const CityView: React.FC<CityViewProps> = ({ onExit }) => {
           variant: 'primary',
           onClick: () => {
             modal.close();
-            game.events.emit('cityUpgradeConfirm', { buildingId: payload.buildingId, cost: payload.costWood });
+            game.events.emit('cityUpgradeConfirm', {
+              buildingId: payload.buildingId,
+              cost: payload.costWood,
+            });
           },
         });
       }
@@ -169,13 +172,23 @@ const CityView: React.FC<CityViewProps> = ({ onExit }) => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>木材</span>
-                <span style={{ fontFamily: 'var(--game-font-mono)', color: needWood ? 'var(--game-btn-battle)' : 'var(--game-title)' }}>
+                <span
+                  style={{
+                    fontFamily: 'var(--game-font-mono)',
+                    color: needWood ? 'var(--game-btn-battle)' : 'var(--game-title)',
+                  }}
+                >
                   {payload.haveWood}/{payload.costWood}
                 </span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>矿石</span>
-                <span style={{ fontFamily: 'var(--game-font-mono)', color: needStone ? 'var(--game-btn-battle)' : 'var(--game-title)' }}>
+                <span
+                  style={{
+                    fontFamily: 'var(--game-font-mono)',
+                    color: needStone ? 'var(--game-btn-battle)' : 'var(--game-title)',
+                  }}
+                >
                   {payload.haveStone}/{payload.costStone}
                 </span>
               </div>

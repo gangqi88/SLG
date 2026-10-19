@@ -7,7 +7,11 @@ import { getBattleSceneAssetFeatures } from '@/shared/config/assets/sceneAssetFe
 import { BattleMode } from '@/features/battle/types/battleMode';
 import { SceneHUD } from '@/shared/components/SceneHUD';
 import { useModal } from '@/shared/components/ModalProvider';
-import { BattleReportView, createBattleReportFromResult, type BattleReport } from '@/shared/logic/battleReports';
+import {
+  BattleReportView,
+  createBattleReportFromResult,
+  type BattleReport,
+} from '@/shared/logic/battleReports';
 import { applyRewards, formatRewardLines, type Reward } from '@/shared/logic/rewards';
 import { hasClaimed, markClaimed, newClaimKey } from '@/shared/logic/claimLedger';
 import { computeTeamPower } from '@/shared/logic/teamMetrics';
@@ -41,7 +45,10 @@ const BattleView: React.FC<BattleViewProps> = ({
 
   const report = useMemo<BattleReport>(() => {
     if (!battleResult) {
-      return { title: battleMode, entries: [{ label: '状态', value: '战斗进行中', tone: 'normal' }] };
+      return {
+        title: battleMode,
+        entries: [{ label: '状态', value: '战斗进行中', tone: 'normal' }],
+      };
     }
     return createBattleReportFromResult(battleResult);
   }, [battleMode, battleResult]);
@@ -119,7 +126,8 @@ const BattleView: React.FC<BattleViewProps> = ({
     const t = setInterval(() => {
       const game = gameRef.current;
       if (!game) return;
-      const next = (game.registry.get('battleCooldowns') as Record<string, number> | undefined) ?? {};
+      const next =
+        (game.registry.get('battleCooldowns') as Record<string, number> | undefined) ?? {};
       setCooldowns(next);
     }, 200);
     return () => clearInterval(t);
@@ -163,55 +171,65 @@ const BattleView: React.FC<BattleViewProps> = ({
                       const cdText = cd > 0 ? ` · 冷却 ${cd.toFixed(1)}s` : '';
                       const canCast = !auto && cd <= 0;
                       return (
-                      <div
-                        key={h.id}
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: 'minmax(0, 1fr) auto',
-                          alignItems: 'center',
-                          gap: 10,
-                          padding: '8px 10px',
-                          borderRadius: 12,
-                          border: '1px solid rgba(58,58,90,0.7)',
-                          background: 'rgba(0,0,0,0.16)',
-                        }}
-                      >
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontWeight: 900 }}>{h.name}</div>
-                          <div style={{ color: 'var(--game-text-muted)', fontFamily: 'var(--game-font-mono)', fontSize: 12 }}>
-                            {h.activeSkill.name}
-                            {h.activeSkill.cooldown ? ` · CD ${h.activeSkill.cooldown}s` : ''}
-                            {cdText}
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          disabled={!canCast}
-                          onClick={() => {
-                            const game = gameRef.current;
-                            if (!game) return;
-                            const prev = (game.registry.get('battleCommands') as unknown) as
-                              | { type: 'cast'; heroId: string; side: 'attacker' | 'defender' }[]
-                              | undefined;
-                            const next = (prev ?? []).concat([{ type: 'cast', heroId: h.id, side: 'attacker' }]);
-                            game.registry.set('battleCommands', next);
-                            modal.close();
-                          }}
-                          title={auto ? '关闭自动后可手动施放' : cd > 0 ? '冷却中' : '施放技能'}
+                        <div
+                          key={h.id}
                           style={{
-                            height: 36,
-                            borderRadius: 10,
-                            border: '1px solid rgba(0,0,0,0.2)',
-                            background: canCast ? 'var(--game-btn-info)' : 'rgba(255,255,255,0.06)',
-                            color: 'var(--game-text)',
-                            fontWeight: 900,
-                            padding: '0 10px',
-                            opacity: canCast ? 1 : 0.6,
+                            display: 'grid',
+                            gridTemplateColumns: 'minmax(0, 1fr) auto',
+                            alignItems: 'center',
+                            gap: 10,
+                            padding: '8px 10px',
+                            borderRadius: 12,
+                            border: '1px solid rgba(58,58,90,0.7)',
+                            background: 'rgba(0,0,0,0.16)',
                           }}
                         >
-                          施放
-                        </button>
-                      </div>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontWeight: 900 }}>{h.name}</div>
+                            <div
+                              style={{
+                                color: 'var(--game-text-muted)',
+                                fontFamily: 'var(--game-font-mono)',
+                                fontSize: 12,
+                              }}
+                            >
+                              {h.activeSkill.name}
+                              {h.activeSkill.cooldown ? ` · CD ${h.activeSkill.cooldown}s` : ''}
+                              {cdText}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            disabled={!canCast}
+                            onClick={() => {
+                              const game = gameRef.current;
+                              if (!game) return;
+                              const prev = game.registry.get('battleCommands') as unknown as
+                                | { type: 'cast'; heroId: string; side: 'attacker' | 'defender' }[]
+                                | undefined;
+                              const next = (prev ?? []).concat([
+                                { type: 'cast', heroId: h.id, side: 'attacker' },
+                              ]);
+                              game.registry.set('battleCommands', next);
+                              modal.close();
+                            }}
+                            title={auto ? '关闭自动后可手动施放' : cd > 0 ? '冷却中' : '施放技能'}
+                            style={{
+                              height: 36,
+                              borderRadius: 10,
+                              border: '1px solid rgba(0,0,0,0.2)',
+                              background: canCast
+                                ? 'var(--game-btn-info)'
+                                : 'rgba(255,255,255,0.06)',
+                              color: 'var(--game-text)',
+                              fontWeight: 900,
+                              padding: '0 10px',
+                              opacity: canCast ? 1 : 0.6,
+                            }}
+                          >
+                            施放
+                          </button>
+                        </div>
                       );
                     })}
                     <div style={{ color: 'var(--game-text-muted)', fontSize: 12 }}>
@@ -219,7 +237,9 @@ const BattleView: React.FC<BattleViewProps> = ({
                     </div>
                   </div>
                 ),
-                actions: [{ key: 'close', label: '关闭', variant: 'primary', onClick: () => modal.close() }],
+                actions: [
+                  { key: 'close', label: '关闭', variant: 'primary', onClick: () => modal.close() },
+                ],
               }),
           },
           {
@@ -247,9 +267,17 @@ const BattleView: React.FC<BattleViewProps> = ({
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                         {lines.map((l, idx) => (
-                          <div key={`${l.label}-${idx}`} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <div
+                            key={`${l.label}-${idx}`}
+                            style={{ display: 'flex', justifyContent: 'space-between' }}
+                          >
                             <span>{l.label}</span>
-                            <span style={{ fontFamily: 'var(--game-font-mono)', color: 'var(--game-title)' }}>
+                            <span
+                              style={{
+                                fontFamily: 'var(--game-font-mono)',
+                                color: 'var(--game-title)',
+                              }}
+                            >
                               +{l.amount}
                             </span>
                           </div>
@@ -259,7 +287,12 @@ const BattleView: React.FC<BattleViewProps> = ({
                   </div>
                 ),
                 actions: [
-                  { key: 'close', label: '关闭', variant: 'secondary', onClick: () => modal.close() },
+                  {
+                    key: 'close',
+                    label: '关闭',
+                    variant: 'secondary',
+                    onClick: () => modal.close(),
+                  },
                   {
                     key: 'claim',
                     label: '领取奖励',

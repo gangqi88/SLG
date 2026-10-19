@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { getNpcAlliance, getNpcAllianceOrNull, isNpcAllianceId, NPC_ENEMY_ALLIANCE_ID } from '@/features/alliance/config/npcAlliances';
+import {
+  getNpcAlliance,
+  getNpcAllianceOrNull,
+  isNpcAllianceId,
+  NPC_ENEMY_ALLIANCE_ID,
+} from '@/features/alliance/config/npcAlliances';
 
 describe('npcAlliances', () => {
   it('exposes stable enemy npc id', () => {
@@ -12,4 +17,3 @@ describe('npcAlliances', () => {
     expect(isNpcAllianceId('unknown')).toBe(false);
   });
 });
-

@@ -169,7 +169,9 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
               modal.openModal({
                 title: '队伍配置',
                 content: <TeamEditor />,
-                actions: [{ key: 'close', label: '关闭', variant: 'primary', onClick: () => modal.close() }],
+                actions: [
+                  { key: 'close', label: '关闭', variant: 'primary', onClick: () => modal.close() },
+                ],
               }),
           },
           {
@@ -180,7 +182,9 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
                 title: '离线收益',
                 content: (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <div style={{ color: 'var(--game-text-muted)' }}>离线收益会在下次进入采集时自动结算。</div>
+                    <div style={{ color: 'var(--game-text-muted)' }}>
+                      离线收益会在下次进入采集时自动结算。
+                    </div>
                     <div style={{ color: 'var(--game-title)', fontWeight: 900 }}>
                       当前产速：木材 {rates.woodPerMin}/分 · 矿石 {rates.orePerMin}/分
                     </div>

@@ -18,4 +18,3 @@ export const computeGatherRates = (heroes: Hero[]) => {
   const progressPerSec = Math.max(1, Math.min(12, Math.floor(2 + size + power / 8000)));
   return { woodPerMin, orePerMin, progressPerSec, power };
 };
-

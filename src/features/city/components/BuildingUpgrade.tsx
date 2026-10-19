@@ -6,7 +6,12 @@ interface BuildingUpgradeProps {
   building: Building;
   upgradeCost: BuildingUpgradeCost;
   currentResources: { wood: number; stone: number; gold: number };
-  onOpenWays: (args: { resourceKey: 'wood' | 'ore' | 'coin'; title: string; needAmount: number; haveAmount: number }) => void;
+  onOpenWays: (args: {
+    resourceKey: 'wood' | 'ore' | 'coin';
+    title: string;
+    needAmount: number;
+    haveAmount: number;
+  }) => void;
 }
 
 export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
@@ -57,7 +62,11 @@ export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
       <div className={styles.cost}>
         <div className={styles.costItem}>
           <span>木材:</span>
-          <span className={currentResources.wood >= upgradeCost.wood ? styles.affordable : styles.expensive}>
+          <span
+            className={
+              currentResources.wood >= upgradeCost.wood ? styles.affordable : styles.expensive
+            }
+          >
             {upgradeCost.wood}
           </span>
           {needWood ? (
@@ -81,7 +90,11 @@ export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
         </div>
         <div className={styles.costItem}>
           <span>矿石:</span>
-          <span className={currentResources.stone >= upgradeCost.stone ? styles.affordable : styles.expensive}>
+          <span
+            className={
+              currentResources.stone >= upgradeCost.stone ? styles.affordable : styles.expensive
+            }
+          >
             {upgradeCost.stone}
           </span>
           {needStone ? (
@@ -105,7 +118,11 @@ export const BuildingUpgrade: React.FC<BuildingUpgradeProps> = ({
         </div>
         <div className={styles.costItem}>
           <span>金币:</span>
-          <span className={currentResources.gold >= upgradeCost.gold ? styles.affordable : styles.expensive}>
+          <span
+            className={
+              currentResources.gold >= upgradeCost.gold ? styles.affordable : styles.expensive
+            }
+          >
             {upgradeCost.gold}
           </span>
           {needGold ? (

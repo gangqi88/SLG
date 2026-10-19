@@ -4,7 +4,10 @@ import type { ModalAction } from '@/shared/components/ModalProvider';
 import { ContributionWaysContent } from '@/shared/components/ContributionWays';
 
 export const openContributionWays = (args: {
-  modal: { openModal: (p: { title: string; content: React.ReactNode; actions?: ModalAction[] }) => void; close: () => void };
+  modal: {
+    openModal: (p: { title: string; content: React.ReactNode; actions?: ModalAction[] }) => void;
+    close: () => void;
+  };
   navigate: NavigateFunction;
   needAmount?: number;
   haveAmount?: number;

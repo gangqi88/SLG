@@ -110,7 +110,8 @@ export const AllianceWorldMap: React.FC<{
                 : ''}
             </div>
             <div>
-              产出：木 {c.production.woodPerMin}/分 / 矿 {c.production.orePerMin}/分 / 金 {c.production.coinPerMin}/分
+              产出：木 {c.production.woodPerMin}/分 / 矿 {c.production.orePerMin}/分 / 金{' '}
+              {c.production.coinPerMin}/分
             </div>
           </div>
         </div>

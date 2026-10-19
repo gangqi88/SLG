@@ -17,7 +17,9 @@ const TowerDefenseView = React.lazy(() => import('@/features/battle/components/T
 const CookingView = React.lazy(() => import('@/features/resource/components/CookingView'));
 const SiegeView = React.lazy(() => import('@/features/battle/components/SiegeView'));
 const BattleRoute = React.lazy(() => import('@/features/battle/components/BattleRoute'));
-const BattleReportsView = React.lazy(() => import('@/features/battle/components/BattleReportsView'));
+const BattleReportsView = React.lazy(
+  () => import('@/features/battle/components/BattleReportsView'),
+);
 const StyleGuide = React.lazy(() => import('@/shared/components/StyleGuide'));
 const AllianceDashboard = React.lazy(
   () => import('@/features/alliance/components/AllianceDashboard'),

@@ -5,4 +5,3 @@ export class TestOnlyWorldMap {
     (WorldMap as unknown as { load: () => void }).load();
   }
 }
-

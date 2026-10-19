@@ -4,7 +4,10 @@ import type { ModalAction } from '@/shared/components/ModalProvider';
 import { ResourceWaysContent, type ResourceNeedKey } from '@/shared/components/ResourceWays';
 
 export const openResourceWays = (args: {
-  modal: { openModal: (p: { title: string; content: React.ReactNode; actions?: ModalAction[] }) => void; close: () => void };
+  modal: {
+    openModal: (p: { title: string; content: React.ReactNode; actions?: ModalAction[] }) => void;
+    close: () => void;
+  };
   navigate: NavigateFunction;
   resourceKey: ResourceNeedKey;
   needAmount?: number;

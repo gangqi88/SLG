@@ -97,7 +97,9 @@ export const GameShell: React.FC<{
             key={r.key}
             type="button"
             className={styles.resourceItem}
-            onClick={() => onResourceClick?.(r.key as 'coin' | 'gem' | 'food' | 'wood' | 'ore' | 'bun')}
+            onClick={() =>
+              onResourceClick?.(r.key as 'coin' | 'gem' | 'food' | 'wood' | 'ore' | 'bun')
+            }
             title={`${r.label}：${r.value}`}
           >
             <div className={styles.resourceLabel}>{r.label}</div>

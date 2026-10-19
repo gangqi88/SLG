@@ -12,7 +12,11 @@ export type BattleReport = {
   entries: BattleReportEntry[];
 };
 
-export const createMockBattleReport = (args: { title: string; attacker: string; defender: string }) => {
+export const createMockBattleReport = (args: {
+  title: string;
+  attacker: string;
+  defender: string;
+}) => {
   const now = new Date();
   const win = Math.random() > 0.45;
   const rewardCoin = 300 + Math.floor(Math.random() * 400);
@@ -42,7 +46,11 @@ export const createBattleReportFromResult = (result: BattleResult) => {
   return {
     title: result.mode,
     entries: [
-      ...(hasCity ? ([{ label: '目标城池', value: result.targetCityName || result.targetCityId || '—' }] as const) : []),
+      ...(hasCity
+        ? ([
+            { label: '目标城池', value: result.targetCityName || result.targetCityId || '—' },
+          ] as const)
+        : []),
       { label: '我方', value: result.attacker.names.join('、') || '—' },
       { label: '敌方', value: result.defender.names.join('、') || '—' },
       { label: '结果', value: outcome, tone: win ? 'good' : lose ? 'bad' : 'normal' },

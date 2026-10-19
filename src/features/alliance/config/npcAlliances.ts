@@ -38,4 +38,3 @@ export const getNpcAllianceOrNull = (id: string | null | undefined) => {
   if (!isNpcAllianceId(id)) return null;
   return getNpcAlliance(id);
 };
-

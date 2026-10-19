@@ -169,14 +169,19 @@ const HeroList: React.FC = () => {
                 {selectedHero.name.slice(0, 1)}
               </div>
               <div className={styles.heroInfo}>
-                <h3 className={styles.heroName} style={{ color: getQualityColor(selectedHero.quality) }}>
+                <h3
+                  className={styles.heroName}
+                  style={{ color: getQualityColor(selectedHero.quality) }}
+                >
                   {selectedHero.name}
                 </h3>
                 <div className={styles.tags}>
                   <span className={styles.tag}>Lv.{selectedHero.level}</span>
                   <span className={styles.tag}>{'★'.repeat(selectedHero.starRating)}</span>
                   <span className={styles.tag}>阵营：{getCampLabel(selectedHero.race)}</span>
-                  <span className={styles.tag}>职业：{getRoleLabel(String(selectedHero.troopType))}</span>
+                  <span className={styles.tag}>
+                    职业：{getRoleLabel(String(selectedHero.troopType))}
+                  </span>
                 </div>
               </div>
               <div className={styles.actions}>
@@ -195,7 +200,12 @@ const HeroList: React.FC = () => {
                         />
                       ),
                       actions: [
-                        { key: 'close', label: '关闭', variant: 'secondary', onClick: () => modal.close() },
+                        {
+                          key: 'close',
+                          label: '关闭',
+                          variant: 'secondary',
+                          onClick: () => modal.close(),
+                        },
                       ],
                     });
                   }}
