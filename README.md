@@ -18,7 +18,6 @@
 - Vite 6
 - Phaser 3.90
 - React Router
-- Redux Toolkit
 - Vitest
 - Cypress
 - Stylelint / ESLint / Prettier
@@ -116,7 +115,6 @@ npm run test:e2e
 
 - `src/features/`：按业务域划分的核心功能模块
 - `src/shared/`：共享组件、场景、工具、样式、Web3 能力等
-- `src/store/`：Redux store 与全局状态接入
 - `cypress/`：端到端测试
 - `test/`：独立 Hardhat 测试子项目
 - `.trae/rules/`：项目规则真源

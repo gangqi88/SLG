@@ -24,14 +24,20 @@
 
 ## 当前目录现状
 
-当前已存在的过程目录包括：
+当前已存在的过程目录包括（共 10 个）：
 
 - `alliance-system-impl`
 - `fix-build-errors`
 - `fix-eventbus-missing`
+- `game-assets-workflow-onboarding`
+- `governance-rules-skill-unification`
 - `implement-game-modes`
+- `integrate-game-main-ui`
 - `main-city-dev-plan`
 - `project-optimization-audit`
+- `ui-interface-requirements-v1`
+
+> 以目录实际内容为准；新增或删除过程目录后请同步本节。
 
 为避免误读，建议在本目录内统一按以下状态理解：
 

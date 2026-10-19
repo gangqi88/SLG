@@ -28,3 +28,6 @@ test/cache
 *.sw?
 package-lock.json
 .env
+
+# AI 代理本地记忆与工作区
+.workbuddy/

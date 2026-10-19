@@ -2,7 +2,7 @@
 
 ## 总体说明
 
-当前项目是一个以 **React 页面层 + Phaser 局部玩法场景 + Redux 局部状态管理** 组成的前端游戏原型。
+当前项目是一个以 **React 页面层 + Phaser 局部玩法场景 + 单例 Manager 状态** 组成的前端游戏原型。
 
 它并不是旧模板式的 `src/game + EventBus + 单一 Phaser 容器` 架构，而是已经演化为以业务模块为中心的 **feature-based** 组织方式。
 
@@ -13,7 +13,6 @@
 - `src/main.tsx`：React 应用入口
 - `src/App.tsx`：应用壳层
 - `src/router.tsx`：路由注册与页面懒加载
-- `src/store/index.ts`：Redux store 配置
 
 ### 业务模块
 
@@ -61,12 +60,15 @@
 
 ## 状态管理
 
-当前 Redux store 已确认接入：
+当前**没有全局状态库**。`src/store` 与 Redux slice 已在技术债清理中移除，`react-redux` / `@reduxjs/toolkit` 也不再是依赖。
 
-- `alliance`
-- `city`
+现行做法是「单例 Manager + 订阅」：
 
-这说明项目现状是**Redux 与本地逻辑类并存**，而不是所有功能都已统一到单一状态管理模式。
+- 领域状态由各 feature 的 Manager 类持有（如 `AllianceManager`、`InventoryManager`）
+- 跨组件读值通过 React 18+ 的 `useSyncExternalStore` 订阅
+- 少量局部状态直接用组件 `useState`
+
+这属于刻意的取舍：原型的跨模块共享范围有限，单例足够；若后续出现跨 feature 的复杂状态同步，再引入状态库并统一迁移。
 
 ## Phaser 集成方式
 

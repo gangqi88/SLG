@@ -43,29 +43,37 @@ npm run lint:style
 | 命令 | 结果 | 数量 |
 | --- | --- | --- |
 | `npm run build` | 通过 | — |
-| `npx vitest run` | 通过 | — |
-| `npm run lint` | 失败 | 238 问题（231 error / 7 warning），涉及 34 个文件（33 个 `.ts/.tsx` + 1 个 `.mjs` 仅有指令告警） |
-| `npx tsc --noEmit` | 失败 | 13 个错误，涉及 8 个文件 |
-| `npm run lint:style` | 失败 | 13 个错误，涉及 5 个文件，其中 11 条可 `--fix` |
+| `npx vitest run` | 通过 | 10 个测试文件 / 31 个用例 |
+| `npm run lint` | 通过（含告警） | 0 error / 7 warning |
+| `npx tsc --noEmit` | 通过 | 0 error |
+| `npm run lint:style` | 通过 | 0 error |
+| `npx prettier --check "src/**/*.{ts,tsx,css}"` | 通过 | — |
 
-### 失败构成
+### 历史失败构成与收敛方式
 
-- **ESLint**：231 条 error 中 231 条为 `prettier/prettier` 格式问题，且集中在 3 个文件（`HeroDevelopmentView.tsx` 92、`BattleView.tsx` 56、`ModalProvider.tsx` 31）；其余 7 条 warning 为 `react-refresh/only-export-components`（5）与 `react-hooks/exhaustive-deps`（1）+ 1 条失效的 `eslint-disable` 指令。
-- **TypeScript**：集中在四类 —— 组件 props 契约不匹配（TS2322）、访问可能为 `null`/`undefined`（TS18047 / TS18048）、类型谓词与资源键类型不匹配（TS2322 / TS2677）、以及 `.mjs` 导入缺少声明文件（TS7016）。
-- **Stylelint**：13 条全部为样式规范细节（`color-hex-length`、`custom-property-empty-line-before`、`media-feature-range-notation`、`keyframes-name-pattern`），无功能性风险。
+2026-10-19 技术债清理前，本仓库为：ESLint 238 问题（231 条 `prettier/prettier` + 7 warning）、TypeScript 13 error、Stylelint 13 error。收敛方式：
+
+- **ESLint 231 条**：新增 `.prettierignore` 后执行 `prettier --write`，纯格式化，无逻辑改动。
+- **TypeScript 13 条**：随零引用文件删除消掉 5 条（`HeroDetail`、`sceneAssets`、`battleSim`），其余 8 条按「空值收窄 / props 契约 / `.mjs` 声明」逐项修复，并新增 `scripts/git/commit-conventions.d.mts`。
+- **Stylelint 13 条**：`stylelint --fix` 修 11 条，另 2 条 keyframes 命名手工改为 kebab-case（定义与 `animation` 引用成对修改）。
+
+### 保留的 7 条告警
+
+`react-refresh/only-export-components`（5）、`react-hooks/exhaustive-deps`（1）、失效 `eslint-disable` 指令（1）。前两类属于「同文件同时导出组件与 hook/常量」的结构选择，清零需要拆分模块，未纳入本次清理。
 
 > 数字会随代码变化而漂移，变更主流程后请重新实测并同步本表。
 
 ## 如何解释当前状态
 
-当前仓库并不是“全绿质量状态”，而是：
+截至 2026-10-19，三条质量门已收敛到 **0 error**：
 
-- 功能原型可运行
-- 生产构建可成功
-- 已配置并运行单元测试
-- 但 lint / typecheck / stylelint 仍有待收敛
+- 功能原型可运行，生产构建通过
+- ESLint / tsc / Stylelint 均无 error，仅保留 7 条结构性 warning
+- 单元测试 10 文件 / 31 用例通过
 
-因此，任何项目文档都不应再写成“当前 ESLint / TypeScript 全部通过”，除非重新验证并更新本文档。
+但仍需注意覆盖边界：ESLint 规则只作用于 `**/*.{ts,tsx}`，`scripts/*.mjs` 与 `test/*.js` 不在规则范围内；`tsconfig.json` 的 `include` 只覆盖 `src`。因此「全绿」不等于「全部代码都被检查」。
+
+本文档是质量门结论的唯一真源；其它文档只应引用，不应复制数字。
 
 ## 维护建议
 
@@ -81,7 +89,7 @@ npm run lint:style
 
 - 仓库当前只有 `.github/workflows/commit-message.yml`，**仅校验 commit message**，不运行 ESLint / tsc / Stylelint / 测试。
 - 因此质量门目前是**本地约定**，不构成合并阻断。
-- 该 workflow 使用 `npm ci`，而 `.gitignore` 忽略了 `package-lock.json`。在没有 lockfile 的干净检出上 `npm ci` 会失败，CI 实际不可用。修复需二选一：将 `package-lock.json` 纳入版本控制，或把 workflow 改为 `npm install`。**本次未改动 CI**。
+- 该 workflow **不安装依赖**，直接执行 `node scripts/git/validate-commit-range.mjs`（脚本只依赖 Node 内置模块），因此不依赖 `package-lock.json`。
 
 ## 已知事项
 

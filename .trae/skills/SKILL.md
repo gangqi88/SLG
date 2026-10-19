@@ -24,16 +24,18 @@
 
 ## 专家技能清单
 
+> 作用域说明：下列技能是**可选专家视角**，不代表本项目已采用对应技术栈。当前依赖与配置中未出现的技术栈已标注「未启用」。
+
 - React：`react-expert`
 - TypeScript：`typescript-expert`
 - 路由：`react-router-expert`
-- 状态管理：`redux-toolkit-expert`、`immer-expert`
-- 数据请求：`tanstack-query-expert`
-- 表单：`react-hook-form-expert`
-- 样式：`emotion-expert`、`chakra-ui-expert`
+- 状态管理：`redux-toolkit-expert`、`immer-expert`（**未启用**：项目已无全局状态库，仅保留单例 Manager + `useSyncExternalStore`）
+- 数据请求：`tanstack-query-expert`（**未启用**：项目无数据请求层）
+- 表单：`react-hook-form-expert`（**未启用**：项目未使用表单库）
+- 样式：`emotion-expert`、`chakra-ui-expert`（**未启用**：项目使用 CSS Modules）
 - 工程化：`vite-expert`、`eslint-expert`、`prettier-expert`
 - 测试：`cypress-expert`
-- 框架扩展：`nextjs-expert`
+- 框架扩展：`nextjs-expert`（**未启用**：项目为 Vite SPA）
 
 ---
 

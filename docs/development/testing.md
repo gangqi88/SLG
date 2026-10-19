@@ -48,6 +48,8 @@ npm run test:e2e
 
 在撰写文档或执行验证时，应将它与前端主工程区分开。
 
+> **当前状态（2026-10-19）**：合约已迁移到 OpenZeppelin v5 API，`npx hardhat compile` 通过；但 `npx hardhat test` 仍被上游传递依赖冲突阻断（`@noble/curves` 根导入、Windows 下 mocha 解析 `.bin/sha.js`）。详见 `test/README.md` 的「已知阻塞」。因此本子项目的用例数（38）为静态统计，尚未实跑。
+
 ## 当前测试现状
 
 经验证：
