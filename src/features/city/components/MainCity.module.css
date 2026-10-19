@@ -69,7 +69,7 @@
   border: 1px solid var(--game-border);
 }
 
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .content {
     grid-template-columns: 1fr;
   }
