@@ -102,15 +102,6 @@ export interface PurchaseRecord {
   timestamp: number;
 }
 
-export interface MainCityState {
-  buildings: Record<string, Building>;
-  adSpace: AdSpace | null;
-  pendingBids: AdBid[];
-  shopItems: ShopItem[];
-  auctionItems: AuctionItem[];
-  resourcePrices: ResourcePrices;
-}
-
 export interface AuctionItemInput {
   sellerId: string;
   sellerName: string;

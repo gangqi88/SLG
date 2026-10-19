@@ -2,11 +2,13 @@
 
 > **当前归类**: 待实施规格文档  
 > **使用边界**: 本文档定义“如何把游戏素材稳定接入当前 React + Phaser + Vite 工程”的目标、约束与落地范围。  
-> **现行真源**: `src/shared/scenes/PreloadScene.ts`、`src/shared/config/sceneAssets.ts`、`vite.config.ts`、`package.json`
+> **现行真源**: `src/shared/scenes/PreloadScene.ts`、`vite.config.ts`、`package.json`
+>
+> **变更说明（2026-10-19）**: `src/shared/config/sceneAssets.ts` 已因零引用在技术债清理中删除，现行素材加载以 `PreloadScene` + `src/shared/config/assets/manifests/*` 为准。
 
 ## Why
 
-当前仓库仅有少量背景图通过 `sceneAssets.ts` + `PreloadScene` 进行可选加载，尚未形成可扩展的“批量素材接入—校验—构建—回归”闭环。  
+当前仓库仅有少量背景图通过 `PreloadScene` + 素材 manifests 进行可选加载，尚未形成可扩展的“批量素材接入—校验—构建—回归”闭环。  
 随着玩法扩展，素材数量将显著增加；若没有统一流程，容易出现：
 
 - 素材路径不一致，导致运行时 404 或白屏；
