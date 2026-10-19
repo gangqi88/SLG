@@ -79,17 +79,18 @@ export const accumulateFromEvents = (
     const sourceSide = e.sourceId ? sideByUnitId.get(e.sourceId) : undefined;
     const sourceHeroId = e.sourceId ? heroIdByUnitId.get(e.sourceId) : undefined;
     const targetHeroId = e.targetId ? heroIdByUnitId.get(e.targetId) : undefined;
+    const value = e.value ?? 0;
 
     if (e.type === 'attack' || e.type === 'skill') {
-      if (sourceSide) acc.sides[sourceSide].damage += e.value;
-      if (sourceHeroId && acc.heroes[sourceHeroId]) acc.heroes[sourceHeroId].damage += e.value;
+      if (sourceSide) acc.sides[sourceSide].damage += value;
+      if (sourceHeroId && acc.heroes[sourceHeroId]) acc.heroes[sourceHeroId].damage += value;
       if (e.targetId && e.sourceId) acc.lastHitByTargetUnitId[e.targetId] = e.sourceId;
       return;
     }
 
     if (e.type === 'heal') {
-      if (sourceSide) acc.sides[sourceSide].heal += e.value;
-      if (sourceHeroId && acc.heroes[sourceHeroId]) acc.heroes[sourceHeroId].heal += e.value;
+      if (sourceSide) acc.sides[sourceSide].heal += value;
+      if (sourceHeroId && acc.heroes[sourceHeroId]) acc.heroes[sourceHeroId].heal += value;
       if (e.targetId && e.sourceId) acc.lastHitByTargetUnitId[e.targetId] = e.sourceId;
       return;
     }

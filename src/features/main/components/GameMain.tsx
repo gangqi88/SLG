@@ -53,8 +53,6 @@ const GameMain: React.FC = () => {
             >
               {e.badge && e.badge > 0 ? (
                 <span className={styles.badge}>{e.badge > 99 ? '99+' : e.badge}</span>
-              ) : e.dot ? (
-                <span className={styles.dot} />
               ) : null}
               <img className={styles.entryIcon} src={e.iconUrl} alt="" aria-hidden />
               <div className={styles.entryTitle}>{e.title}</div>

@@ -47,7 +47,7 @@ export const ContributionWaysContentInner: React.FC<{
           <span
             style={{
               fontFamily: 'var(--game-font-mono)',
-              color: deficit > 0 ? 'var(--game-btn-battle)' : 'var(--game-title)',
+              color: (deficit ?? 0) > 0 ? 'var(--game-btn-battle)' : 'var(--game-title)',
             }}
           >
             {have}/{need}
