@@ -34,7 +34,7 @@ AI 在本仓库中的职责是：
 ## 当前项目事实（高层）
 
 - 前端主栈：React 19 + TypeScript 5.7 + Vite 6 + Phaser 3.90
-- 源码结构：`src/features` + `src/shared` + `src/store`
+- 源码结构：`src/features` + `src/shared`
 - 当前已配置 Vitest、Cypress；`test/` 为独立 Hardhat 子项目
 - 当前 Web3 接入以 UniSat / `window.unisat` 为主
 

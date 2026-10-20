@@ -6,7 +6,7 @@
 
 ## 项目现状
 
-- 当前源码采用 **feature-based** 结构：`src/features` + `src/shared` + `src/store`
+- 当前源码采用 **feature-based** 结构：`src/features` + `src/shared`
 - 前端框架使用 React，局部玩法与场景逻辑使用 Phaser
 - 当前钱包接入以 **UniSat / `window.unisat`** 为主
 - 项目已配置 **Vitest**、**Cypress**，并包含 `test/` 下独立 Hardhat 子项目文档
