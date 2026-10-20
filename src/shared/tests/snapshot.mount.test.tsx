@@ -4,14 +4,27 @@ import { createRoot } from 'react-dom/client';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 /**
- * #5 P0 组件级回归守卫 —— useSyncExternalStore 挂载不得无限重渲
+ * 组件级挂载守卫 —— useSyncExternalStore 的 getSnapshot 引用稳定性
  *
- * 这条测试直接复现原始故障机制：store 的 getSnapshot() 若在状态未变时返回新引用，
- * React 的 checkIfSnapshotChanged 会判定「快照变了」并强制重渲 → 死循环，
- * 最终抛 "Maximum update depth exceeded"，整条路由落到 ErrorBoundary。
+ * 复现的故障机制：store 的 getSnapshot() 若在状态未变时返回新引用，React 的
+ * checkIfSnapshotChanged 会判定「快照变了」并强制重渲 → 死循环，最终抛
+ * "Maximum update depth exceeded"，整条路由落到 ErrorBoundary。
  *
- * 与 store 级单测的区别：那几条验「契约」，这条验「React 真的不炸」。
- * 浏览器路由冒烟（V-1/V-2）仍不可替代，但这条能在 CI 里 40ms 抓住同类回归。
+ * ── 两条耦合关系（不写下来，下一个人会删错东西）────────────────────────
+ *
+ * 1) 下面的 FIRST 断言【不能单独存在】。
+ *    React 的 warn-once 是「模块级静态标志」—— 每进程只警告一次。
+ *    一旦在别的用例里消耗掉，后续违规用例在坏实现上也会通过。
+ *    所以 FIRST 必须与 SECOND（抛错）和 renderCount 一起看；单靠它会漏。
+ *
+ * 2) 本文件【只防「不死循环」，不防「缓存永不失效」】。
+ *    后者的守卫在 store 级测试里：
+ *      · battleHistory.snapshot.test.ts 的 B / B2 / B3
+ *      · WorldMap.snapshot.test.ts 的 B1 / B2 / B3 / E / G
+ *    删掉那些 B 组断言 = 把那个洞重新打开，本文件补不上。
+ *
+ * 与浏览器冒烟（V-1/V-2）的区别：这条不验路由、不验 ErrorBoundary，
+ * 只验「React 挂载不炸」，能在 CI 里 ~40ms 抓住同类回归。
  */
 
 type ProbeProps = {
@@ -27,22 +40,41 @@ const Probe: React.FC<ProbeProps> = ({ subscribe, getSnapshot }) => {
   return <div data-testid="count">{items.length}</div>;
 };
 
-const mount = async (props: ProbeProps) => {
+type MountProbeResult = {
+  host: HTMLElement;
+  root: ReturnType<typeof createRoot>;
+  thrown: unknown;
+  consoleErrorText: string;
+  spy: ReturnType<typeof vi.spyOn>;
+};
+
+/**
+ * 挂载并按「故障可见」的方式收集三样东西：抛出的异常、React 的 console.error 文案、
+ * 渲染次数。抛错必须在这里被捕获 —— 否则断言根本没机会执行（旧版本就是这样：
+ * 失败来自 React 抛错，renderCount 那条从未运行过）。
+ */
+const mountProbe = async (props: ProbeProps): Promise<MountProbeResult> => {
+  const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
   const host = document.createElement('div');
   document.body.appendChild(host);
   const root = createRoot(host);
   renderCount = 0;
-  await act(async () => {
-    root.render(<Probe {...props} />);
-  });
-  // 给足时间让「额外重渲」发生；正常情况下次数应收敛
-  await act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 60));
-  });
-  return { host, root };
+
+  let thrown: unknown = null;
+  try {
+    await act(async () => {
+      root.render(<Probe {...props} />);
+    });
+  } catch (error) {
+    thrown = error;
+  }
+
+  const consoleErrorText = spy.mock.calls.map((call) => String(call[0])).join('\n');
+  return { host, root, thrown, consoleErrorText, spy };
 };
 
-const unmount = async (host: HTMLElement, root: ReturnType<typeof createRoot>) => {
+const unmountProbe = async ({ host, root, spy }: MountProbeResult) => {
+  spy.mockRestore();
   await act(async () => {
     root.unmount();
   });
@@ -53,34 +85,49 @@ describe('useSyncExternalStore 挂载契约', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.resetModules();
-    // React 19 需要显式声明测试环境，否则 act 警告/行为不一致
+    // React 19 需要显式声明测试环境，否则 act 行为不一致
     (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.restoreAllMocks();
     localStorage.clear();
   });
 
-  it('WorldMap 挂载后渲染次数收敛（旧实现在此会抛 Maximum update depth exceeded）', async () => {
+  it('WorldMap 挂载不会无限重渲（旧实现会抛 Maximum update depth）', async () => {
     const { WorldMap } = await import('@/features/alliance/logic/WorldMap');
-    const props: ProbeProps = {
-      subscribe: (l) => WorldMap.subscribe(l),
+    const probe = await mountProbe({
+      subscribe: (listener) => WorldMap.subscribe(listener),
       getSnapshot: () => WorldMap.getSnapshot(),
-    };
+    });
 
-    const { host, root } = await mount(props);
     try {
-      expect(host.textContent).toBe('6');
-      // 正常应为 1~2 次（StrictMode 未启用时 1 次）；10 是宽松上限，
-      // 真正要挡的是「成百上千次」那种死循环。
-      expect(renderCount).toBeLessThanOrEqual(10);
+      // FIRST：抓「慢泄漏」——每秒多渲几次但还没到抛错的程度。
+      // React 的原生文案不指名 getSnapshot，所以这里换成病因级消息。
+      expect(
+        probe.consoleErrorText,
+        'getSnapshot 在状态未变时返回了新引用：React 已报 should be cached',
+      ).not.toContain('The result of getSnapshot should be cached');
+
+      // SECOND：抓「确定性崩溃」。
+      expect(
+        probe.thrown,
+        '挂载抛错（Maximum update depth）通常意味 getSnapshot 返回新引用，应缓存同一引用',
+      ).toBeNull();
+
+      // 第三条：抓「没抛错、也没 warn，但渲了很多次」。
+      // 已修 = 1；原始实现约 54。
+      expect(renderCount, `挂载渲染了 ${renderCount} 次，超出收敛上限 2 次`).toBeLessThanOrEqual(2);
+
+      // 值断言从 store 派生，不写死 6 —— 否则 baseCities 一变就误红。
+      expect(probe.host.textContent).toBe(String(WorldMap.getSnapshot().length));
     } finally {
-      await unmount(host, root);
+      await unmountProbe(probe);
     }
   });
 
-  it('BattleHistory 挂载后渲染次数收敛', async () => {
+  it('BattleHistory 挂载不会无限重渲', async () => {
     const { BattleHistory } = await import('@/shared/logic/battleHistory');
     BattleHistory.add({
       battleId: 'probe-1',
@@ -89,17 +136,27 @@ describe('useSyncExternalStore 挂载契约', () => {
       heroes: [],
     } as never);
 
-    const props: ProbeProps = {
-      subscribe: (l) => BattleHistory.subscribe(l),
+    const probe = await mountProbe({
+      subscribe: (listener) => BattleHistory.subscribe(listener),
       getSnapshot: () => BattleHistory.getSnapshot(),
-    };
+    });
 
-    const { host, root } = await mount(props);
     try {
-      expect(host.textContent).toBe('1');
-      expect(renderCount).toBeLessThanOrEqual(10);
+      expect(
+        probe.consoleErrorText,
+        'getSnapshot 在状态未变时返回了新引用：React 已报 should be cached',
+      ).not.toContain('The result of getSnapshot should be cached');
+
+      expect(
+        probe.thrown,
+        '挂载抛错（Maximum update depth）通常意味 getSnapshot 返回新引用，应缓存同一引用',
+      ).toBeNull();
+
+      expect(renderCount, `挂载渲染了 ${renderCount} 次，超出收敛上限 2 次`).toBeLessThanOrEqual(2);
+
+      expect(probe.host.textContent).toBe(String(BattleHistory.getSnapshot().length));
     } finally {
-      await unmount(host, root);
+      await unmountProbe(probe);
     }
   });
 });
