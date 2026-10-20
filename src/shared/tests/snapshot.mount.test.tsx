@@ -50,8 +50,13 @@ type MountProbeResult = {
 
 /**
  * 挂载并按「故障可见」的方式收集三样东西：抛出的异常、React 的 console.error 文案、
- * 渲染次数。抛错必须在这里被捕获 —— 否则断言根本没机会执行（旧版本就是这样：
- * 失败来自 React 抛错，renderCount 那条从未运行过）。
+ * 渲染次数。
+ *
+ * 这里的 try/catch 【不是吞错，是为了让断言能够被求值】：
+ * 若裸调用 root.render()，坏实现会在渲染期直接抛出 Maximum update depth，
+ * 测试在那一行就结束 —— 后面 FIRST / renderCount 两条断言根本没机会运行，
+ * 于是「断言存在」变成了「断言从未执行」（我们已经在 renderCount 上吃过一次）。
+ * catch 下来存进 thrown，由 SECOND 断言显式判它是否为 null。
  */
 const mountProbe = async (props: ProbeProps): Promise<MountProbeResult> => {
   const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
