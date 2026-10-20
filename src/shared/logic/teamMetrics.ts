@@ -1,5 +1,5 @@
 import type { Hero } from '@/shared/types/hero';
-import { HeroLogic } from '@/features/hero/logic/HeroLogic';
+import { HeroLogic } from '@/shared/logic/hero/HeroLogic';
 
 const computeHeroPower = (hero: Hero) => {
   const s = HeroLogic.getStats(hero);

@@ -1,9 +1,9 @@
 import { Hero, Skill, TroopType } from '@/shared/types/hero';
 import { calculateNormalDamage, calculateSkillDamage, calculateHealing } from './CombatFormulas';
-import { BondManager } from '@/features/hero/logic/BondManager';
-import { HeroLogic } from '@/features/hero/logic/HeroLogic';
+import { BondManager } from '@/shared/logic/hero/BondManager';
+import { HeroLogic } from '@/shared/logic/hero/HeroLogic';
 import { BattleUnit, BattleLog, BattleEvent } from '@/shared/types/BattleTypes';
-import { ComboManager, ComboSkill } from '@/features/hero/logic/ComboManager';
+import { ComboManager, ComboSkill } from '@/shared/logic/hero/ComboManager';
 
 export class BattleSystem {
   units: BattleUnit[] = [];

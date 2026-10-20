@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Hero, Quality, Race, TroopType } from '@/shared/types/hero';
 import { allHeroes } from '@/shared/data/hero/heroes';
-import { HeroLogic } from '@/features/hero/logic/HeroLogic';
+import { HeroLogic } from '@/shared/logic/hero/HeroLogic';
 import HeroDevelopmentView from './HeroDevelopmentView';
 import styles from './HeroView.module.css';
 import { useModal } from '@/shared/components/ModalContext';

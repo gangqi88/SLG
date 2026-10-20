@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { Hero } from '@/shared/types/hero';
-import { HeroLogic } from '@/features/hero/logic/HeroLogic';
+import { HeroLogic } from '@/shared/logic/hero/HeroLogic';
 import InventoryManager from '@/shared/logic/resource/InventoryManager';
 import { InventoryItem } from '@/shared/data/LootBox';
 import { useModal } from '@/shared/components/ModalContext';
