@@ -3,6 +3,7 @@ import {
   getNpcAllianceOrNull,
   NPC_ENEMY_ALLIANCE_ID,
 } from '@/features/alliance/config/npcAlliances';
+import { computeSiegeContribution } from '@/shared/logic/siegeScore';
 
 type Listener = () => void;
 
@@ -309,6 +310,14 @@ class WorldMapStore {
      * 做成必填是为了让"漏传"变成编译错误，而不是一个静默的旧行为。
      */
     defenseBeforeCur: number;
+    /**
+     * 本次结算可计入的攻城小游戏得分（0 / 缺省 = 不计入）。
+     *
+     * 只影响「守方胜」分支的扣减量；不参与胜负判定，不进 BattleResult 结构。
+     * 口径见 `@/shared/logic/siegeScore`：占比 20%–30%、1500 分以上 ×0.5、硬顶 max×10%。
+     * 缺省 0 ⇒ 不传参数时行为与之前完全一致（既有调用点无需改动）。
+     */
+    siegeScore?: number;
     attackerAllianceId?: string | null;
     attackerAllianceName?: string | null;
   }) {
@@ -332,7 +341,15 @@ class WorldMapStore {
     } else if (args.winner === 'defender') {
       const raw = Math.floor(args.attackerDamage / 180);
       const base = Math.floor(max * 0.06);
-      const dmg = clampInt(base + raw, 1, Math.floor(max * 0.55));
+      const dmgBase = clampInt(base + raw, 1, Math.floor(max * 0.55));
+      // 小游戏得分贡献：**追加在既有 clamp 之后**，不改动 clamp 与 minCur 的规则。
+      // 若把它塞进上面的 clamp 里，55% 上限会把它一起吃掉，得分就失去区分度。
+      const contribution = computeSiegeContribution({
+        score: args.siegeScore ?? 0,
+        dmgBase,
+        max,
+      });
+      const dmg = dmgBase + contribution;
       const minCur = Math.floor(max * 0.1);
       const cur = Math.max(minCur, curBefore - dmg);
       const ratio = (max - cur) / Math.max(1, max);

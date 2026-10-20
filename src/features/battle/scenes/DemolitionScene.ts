@@ -122,10 +122,9 @@ export class DemolitionScene extends Phaser.Scene {
     this.add.rectangle(400, 300, 800, 600, 0x000000, 0.7);
     this.add.text(400, 250, 'KNOCKED OUT!', { fontSize: '48px', color: '#ff0000' }).setOrigin(0.5);
     this.add
-      .text(400, 320, `Final Damage: ${this.score}`, { fontSize: '32px', color: '#ffffff' })
+      .text(400, 320, `Score: ${this.score}`, { fontSize: '32px', color: '#ffffff' })
       .setOrigin(0.5);
 
-    // In a real game, emit event "demolitionComplete" with score
     this.game.events.emit('demolitionComplete', this.score);
   }
 }

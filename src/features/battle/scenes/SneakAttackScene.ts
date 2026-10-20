@@ -114,11 +114,11 @@ export class SneakAttackScene extends Phaser.Scene {
       .text(400, 250, 'MISSION COMPLETE', { fontSize: '48px', color: '#ffffff' })
       .setOrigin(0.5);
     this.add
-      .text(400, 320, `Damage Dealt: ${this.score}`, { fontSize: '32px', color: '#00ff00' })
+      .text(400, 320, `Score: ${this.score}`, { fontSize: '32px', color: '#00ff00' })
       .setOrigin(0.5);
 
-    // Notify React
-    // In a real implementation, we would pass this score back to the SiegeManager
-    // For now, we just rely on the user manually exiting
+    // 把得分交回 React 层（外层 SneakAttackGame 监听这个事件）。
+    // 之前这里只写了注释没发事件，导致 onComplete 永远不触发 —— 得分根本没接出去。
+    this.game.events.emit('sneakAttackComplete', this.score);
   }
 }

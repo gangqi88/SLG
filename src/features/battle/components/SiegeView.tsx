@@ -22,6 +22,7 @@ import AllianceManager from '@/features/alliance/logic/AllianceManager';
 import { createSiegeDefenderProfile } from '@/features/battle/logic/siegeDefenders';
 import { buildSiegeCityFields } from '@/features/battle/logic/siegeReport';
 import { deriveSiegeClaimKey } from '@/features/battle/logic/claimKeys';
+import { takeSiegeScore, type PendingSiegeScoreRef } from '@/shared/logic/siegeScore';
 
 interface SiegeViewProps {
   onExit: () => void;
@@ -35,7 +36,20 @@ const SiegeBattleGame: React.FC<{
   targetCityName?: string | null;
   attackerAlliance?: { id: string; name: string } | null;
   activeWar?: { id?: string; defenderId: string; status: string; targetCityId?: string };
-}> = ({ onExit, targetCityId, targetCityName, attackerAlliance, activeWar }) => {
+  /**
+   * 小游戏得分的容器：外层（SiegeView）建、内层（本组件）在 onBattleEnd 里取用即置空。
+   * 用 ref 而不是 useState + setter，是因为「清空」必须是消费动作的一部分，
+   * 而不是一个可以被忘记调用的回调。
+   */
+  pendingSiegeScoreRef: PendingSiegeScoreRef;
+}> = ({
+  onExit,
+  targetCityId,
+  targetCityName,
+  attackerAlliance,
+  activeWar,
+  pendingSiegeScoreRef,
+}) => {
   const gameRef = useRef<Phaser.Game | null>(null);
   const modal = useModal();
   // battleId 标识**一次战斗实例**（战报去重 / 场景事件关联），必须每场唯一。
@@ -138,6 +152,9 @@ const SiegeBattleGame: React.FC<{
       // 与战斗实际采用的 cur(T0) 脱钩（A4）。frozenDefenseCur 就是这个 T0 值。
       const frozen = city;
       const frozenDefenseCur = frozen?.defenseState.cur ?? null;
+      // 取用即置空：读得分与清容器的**同一次调用**，且与 applySiegeOutcome 相邻。
+      // 跨城不匹配 → 返回 0；无论匹配与否都会清空，避免 A 城的分数留到 B 城被误用。
+      const siegeScore = takeSiegeScore(pendingSiegeScoreRef, cityId ?? null);
       const ok =
         cityId && frozenDefenseCur !== null
           ? WorldMap.applySiegeOutcome({
@@ -145,6 +162,7 @@ const SiegeBattleGame: React.FC<{
               winner: result.winner,
               attackerDamage: result.stats.attacker.damage,
               defenseBeforeCur: frozenDefenseCur,
+              siegeScore,
               attackerAllianceId: aa?.id ?? null,
               attackerAllianceName: aa?.name ?? null,
             })
@@ -178,7 +196,7 @@ const SiegeBattleGame: React.FC<{
     };
     // city 必须进依赖：onBattleEnd 现在直接用挂载时冻结的 city 作为战前快照（A4）。
     // city 由 useMemo([targetCityId]) 产出，同一城池下引用稳定，加进来不会引发重开战局。
-  }, [attackerTeam, auto, city, defenderProfile, speed]);
+  }, [attackerTeam, auto, city, defenderProfile, pendingSiegeScoreRef, speed]);
 
   useEffect(() => {
     const game = gameRef.current;
@@ -432,6 +450,10 @@ const SneakAttackGame: React.FC<{ onComplete: (score: number) => void; onExit: (
   onExit,
 }) => {
   const gameRef = useRef<Phaser.Game | null>(null);
+  // 回调走 ref：原来 effect 依赖 [onComplete]，而它每次渲染都是新函数
+  // （外层有 1s 定时器 → 每秒一次）⇒ 小游戏每秒被销毁重建一次。
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -454,15 +476,14 @@ const SneakAttackGame: React.FC<{ onComplete: (score: number) => void; onExit: (
     gameRef.current = game;
 
     game.events.on('sneakAttackComplete', (score: number) => {
-      // This event is not emitted in scene yet, but should be
-      onComplete(score);
+      onCompleteRef.current(score);
     });
 
     return () => {
       game.destroy(true);
       gameRef.current = null;
     };
-  }, [onComplete]);
+  }, []);
 
   return (
     <div
@@ -506,6 +527,9 @@ const DemolitionGame: React.FC<{ onComplete: (score: number) => void; onExit: ()
   onExit,
 }) => {
   const gameRef = useRef<Phaser.Game | null>(null);
+  // 同 SneakAttackGame：回调走 ref，避免每秒重建 Phaser 游戏。
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -528,14 +552,14 @@ const DemolitionGame: React.FC<{ onComplete: (score: number) => void; onExit: ()
     gameRef.current = game;
 
     game.events.on('demolitionComplete', (score: number) => {
-      onComplete(score);
+      onCompleteRef.current(score);
     });
 
     return () => {
       game.destroy(true);
       gameRef.current = null;
     };
-  }, [onComplete]);
+  }, []);
 
   return (
     <div
@@ -586,6 +610,8 @@ const SiegeView: React.FC<SiegeViewProps> = ({ onExit }) => {
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
   const [debugHour, setDebugHour] = useState<string>('');
   const [message, setMessage] = useState<string>('');
+  // 小游戏得分容器：外层持有，内层取用后置空（见 SiegeBattleGame 的入参注释）。
+  const pendingSiegeScoreRef = useRef<{ cityId: string | null; score: number } | null>(null);
   const [showSneakAttack, setShowSneakAttack] = useState<boolean>(false);
   const [showDemolition, setShowDemolition] = useState<boolean>(false);
   const [showBattle, setShowBattle] = useState<boolean>(false);
@@ -815,7 +841,10 @@ const SiegeView: React.FC<SiegeViewProps> = ({ onExit }) => {
           onExit={() => setShowSneakAttack(false)}
           onComplete={(score) => {
             setShowSneakAttack(false);
-            setMessage(`Sneak Attack Complete! You dealt ${score} damage to the enemy defenses!`);
+            // 记进容器（带 cityId，供消费端做跨城比对）；**此处不声称伤害**，
+            // 因为它目前只影响下一次结算的扣减，还没发生。
+            pendingSiegeScoreRef.current = { cityId: targetCityId, score };
+            setMessage(`Sneak Attack complete — ${score} pts logged for this city.`);
           }}
         />
       )}
@@ -823,9 +852,11 @@ const SiegeView: React.FC<SiegeViewProps> = ({ onExit }) => {
       {showDemolition && (
         <DemolitionGame
           onExit={() => setShowDemolition(false)}
-          onComplete={(score) => {
+          onComplete={() => {
             setShowDemolition(false);
-            setMessage(`Demolition Complete! You dealt ${score} structural damage to the wall!`);
+            // Demolition **没有接通任何数值**：既不声称伤害，也不声称"已登记"。
+            // 它的得分不进入结算 —— 文案不能说谎，否则下一个人会以为它已经影响城防。
+            setMessage('Demolition complete.');
           }}
         />
       )}
@@ -835,6 +866,7 @@ const SiegeView: React.FC<SiegeViewProps> = ({ onExit }) => {
           onExit={() => setShowBattle(false)}
           targetCityId={targetCityId}
           targetCityName={targetCity?.name ?? null}
+          pendingSiegeScoreRef={pendingSiegeScoreRef}
           attackerAlliance={alliance ? { id: alliance.id, name: alliance.name } : null}
           activeWar={
             activeWar
