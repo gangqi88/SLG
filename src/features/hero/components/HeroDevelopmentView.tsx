@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState, useSyncExternalStore } from 'r
 import { Hero } from '@/shared/types/hero';
 import { HeroLogic } from '@/features/hero/logic/HeroLogic';
 import InventoryManager from '@/shared/logic/resource/InventoryManager';
-import { InventoryItem } from '@/features/gacha/types/LootBox';
+import { InventoryItem } from '@/shared/data/LootBox';
 import { useModal } from '@/shared/components/ModalContext';
 import { openResourceWays } from '@/shared/logic/openResourceWays';
 import { useNavigate } from 'react-router-dom';

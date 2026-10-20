@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import InventoryManager from '@/shared/logic/resource/InventoryManager';
-import { InventoryItem } from '@/features/gacha/types/LootBox';
+import { InventoryItem } from '@/shared/data/LootBox';
 import { useModal } from '@/shared/components/ModalContext';
 
 const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
