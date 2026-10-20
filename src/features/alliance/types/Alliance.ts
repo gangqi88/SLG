@@ -4,24 +4,6 @@ export enum AllianceRole {
   MEMBER = 'member',
 }
 
-export enum AllianceRank {
-  RANK_1 = 1,
-  RANK_2 = 2,
-  RANK_3 = 3,
-  RANK_4 = 4,
-  RANK_5 = 5,
-  RANK_6 = 6,
-  RANK_7 = 7,
-  RANK_8 = 8,
-}
-
-export interface ResourceAmount {
-  wood: number;
-  stone: number;
-  food: number;
-  gold: number;
-}
-
 export interface Alliance {
   id: string;
   name: string;
@@ -320,7 +302,6 @@ export const DEFAULT_SHOP_ITEMS: Omit<ShopItem, 'soldThisWeek'>[] = [
   },
 ];
 
-export const CREATE_ALLIANCE_COST = 10000;
 export const CHECK_IN_REWARD = 50;
 export const LEAVE_PENALTY_RATE = 0.5;
 export const WAR_DECLARE_REQUIRED_LEVEL = 5;

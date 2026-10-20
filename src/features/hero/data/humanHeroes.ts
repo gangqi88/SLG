@@ -402,5 +402,3 @@ export const humanHeroes: Hero[] = [
     story: '观星隐士，借天地之力扭转战局。',
   },
 ];
-
-export const HUMAN_HEROES = humanHeroes;

@@ -68,15 +68,7 @@ export const GAME_ASSETS: GameAsset[] = rawManifest.map(toGameAsset);
 
 export type ImageGameAsset = GameAsset & { type: 'image' };
 
-export const IMAGE_GAME_ASSETS: ImageGameAsset[] = GAME_ASSETS.filter(
-  (asset): asset is ImageGameAsset => asset.type === 'image',
-);
-
 export type AudioGameAsset = GameAsset & { type: 'audio' };
-
-export const AUDIO_GAME_ASSETS: AudioGameAsset[] = GAME_ASSETS.filter(
-  (asset): asset is AudioGameAsset => asset.type === 'audio',
-);
 
 export const getGameAssetsByFeatures = (features?: string[]) => {
   if (!features || features.length === 0) {
