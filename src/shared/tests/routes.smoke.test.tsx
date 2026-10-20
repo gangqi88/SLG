@@ -9,51 +9,96 @@ import ts from 'typescript';
 /**
  * AC-08 · 路由挂载 smoke
  *
- * ═══ 能力边界（AC-08 不能替代浏览器层冒烟）═══════════════════════════════
- * 运行环境是 jsdom：没有真实布局、没有 CSS 计算、没有画布、没有导航历史。
- * 因此本文件只回答一个问题：**路由在渲染期会不会崩 / 会不会打出错误**。
- * 它挡不住「点了没反应」「样式错位」「数据没渲染出来」—— 那些必须浏览器层验。
+ * ═══ Header 三要素 ═══════════════════════════════════════════════════════
  *
- * ═══ 为什么 Phaser 路由不在覆盖范围内（不是"暂不支持"，是"无法表达"）═══
- * jsdom 无法 `import` Phaser：`CanvasFeatures.checkInverseAlpha` 在**模块求值阶段**
- * 调用 `getContext('2d')`，jsdom 未安装 `canvas` 包 → 返回 null →
- * `TypeError: Cannot set properties of null (setting 'fillStyle')`。
- * 该错误发生在**测试文件收集阶段**，表现为 `0 test`（用例一行都没跑），
- * 所以它**无法用断言或豁免表达**，只能移出本文件覆盖范围。
- * 这 6 条 Phaser 路由由浏览器层冒烟负责。
- * 佐证：`grep -rl "from 'phaser'" --include=*.test.ts*` 为空 —— 仓库里没有任何
- * 测试敢碰 Phaser，本文件是第一个尝试，并在探针阶段撞到上述墙。
+ * 【1】为什么 Phaser 路由不在这里：失败发生在**收集阶段**，不是用例失败。
+ *   jsdom 无法 `import` Phaser：`CanvasFeatures.js:112` 是 `module.exports = init()`，
+ *   `require('phaser')` 当场执行 init；`:72` `canvas.getContext('2d')` 由 jsdom 返回 null，
+ *   `:74` `context.fillStyle = ...` 抛 TypeError。
+ *   实测原文：`Not implemented: HTMLCanvasElement's getContext() method: without installing
+ *   the canvas package` + `TypeError: Cannot set properties of null (setting 'fillStyle')`
+ *   at `CanvasFeatures.js:74`。表现为 `Tests no tests`（用例一行都没执行）。
+ *   **所以任何断言或豁免都无法表达这个状态**，只能移出覆盖范围。
+ *   不要再试图加豁免：豁免宣称「跑起来了、只有已知错」，事实是根本没跑起来。
  *
- * ═══ 空集保护 ═══════════════════════════════════════════════════════════
- * `enumerated.length > 0` 是**断言**不是注释：零个路由上的"全部通过"是"跳过"的静默版。
- * 每次运行都打印 enumerated / covered / skipped 三个数，只打一个看不出覆盖缺口。
+ * 【2】覆盖声明：AC-08 覆盖 **9 条非 Phaser 路由**（含 `/reports`、`/alliance`，
+ *   即历史上真实崩过的那两条）；6 条 Phaser 路由归浏览器层（AC-09）。
+ *
+ * 【3】陷阱：**未使用的静态 import 会被 esbuild 消除**。
+ *   有人为了取类型/常量 `import` 了某路由模块、绑定没用上 → 模块根本不会求值 →
+ *   测试「不崩」**不能证明「没 import」**。所以本文件禁止任何路由的静态 import。
+ *
+ * ═══ 一个被实测推翻的假设（别再按它写判据）═══════════════════════════════
+ * 原以为「路由抛错 → React 卸载整棵树 → 容器变空 → 用空容器当崩溃签名」。
+ * 阴性对照实测：**容器里有 5 个元素**，React Router v7 的内置 ErrorBoundary
+ * 渲染出了 `Unexpected Application Error!` 错误页。
+ * 所以崩溃签名是**错误页文本 + console.error**，不是空容器；
+ * 「容器非空」只作为「什么都没渲染」的弱形状断言保留。
+ *
+ * ═══ 能力边界 ═══════════════════════════════════════════════════════════
+ * jsdom 无真实布局 / CSS / 画布 / 导航。本文件只回答「渲染期会不会崩、有没有报错」，
+ * 挡不住「点了没反应」「样式错位」「数据没渲染出来」——那些必须浏览器层验。
+ *
+ * ═══ 关于零用例自检 ═════════════════════════════════════════════════════
+ * **不要加 `afterAll` 做自检**：收集阶段崩时一个 hook 都不会跑（实测 marker 不生成），
+ * 它防不住那种崩溃。有效的是测试体内的 `expect(enumerated.length).toBeGreaterThan(0)`
+ * ——收集成功才会执行到它。
  */
 
 const SRC_ROOT = path.resolve(process.cwd(), 'src');
 const ROUTER_FILE = path.join(SRC_ROOT, 'router.tsx');
 
 /**
- * Phaser 路由的「缺陷豁免」表：当前为空。
- * 与 A6 的驱动日志排除不同 —— 这里只允许登记「已知缺陷」，且必须绑定 path。
- * 现在没有任何条目，是因为 Phaser 路由整体移出了覆盖范围（见文件头），
- * 不是因为放宽了判据。
+ * Phaser 路由的「缺陷豁免」表：**保持为空**。
+ * 6 条 Phaser 路由是「移出判据」，不是「豁免」——两者在报告里都像"有一条已知问题"，
+ * 但一个是覆盖到位、一个是零覆盖。与 A6 的驱动日志排除（按来源排噪音）也分开管。
  */
 const PHASER_EXEMPT: Record<string, string> = {};
 
-// ────────────────────────────── 模块图分类（A2） ──────────────────────────────
+const DRIVER_NOISE = [
+  /GL Driver Message/i,
+  /GPU stall due to ReadPixels/i,
+  /Automatic fallback to software WebGL/i,
+];
+const isDriverNoise = (line: string) => DRIVER_NOISE.some((re) => re.test(line));
 
-type GraphResult = {
-  phaser: boolean;
-  visited: number;
-  unresolved: string[];
-  nonLiteralDynamic: boolean;
+// ────────────────────────── 说明符分类（含 other 计数） ──────────────────────────
+
+type SpecCounts = {
+  relative: number;
+  aliasAtSlash: number;
+  nodeBuiltin: number;
+  bare: number;
+  other: number;
+  otherSamples: string[];
+};
+
+const emptyCounts = (): SpecCounts => ({
+  relative: 0,
+  aliasAtSlash: 0,
+  nodeBuiltin: 0,
+  bare: 0,
+  other: 0,
+  otherSamples: [],
+});
+
+const classifySpec = (spec: string, counts: SpecCounts) => {
+  if (spec.startsWith('.')) counts.relative += 1;
+  else if (spec.startsWith('@/')) counts.aliasAtSlash += 1;
+  else if (spec.startsWith('node:')) counts.nodeBuiltin += 1;
+  else if (/^[@a-zA-Z0-9]/.test(spec)) counts.bare += 1;
+  else {
+    // 形如 `~/x`、`#/x`、`$/x` 的未知别名前缀：必须冒出来，不能被静默归为第三方
+    counts.other += 1;
+    if (counts.otherSamples.length < 5) counts.otherSamples.push(spec);
+  }
 };
 
 const resolveSpec = (fromFile: string, spec: string): string | null => {
   let base: string;
   if (spec.startsWith('@/')) base = path.join(SRC_ROOT, spec.slice(2));
   else if (spec.startsWith('.')) base = path.resolve(path.dirname(fromFile), spec);
-  else return null; // 第三方包：不跟进，由 spec === 'phaser' 单独判定
+  else return null;
   for (const cand of [
     base,
     `${base}.ts`,
@@ -96,10 +141,18 @@ const scanFile = (file: string) => {
   return { statics, dynamics, nonLiteralDynamic };
 };
 
-/** BFS 模块图。followDynamic=false 只看静态 import；true 时把 `import()` 目标也算进来。 */
+type GraphResult = {
+  phaser: boolean;
+  visited: number;
+  unresolved: string[];
+  nonLiteralDynamic: boolean;
+  counts: SpecCounts;
+};
+
 const walkGraph = (entry: string, followDynamic: boolean): GraphResult => {
   const seen = new Set<string>();
   const unresolved: string[] = [];
+  const counts = emptyCounts();
   const queue = [entry];
   let phaser = false;
   let nonLiteralDynamic = false;
@@ -116,18 +169,18 @@ const walkGraph = (entry: string, followDynamic: boolean): GraphResult => {
     if (specs.includes('phaser')) phaser = true;
 
     for (const spec of specs) {
+      classifySpec(spec, counts);
       if (!isLocal(spec)) continue;
       const resolved = resolveSpec(file, spec);
       if (resolved) queue.push(resolved);
       else unresolved.push(`${path.relative(SRC_ROOT, file)} -> ${spec}`);
     }
   }
-  return { phaser, visited: seen.size, unresolved, nonLiteralDynamic };
+  return { phaser, visited: seen.size, unresolved, nonLiteralDynamic, counts };
 };
 
-// ─────────────────────── 路由枚举 + path→模块 映射（A1） ───────────────────────
+// ─────────────────────── 路由枚举 + path→模块（不手写列表） ───────────────────────
 
-/** 从 router.tsx 的 AST 取 `const X = React.lazy(() => import('spec'))` 映射。 */
 const collectLazyMap = (routerFile: string) => {
   const text = fs.readFileSync(routerFile, 'utf8');
   const sf = ts.createSourceFile(routerFile, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
@@ -159,7 +212,7 @@ const collectLazyMap = (routerFile: string) => {
   return { lazy, nonLiteralLazy };
 };
 
-/** 在 element 表达式里找第一个属于 lazyMap 的组件：既认 JSX 标签，也认 `Component={X}` 传参。 */
+/** 在 element 里找第一个属于 lazyMap 的组件：既认 JSX 标签，也认 `Component={X}` 传参。 */
 const findLazyTag = (node: ts.Node, lazy: Map<string, string>): string | null => {
   let found: string | null = null;
   const fromExpression = (expr: ts.Expression | undefined): string | null => {
@@ -178,7 +231,6 @@ const findLazyTag = (node: ts.Node, lazy: Map<string, string>): string | null =>
         found = tag.text;
         return;
       }
-      // <WithExit Component={CityView} /> 这类：组件是属性值，不是标签名
       for (const attr of n.attributes.properties) {
         if (!ts.isJsxAttribute(attr)) continue;
         const name = fromExpression(attr.initializer);
@@ -194,7 +246,6 @@ const findLazyTag = (node: ts.Node, lazy: Map<string, string>): string | null =>
   return found;
 };
 
-/** 从 router.tsx 的 AST 取 path → lazy 目标模块。 */
 const collectPathTargets = (routerFile: string) => {
   const { lazy, nonLiteralLazy } = collectLazyMap(routerFile);
   const text = fs.readFileSync(routerFile, 'utf8');
@@ -225,20 +276,87 @@ const collectPathTargets = (routerFile: string) => {
   return { map, nonLiteralLazy };
 };
 
-// ───────────────────────────── 挂载探针（A3） ─────────────────────────────
+// ─────────────── 分类：**唯一真源**，两处消费（分类测试 / 挂载测试） ───────────────
 
-type MountResult = { thrown: unknown; errors: string[]; warns: string[] };
+type Kind = 'phaser' | 'plain' | 'uncertain';
+type Classified = { path: string; kind: Kind; reason?: string };
+
+const classifyAll = (routePaths: string[], pathToSpec: Map<string, string>) => {
+  const classified: Classified[] = [];
+  const counts = emptyCounts();
+
+  for (const routePath of routePaths) {
+    const spec = pathToSpec.get(routePath);
+    if (!spec) {
+      classified.push({
+        path: routePath,
+        kind: 'uncertain',
+        reason: 'U1: router.tsx 找不到 lazy 目标',
+      });
+      continue;
+    }
+    const entry = resolveSpec(ROUTER_FILE, spec);
+    if (!entry) {
+      // 不能静默丢弃：既不 covered 也不 skipped 会让三个数对不上
+      classified.push({ path: routePath, kind: 'uncertain', reason: `U2: 入口解析失败 ${spec}` });
+      continue;
+    }
+    const staticOnly = walkGraph(entry, false);
+    const withDynamic = walkGraph(entry, true);
+
+    counts.relative += withDynamic.counts.relative;
+    counts.aliasAtSlash += withDynamic.counts.aliasAtSlash;
+    counts.nodeBuiltin += withDynamic.counts.nodeBuiltin;
+    counts.bare += withDynamic.counts.bare;
+    counts.other += withDynamic.counts.other;
+    if (counts.otherSamples.length < 5) {
+      counts.otherSamples.push(
+        ...withDynamic.counts.otherSamples.slice(0, 5 - counts.otherSamples.length),
+      );
+    }
+
+    if (staticOnly.unresolved.length > 0 || withDynamic.unresolved.length > 0) {
+      const first = [...staticOnly.unresolved, ...withDynamic.unresolved][0];
+      classified.push({ path: routePath, kind: 'uncertain', reason: `U2: unresolved ${first}` });
+      continue;
+    }
+    if (withDynamic.nonLiteralDynamic) {
+      classified.push({ path: routePath, kind: 'uncertain', reason: 'U3: 非字面量动态 import()' });
+      continue;
+    }
+    if (staticOnly.phaser !== withDynamic.phaser) {
+      classified.push({
+        path: routePath,
+        kind: 'uncertain',
+        reason: `U4: 静态=${staticOnly.phaser} 含动态=${withDynamic.phaser}`,
+      });
+      continue;
+    }
+    classified.push({ path: routePath, kind: staticOnly.phaser ? 'phaser' : 'plain' });
+  }
+
+  return { classified, counts };
+};
+
+// ────────────────────────────── 挂载探针 ──────────────────────────────
+
+type MountResult = {
+  thrown: unknown;
+  errors: string[];
+  warns: string[];
+  childCount: number;
+  hasErrorPage: boolean;
+};
 
 /**
- * 驱动日志：按**来源**排除（chromium 的 GL 后端等），不是按现象排除。
- * 与「缺陷豁免」分开管：这里排除的是无关噪音源，不是把已知缺陷藏起来。
+ * React Router v7 内置 ErrorBoundary 的错误页标志文本。
+ *
+ * 实测（阴性对照）：路由渲染抛错时，容器**不会变空**，而是渲染出
+ * "Unexpected Application Error!" 错误页（5 个元素）。
+ * **所以「容器为空」不是崩溃的签名** —— 用它当判据会漏掉所有抛错路由；
+ * 真正的签名是这段文本 + console.error。
  */
-const DRIVER_NOISE = [
-  /GL Driver Message/i,
-  /GPU stall due to ReadPixels/i,
-  /Automatic fallback to software WebGL/i,
-];
-const isDriverNoise = (line: string) => DRIVER_NOISE.some((re) => re.test(line));
+const ERROR_PAGE_MARKER = 'Unexpected Application Error';
 
 const mountRoute = async (
   routes: Parameters<typeof createMemoryRouter>[0],
@@ -268,7 +386,6 @@ const mountRoute = async (
         </LocaleProvider>,
       );
     });
-    // 给 lazy 路由与异步 effect 一点时间落地
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 80));
     });
@@ -278,6 +395,10 @@ const mountRoute = async (
 
   errSpy.mockRestore();
   warnSpy.mockRestore();
+
+  // 必须在 unmount 之前取样
+  const childCount = host.childElementCount;
+  const hasErrorPage = host.innerHTML.includes(ERROR_PAGE_MARKER);
 
   try {
     await act(async () => {
@@ -292,10 +413,12 @@ const mountRoute = async (
     thrown,
     errors: errors.filter((l) => !isDriverNoise(l)),
     warns: warns.filter((l) => !isDriverNoise(l)),
+    childCount,
+    hasErrorPage,
   };
 };
 
-// ─────────────────────────────── 守卫存在性 ───────────────────────────────
+// ─────────────────────────── 守卫存在性（防删） ───────────────────────────
 
 const STORE_GUARDS: Array<{ file: string; cases: string[] }> = [
   {
@@ -307,6 +430,15 @@ const STORE_GUARDS: Array<{ file: string; cases: string[] }> = [
     cases: ["'A:", "'B1:", "'B2:", "'B3:", "'E:", "'G:"],
   },
 ];
+
+const enumeratePaths = async () => {
+  const { router } = await import('@/router');
+  const children = (router.routes[0]?.children ?? []) as Array<{ path?: string; index?: boolean }>;
+  return {
+    routes: router.routes,
+    paths: children.map((c) => (c.index ? '/' : `/${c.path ?? ''}`)),
+  };
+};
 
 // ──────────────────────────────── 用例 ────────────────────────────────
 
@@ -322,126 +454,127 @@ describe('AC-08 路由挂载 smoke', () => {
     localStorage.clear();
   });
 
-  it('路由枚举非空，且分类表每次可见', async () => {
-    const { router } = await import('@/router');
-    const children = (router.routes[0]?.children ?? []) as Array<{
-      path?: string;
-      index?: boolean;
-    }>;
-    const enumerated = children.map((c) => (c.index ? '/' : `/${c.path ?? ''}`));
+  it('路由枚举非空（空集保护）', async () => {
+    const { paths } = await enumeratePaths();
+    process.stdout.write(
+      `\n[AC-08] enumerated: ${paths.length}\n${paths.map((p) => `  - ${p}`).join('\n')}\n`,
+    );
 
-    process.stdout.write(`\n[AC-08] enumerated: ${enumerated.length}\n`);
-    enumerated.forEach((p) => process.stdout.write(`  - ${p}\n`));
-
-    // 空集保护：零个路由上的「全部通过」= 跳过的静默版
     expect(
-      enumerated.length,
+      paths.length,
       '路由枚举结果为空：import @/router 失败，或 router.routes[0].children 结构已变',
     ).toBeGreaterThan(0);
   });
 
-  it('Ast 分类与冲突规则自洽（PHASER / non-PHASER）', async () => {
-    const { router } = await import('@/router');
-    const children = (router.routes[0]?.children ?? []) as Array<{
-      path?: string;
-      index?: boolean;
-    }>;
-    const enumerated = children.map((c) => (c.index ? '/' : `/${c.path ?? ''}`));
+  it('分类：无 uncertain、说明符分类别计数、三数自洽', async () => {
+    const { paths } = await enumeratePaths();
+    const { map } = collectPathTargets(ROUTER_FILE);
+    const { classified, counts } = classifyAll(paths, map);
 
-    const { map: pathToSpec, nonLiteralLazy } = collectPathTargets(ROUTER_FILE);
+    const phaser = classified.filter((c) => c.kind === 'phaser');
+    const plain = classified.filter((c) => c.kind === 'plain');
+    const uncertain = classified.filter((c) => c.kind === 'uncertain');
 
-    expect(nonLiteralLazy, 'U1：router.tsx 里存在非字面量的 lazy import()，无法静态分类').toBe(
-      false,
+    const rows = classified.map(
+      (c) =>
+        `${c.path.padEnd(18)} ${c.kind.padEnd(9)} ${
+          c.kind === 'phaser'
+            ? 'SKIPPED(jsdom 无法 import)'
+            : c.kind === 'plain'
+              ? 'covered'
+              : `REASON ${c.reason}`
+        }`,
     );
-
-    const rows: string[] = [];
-    const phaser: string[] = [];
-    const plain: string[] = [];
-    const uncertain: string[] = [];
-
-    for (const routePath of enumerated) {
-      const spec = pathToSpec.get(routePath);
-      if (!spec) {
-        uncertain.push(`${routePath} (U1: router.tsx 里找不到对应 lazy 目标)`);
-        continue;
-      }
-      const entry = resolveSpec(ROUTER_FILE, spec);
-      if (!entry) {
-        uncertain.push(`${routePath} (U2: 无法解析入口 ${spec})`);
-        continue;
-      }
-      const staticOnly = walkGraph(entry, false);
-      const withDynamic = walkGraph(entry, true);
-
-      if (staticOnly.unresolved.length > 0 || withDynamic.unresolved.length > 0) {
-        uncertain.push(
-          `${routePath} (U2: unresolved ${[...staticOnly.unresolved, ...withDynamic.unresolved][0]})`,
-        );
-        continue;
-      }
-      if (withDynamic.nonLiteralDynamic) {
-        uncertain.push(`${routePath} (U3: 存在非字面量动态 import())`);
-        continue;
-      }
-      if (staticOnly.phaser !== withDynamic.phaser) {
-        uncertain.push(
-          `${routePath} (U4: 静态=${staticOnly.phaser} 含动态=${withDynamic.phaser}，两遍不一致)`,
-        );
-        continue;
-      }
-
-      if (staticOnly.phaser) {
-        phaser.push(routePath);
-        rows.push(`${routePath.padEnd(18)} PHASER   SKIPPED(jsdom 无法 import)`);
-      } else {
-        plain.push(routePath);
-        rows.push(`${routePath.padEnd(18)} non      covered`);
-      }
-    }
 
     process.stdout.write(
-      `\n[AC-08] 分类表\n${rows.join('\n')}\n[AC-08] enumerated: ${enumerated.length}  covered: ${plain.length}  skipped: ${phaser.length}\n`,
+      `\n[AC-08] 分类表\n${rows.join('\n')}\n` +
+        `[AC-08] enumerated: ${paths.length}  covered: ${plain.length}  skipped: ${phaser.length}  uncertain: ${uncertain.length}\n` +
+        `[AC-08] specifiers: relative=${counts.relative}  alias@/=${counts.aliasAtSlash}  node:=${counts.nodeBuiltin}  bare=${counts.bare}  other=${counts.other}\n`,
     );
-    if (uncertain.length > 0)
-      process.stdout.write(`[AC-08] uncertain:\n  ${uncertain.join('\n  ')}\n`);
 
-    // 分类不确定时不默认归类，直接 fail 并打印
-    expect(uncertain, `分类不确定的路由（U1–U4）：\n${uncertain.join('\n')}`).toEqual([]);
+    // 分类不确定时不默认归类
+    expect(
+      uncertain,
+      `分类不确定的路由（U1–U4）：\n${uncertain.map((c) => `${c.path} ${c.reason}`).join('\n')}`,
+    ).toEqual([]);
 
-    // A5 冲突规则：豁免表当前为空；两条规则为「将来有人加豁免」时保留。
-    // 空表时循环体不执行 —— 这是设计意图（现在没有任何豁免），不是死代码：
-    // 一旦表非空，下面两句分别防「漏撤销」与「路由已删但豁免没删」。
+    // 三数自洽：否则 covered+skipped 对不上 enumerated，而没人会发现
+    expect(
+      plain.length + phaser.length + uncertain.length,
+      `三数不自洽：enumerated=${paths.length} covered=${plain.length} skipped=${phaser.length} uncertain=${uncertain.length}`,
+    ).toBe(paths.length);
+
+    // 未知说明符前缀必须冒出来（显示 0 才有对照物）
+    expect(counts.other, `发现未知说明符前缀（other>0）：${counts.otherSamples.join(', ')}`).toBe(
+      0,
+    );
+
+    // A5 冲突规则：豁免表为空；非空时两条规则分别防「漏撤销」与「路由已删」
     for (const p of Object.keys(PHASER_EXEMPT)) {
-      expect(phaser, `A5-a：${p} 在豁免表里但分类为 non-PHASER，豁免漏了撤销`).toContain(p);
-      expect(enumerated, `A5-b：${p} 在豁免表里但路由已不存在，豁免没跟着删`).toContain(p);
+      expect(
+        phaser.map((c) => c.path),
+        `A5-a：${p} 在豁免表里但分类为 non-PHASER`,
+      ).toContain(p);
+      expect(paths, `A5-b：${p} 在豁免表里但路由已不存在`).toContain(p);
     }
   });
 
-  it('非 Phaser 路由挂载：error / warn / 抛错均为 0', async () => {
-    const { router } = await import('@/router');
-    const routes = router.routes;
-    const children = (routes[0]?.children ?? []) as Array<{ path?: string; index?: boolean }>;
-    const enumerated = children.map((c) => (c.index ? '/' : `/${c.path ?? ''}`));
+  it('非 Phaser 路由挂载：不落 ErrorBoundary、容器非空、error / warn / 抛错均为 0', async () => {
+    const { routes, paths } = await enumeratePaths();
+    const { map } = collectPathTargets(ROUTER_FILE);
+    const { classified } = classifyAll(paths, map);
+    // 只消费分类结果，不再重算 —— 双真源会造假红
+    const targets = classified.filter((c) => c.kind === 'plain').map((c) => c.path);
 
-    const { map: pathToSpec } = collectPathTargets(ROUTER_FILE);
-    const targets: string[] = [];
-    for (const routePath of enumerated) {
-      const spec = pathToSpec.get(routePath);
-      const entry = spec ? resolveSpec(ROUTER_FILE, spec) : null;
-      if (entry && !walkGraph(entry, false).phaser) targets.push(routePath);
-    }
-
+    expect(targets.length, '没有可挂载的非 Phaser 路由：分类可能整体失效').toBeGreaterThan(0);
     process.stdout.write(`\n[AC-08] 逐个挂载 ${targets.length} 条非 Phaser 路由\n`);
 
     const failures: string[] = [];
     for (const routePath of targets) {
-      const { thrown, errors, warns } = await mountRoute(routes, routePath);
+      const { thrown, errors, warns, childCount, hasErrorPage } = await mountRoute(
+        routes,
+        routePath,
+      );
+
+      // 主判据：落到 Router 内置 ErrorBoundary = 渲染期崩了。
+      // 这条**先于**「无错误」类负向断言 —— 否则错误页上的 DOM 会让形状断言平凡通过。
+      if (hasErrorPage) {
+        failures.push(`${routePath} 渲染落到 ErrorBoundary（Unexpected Application Error）`);
+      }
+      // 形状断言：完全没渲染出元素也不正常（不是崩溃签名，但值得报）。
+      // 若某路由合法地不渲染任何元素（纯数据路由 / Portal-only），这条会假红 ——
+      // 正确处置是把它收窄成断言该路由的已知锚点，**不是删掉它**。
+      if (childCount === 0) {
+        failures.push(`${routePath} 挂载后容器为空：该路由没有渲染出任何元素`);
+      }
       if (thrown) failures.push(`${routePath} 抛错: ${String(thrown).slice(0, 300)}`);
       errors.forEach((e) => failures.push(`${routePath} console.error: ${e.slice(0, 300)}`));
       warns.forEach((w) => failures.push(`${routePath} console.warn: ${w.slice(0, 300)}`));
     }
 
     expect(failures, `非 Phaser 路由挂载出现异常：\n${failures.join('\n')}`).toEqual([]);
+  });
+
+  it('阴性对照：抛错路由会落到 ErrorBoundary，且容器并不为空', async () => {
+    // 这条是本文件的「测量仪器校验」，它推翻了一个原本被当成常识的假设：
+    //   「报错后 React 会把整棵树卸载 → 容器为空 → 用容器空当崩溃签名」
+    // 实测结果相反：React Router v7 内置 ErrorBoundary 渲染出错误页，
+    // 容器里有 5 个元素，childCount > 0。**所以空容器不是崩溃签名。**
+    // 真正的签名是错误页文本（+ console.error）。
+    const Boom = () => {
+      throw new Error('boom');
+    };
+    const result = await mountRoute([{ path: '/', element: <Boom /> }], '/');
+
+    expect(result.hasErrorPage, '阴性对照失效：抛错组件没有渲染出 Router 错误页').toBe(true);
+    expect(
+      result.childCount,
+      '阴性对照失效：抛错后容器为空 —— 若真如此，说明 Router 行为变了，本文件对「容器非空」的取舍要重评',
+    ).toBeGreaterThan(0);
+    expect(
+      result.errors.length,
+      '阴性对照失效：抛错没有进 console.error 通道（那 A4 的错误通道就有洞）',
+    ).toBeGreaterThan(0);
   });
 
   it('store 级守卫仍然存在（mount test 的 B-half 依赖它们）', () => {
