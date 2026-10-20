@@ -1,8 +1,9 @@
 import React, { useMemo, useSyncExternalStore } from 'react';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 import { BattleHistory } from '@/shared/logic/battleHistory';
 import type { BattleResult, HeroBattleStats } from '@/shared/logic/battleResult';
-import { BattleReportView, createBattleReportFromResult } from '@/shared/logic/battleReports';
+import { BattleReportView } from '@/shared/components/BattleReportView';
+import { createBattleReportFromResult } from '@/shared/logic/battleReport';
 import styles from './BattleReportsView.module.css';
 import { useSearchParams } from 'react-router-dom';
 

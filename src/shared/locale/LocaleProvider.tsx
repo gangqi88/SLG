@@ -1,15 +1,6 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
-import { enUS, type StringKey, zhCN } from './strings';
-
-export type Locale = 'zh-CN' | 'en-US';
-
-type LocaleApi = {
-  locale: Locale;
-  setLocale: (next: Locale) => void;
-  t: (key: StringKey) => string;
-};
-
-const LocaleContext = createContext<LocaleApi | null>(null);
+import React, { useMemo, useState } from 'react';
+import { enUS, zhCN } from './strings';
+import { LocaleContext, type Locale, type LocaleApi } from './LocaleContext';
 
 const detectLocale = (): Locale => {
   if (typeof navigator === 'undefined') return 'zh-CN';
@@ -33,10 +24,4 @@ export const LocaleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   );
 
   return <LocaleContext.Provider value={api}>{children}</LocaleContext.Provider>;
-};
-
-export const useLocale = () => {
-  const ctx = useContext(LocaleContext);
-  if (!ctx) throw new Error('LocaleContext is not available');
-  return ctx;
 };

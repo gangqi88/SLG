@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import InventoryManager from '@/features/resource/logic/InventoryManager';
 import { InventoryItem } from '@/features/gacha/types/LootBox';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 
 const LootBoxView: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
   const modal = useModal();

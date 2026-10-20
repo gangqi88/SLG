@@ -3,7 +3,7 @@ import { Hero } from '@/features/hero/types/Hero';
 import { HeroLogic } from '@/features/hero/logic/HeroLogic';
 import InventoryManager from '@/features/resource/logic/InventoryManager';
 import { InventoryItem } from '@/features/gacha/types/LootBox';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 import { openResourceWays } from '@/shared/logic/openResourceWays';
 import { useNavigate } from 'react-router-dom';
 import { PlayerResources } from '@/shared/logic/PlayerResources';

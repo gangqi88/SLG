@@ -4,7 +4,7 @@ import { allHeroes } from '@/features/hero/data/heroes';
 import { HeroLogic } from '@/features/hero/logic/HeroLogic';
 import HeroDevelopmentView from './HeroDevelopmentView';
 import styles from './HeroView.module.css';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 
 const HeroList: React.FC = () => {
   const modal = useModal();

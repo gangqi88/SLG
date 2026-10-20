@@ -1,6 +1,6 @@
 import React from 'react';
 import type { NavigateFunction } from 'react-router-dom';
-import type { ModalAction } from '@/shared/components/ModalProvider';
+import type { ModalAction } from '@/shared/components/ModalContext';
 import { ContributionWaysContent } from '@/shared/components/ContributionWays';
 
 export const openContributionWays = (args: {

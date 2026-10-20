@@ -4,7 +4,7 @@ import { PreloadScene } from '@/shared/scenes/PreloadScene';
 import { GatheringScene } from '@/features/resource/scenes/GatheringScene';
 import { getSceneAssetFeatures } from '@/shared/config/assets/sceneAssetFeatures';
 import { SceneHUD } from '@/shared/components/SceneHUD';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 import { formatRemaining } from '@/shared/logic/time';
 import { applyRewards, type Reward } from '@/shared/logic/rewards';
 import { Team } from '@/shared/logic/Team';

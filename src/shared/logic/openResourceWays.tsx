@@ -1,7 +1,8 @@
 import React from 'react';
 import type { NavigateFunction } from 'react-router-dom';
-import type { ModalAction } from '@/shared/components/ModalProvider';
-import { ResourceWaysContent, type ResourceNeedKey } from '@/shared/components/ResourceWays';
+import type { ModalAction } from '@/shared/components/ModalContext';
+import { ResourceWaysContent } from '@/shared/components/ResourceWays';
+import type { ResourceNeedKey } from '@/shared/logic/resourceWays';
 
 export const openResourceWays = (args: {
   modal: {

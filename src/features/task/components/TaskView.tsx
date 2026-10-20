@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { TaskManager, Task } from '@/features/task/logic/TaskManager';
 import { getTaskManager } from '@/features/task/logic/taskSingleton';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 import { applyRewards, formatRewardLines } from '@/shared/logic/rewards';
 
 const TaskView: React.FC = () => {

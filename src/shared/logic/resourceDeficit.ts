@@ -1,4 +1,4 @@
-import type { ResourceNeedKey } from '@/shared/components/ResourceWays';
+import type { ResourceNeedKey } from '@/shared/logic/resourceWays';
 
 export type ResourceDeficit = {
   key: ResourceNeedKey;

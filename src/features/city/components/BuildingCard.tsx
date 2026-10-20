@@ -3,7 +3,7 @@ import { Building } from '@/features/city/types/MainCity';
 import { BuildingUpgrade } from './BuildingUpgrade';
 import { useMainCity } from '@/features/city/hooks/useMainCity';
 import styles from './BuildingCard.module.css';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 import { useNavigate } from 'react-router-dom';
 import { openResourceWays } from '@/shared/logic/openResourceWays';
 import { pickMostDeficient } from '@/shared/logic/resourceDeficit';

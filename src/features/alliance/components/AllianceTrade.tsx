@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import styles from './AllianceTrade.module.css';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 
 type ResourceType = 'wood' | 'stone' | 'food' | 'gold';
 

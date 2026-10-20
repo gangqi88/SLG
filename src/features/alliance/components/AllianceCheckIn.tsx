@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import styles from './AllianceCheckIn.module.css';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 
 export const AllianceCheckIn: React.FC = () => {
   const { checkIn, checkInStatus, playerContribution } = useAlliance();

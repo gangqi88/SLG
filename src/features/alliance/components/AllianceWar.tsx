@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import styles from './AllianceWar.module.css';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 
 export const AllianceWar: React.FC = () => {
   const { activeWar, declareWar, submitWarScore, alliance } = useAlliance();

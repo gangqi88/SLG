@@ -1,11 +1,12 @@
 import React, { Suspense, useMemo, useState, useSyncExternalStore } from 'react';
 import { Outlet, useLocation, useMatches, useNavigate } from 'react-router-dom';
 import { GameShell } from '@/shared/components/GameShell';
-import { ModalProvider, useModal } from '@/shared/components/ModalProvider';
+import { ModalProvider } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 import type { WalletAccount } from '@/shared/utils/web3';
 import { UINotifications } from '@/shared/logic/UINotifications';
 import { openResourceWays } from '@/shared/logic/openResourceWays';
-import { useLocale } from '@/shared/locale/LocaleProvider';
+import { useLocale } from '@/shared/locale/LocaleContext';
 import type { StringKey } from '@/shared/locale/strings';
 
 const WalletConnect = React.lazy(() => import('@/shared/components/WalletConnect'));

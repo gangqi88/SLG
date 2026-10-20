@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import styles from './AllianceWorldMap.module.css';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 import type { AllianceWar } from '@/features/alliance/types/Alliance';
 import { WorldMap } from '@/features/alliance/logic/WorldMap';
 import { formatRemaining } from '@/shared/logic/time';
 import { useNavigate } from 'react-router-dom';
 import { BattleHistory } from '@/shared/logic/battleHistory';
-import { BattleReportView, createBattleReportFromResult } from '@/shared/logic/battleReports';
+import { BattleReportView } from '@/shared/components/BattleReportView';
+import { createBattleReportFromResult } from '@/shared/logic/battleReport';
 
 type CityStatus = 'friendly' | 'neutral' | 'enemy' | 'war';
 

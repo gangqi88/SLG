@@ -1,42 +1,12 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './Modal.module.css';
-import { useLocale } from '@/shared/locale/LocaleProvider';
-
-export type ModalAction = {
-  key: string;
-  label: string;
-  variant?: 'primary' | 'secondary' | 'danger';
-  onClick?: () => void;
-};
+import { useLocale } from '@/shared/locale/LocaleContext';
+import { ModalContext, type ModalAction, type ModalApi } from './ModalContext';
 
 type ModalState = {
   title: string;
   content: React.ReactNode;
   actions: ModalAction[];
-};
-
-type ModalApi = {
-  openModal: (args: { title: string; content: React.ReactNode; actions?: ModalAction[] }) => void;
-  openAlert: (args: { title: string; message: React.ReactNode; primaryText?: string }) => void;
-  openConfirm: (args: {
-    title: string;
-    message: React.ReactNode;
-    primaryText?: string;
-    secondaryText?: string;
-    onConfirm: () => void;
-    onCancel?: () => void;
-  }) => void;
-  close: () => void;
-};
-
-const ModalContext = createContext<ModalApi | null>(null);
-
-export const useModal = () => {
-  const ctx = useContext(ModalContext);
-  if (!ctx) {
-    throw new Error('ModalContext is not available');
-  }
-  return ctx;
 };
 
 export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

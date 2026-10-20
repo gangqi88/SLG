@@ -1,9 +1,9 @@
 import React, { useMemo, useSyncExternalStore } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 import { UINotifications } from '@/shared/logic/UINotifications';
 import { MAIN_ENTRIES } from '@/shared/config/mainEntries';
-import { useLocale } from '@/shared/locale/LocaleProvider';
+import { useLocale } from '@/shared/locale/LocaleContext';
 import styles from './GameMain.module.css';
 
 const GameMain: React.FC = () => {

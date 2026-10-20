@@ -3,10 +3,10 @@ import Phaser from 'phaser';
 import { PreloadScene } from '@/shared/scenes/PreloadScene';
 import { CityScene } from '@/features/city/scenes/CityScene';
 import { getSceneAssetFeatures } from '@/shared/config/assets/sceneAssetFeatures';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 import { useNavigate } from 'react-router-dom';
 import { openResourceWays } from '@/shared/logic/openResourceWays';
-import type { ModalAction } from '@/shared/components/ModalProvider';
+import type { ModalAction } from '@/shared/components/ModalContext';
 import { pickMostDeficient } from '@/shared/logic/resourceDeficit';
 
 interface CityViewProps {

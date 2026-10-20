@@ -6,12 +6,9 @@ import { DemolitionScene } from '@/features/battle/scenes/DemolitionScene';
 import { SiegeBattleScene } from '@/features/battle/scenes/SiegeBattleScene';
 import { Team, getTeamHeroes } from '@/shared/logic/Team';
 import { SceneHUD } from '@/shared/components/SceneHUD';
-import { useModal } from '@/shared/components/ModalProvider';
-import {
-  BattleReportView,
-  createBattleReportFromResult,
-  type BattleReport,
-} from '@/shared/logic/battleReports';
+import { useModal } from '@/shared/components/ModalContext';
+import { BattleReportView } from '@/shared/components/BattleReportView';
+import { createBattleReportFromResult, type BattleReport } from '@/shared/logic/battleReport';
 import { applyRewards, formatRewardLines, type Reward } from '@/shared/logic/rewards';
 import { hasClaimed, markClaimed, newClaimKey } from '@/shared/logic/claimLedger';
 import { computeTeamPower } from '@/shared/logic/teamMetrics';

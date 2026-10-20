@@ -11,7 +11,7 @@ import { AllianceWar } from './AllianceWar';
 import { AllianceAd } from './AllianceAd';
 import { AllianceWorldMap } from './AllianceWorldMap';
 import styles from './AllianceDashboard.module.css';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 import { useNavigate } from 'react-router-dom';
 import { formatRemaining } from '@/shared/logic/time';
 import { TeamEditor } from '@/shared/components/TeamEditor';

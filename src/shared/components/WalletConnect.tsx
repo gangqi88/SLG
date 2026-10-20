@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Web3Manager, WalletAccount } from '@/shared/utils/web3';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 
 interface WalletConnectProps {
   onConnect: (account: WalletAccount) => void;

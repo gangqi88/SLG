@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import styles from './AllianceTech.module.css';
-import { useModal } from '@/shared/components/ModalProvider';
+import { useModal } from '@/shared/components/ModalContext';
 import { useNavigate } from 'react-router-dom';
 import { openContributionWays } from '@/shared/logic/openContributionWays';
 
