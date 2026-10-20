@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   computeSiegeContribution,
   SIEGE_SCORE_CAP_RATIO,
+  SIEGE_SCORE_LINEAR_CAP,
   siegeScoreCap,
   takeSiegeScore,
   type PendingSiegeScoreRef,
@@ -98,26 +99,36 @@ describe('G1a 小游戏得分接通（形状 B）', () => {
     expect(CAP_C3).toBe(Math.floor(MAX_C3 * SIEGE_SCORE_CAP_RATIO));
   });
 
-  it('A2: 中段线性 —— score 750 的差值 ≈ cap/2（±1）', async () => {
+  it('A2: 中段线性 —— 取样点跟随常量，不写死 750', async () => {
+    // 取样点必须是「线性段的中点」这个**性质**，而不是 750 这个数：
+    // 写死 750 会把「改了 SIEGE_SCORE_LINEAR_CAP」这种纯常量改动误判成「形状坏了」。
+    const midScore = SIEGE_SCORE_LINEAR_CAP / 2;
     const cur0 = await settleDefenderWin('c3', DAMAGE, 0);
-    const cur750 = await settleDefenderWin('c3', DAMAGE, 750);
+    const curMid = await settleDefenderWin('c3', DAMAGE, midScore);
 
-    const diff = cur0 - cur750;
+    const diff = cur0 - curMid;
     expect(
       Math.abs(diff - CAP_C3 / 2),
-      `中段差值 ${diff} 偏离 cap/2=${CAP_C3 / 2} 超过 1`,
+      `中段（score=${midScore}）差值 ${diff} 偏离 cap/2=${CAP_C3 / 2} 超过 1`,
     ).toBeLessThanOrEqual(1);
   });
 
-  it('G: 曲线在 0 处连续 —— score 0 与 1 的贡献差 ≤ cap/1000（不许阶跃）', () => {
-    const c0 = computeSiegeContribution({ score: 0, max: MAX_C3 });
-    const c1 = computeSiegeContribution({ score: 1, max: MAX_C3 });
-
-    // 阶跃形状（旧实现）在这里会是 50~76，直接被拦住
-    expect(
-      Math.abs(c1 - c0),
-      `score 0→1 的贡献跳变 ${Math.abs(c1 - c0)}：曲线在 0 处不连续（阶跃）`,
-    ).toBeLessThanOrEqual(CAP_C3 / 1000);
+  it('G: 曲线在 0 处连续，且对 cap 量级不敏感（覆盖取整 × 比例阈值的错位带）', () => {
+    // 阈值是实数（cap/1000）、左侧是取整后的整数，两者在 cap∈[750,999] 一条带上必然错位：
+    //   形状完全正确，断言却红 —— 那种红会促使别人「放宽断言」，正是门禁腐化的起点。
+    // 下限取 max(1, …) 抹平该带；max 取样扩到多个量级，否则「修假红的补丁」本身无法被证伪。
+    for (const max of [760, 2_000, 5_000, 7_500, 8_000, 9_990, 12_000]) {
+      const cap = siegeScoreCap(max);
+      const c0 = computeSiegeContribution({ score: 0, max });
+      const c1 = computeSiegeContribution({ score: 1, max });
+      const limit = Math.max(1, cap / 1000);
+      expect(
+        Math.abs(c1 - c0),
+        `max=${max}（cap=${cap}）score 0→1 的跳变 ${Math.abs(c1 - c0)} 超过阈值 ${limit}`,
+      ).toBeLessThanOrEqual(limit);
+      // 同时确认曲线是「从 0 起」，不是「从 cap 起」
+      expect(c0, `max=${max}：score 0 的贡献必须为 0（无基线）`).toBe(0);
+    }
   });
 
   it('C: 硬顶 —— 饱和后继续加分不再增加', () => {
