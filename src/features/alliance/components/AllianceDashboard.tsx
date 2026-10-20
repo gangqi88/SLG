@@ -59,7 +59,7 @@ const AllianceJoinCreateModal: React.FC<{
   );
 };
 
-export const AllianceDashboard: React.FC = () => {
+const AllianceDashboard: React.FC = () => {
   const {
     alliance,
     hasAlliance,

@@ -29,7 +29,7 @@ const outcomeColor = (w: BattleResult['winner']) => {
 const sortByDamage = (a: HeroBattleStats, b: HeroBattleStats) => b.damage - a.damage;
 const sortByHeal = (a: HeroBattleStats, b: HeroBattleStats) => b.heal - a.heal;
 
-export const BattleReportsView: React.FC = () => {
+const BattleReportsView: React.FC = () => {
   const modal = useModal();
   const [searchParams, setSearchParams] = useSearchParams();
   const filterCityId = searchParams.get('cityId');

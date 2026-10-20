@@ -5,7 +5,7 @@ import { AdBillboard } from './AdBillboard';
 import { AuctionHouse } from './AuctionHouse';
 import styles from './MainCity.module.css';
 
-export const MainCityView: React.FC = () => {
+const MainCityView: React.FC = () => {
   const { buildings, isLoading } = useMainCity();
 
   if (isLoading) {
