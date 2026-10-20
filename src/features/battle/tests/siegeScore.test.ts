@@ -2,27 +2,33 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   computeSiegeContribution,
   SIEGE_SCORE_CAP_RATIO,
+  siegeScoreCap,
   takeSiegeScore,
   type PendingSiegeScoreRef,
 } from '@/shared/logic/siegeScore';
 
 /**
- * G1a · 小游戏得分接通（口径 v7）
+ * G1a · 小游戏得分接通（口径：形状 B「0 → cap 线性」）
  *
- * 六条断言对应六类泄漏，缺一条就有一类测不到：
- *   A 得分确实影响扣减，且在规定的量级区间内
- *   B 只打小游戏、不结算 → 结果完全一致（闸 ①）
- *   C 硬顶：贡献 ≤ max × 10%
- *   D 得分为 0 时与"没有这个参数"完全一致
- *   E 跨城不泄漏
- *   F 同城连续两场，分只在第一场生效（取用即置空）
+ * 断言分工：
+ *   A  形状：score 0 vs 2500 的差值 **恰等于 cap**（不是"落在某区间"）
+ *   A2 中段线性：score 750 → 差值 ≈ cap/2（±1）
+ *   G  **0 处连续**：score 0 与 1 的贡献差 ≤ cap/1000 ⇒ 不许出现阶跃
+ *   B  闸 ①：只打小游戏、不结算 → 城防完全不变
+ *   C  硬顶：饱和后继续加分不再增加
+ *   D  0 与"不传参数"完全等价
+ *   E  跨城不泄漏 ｜ F 同城两场只第一场生效
+ *
+ * 为什么要 A2 和 G：
+ *   原来的 A 只断言"差值落在 [3%,10%]" —— **阶跃形状和线性形状都能通过**，
+ *   它验的是"有区分度"，不是"形状对"。G 专门拦"改回阶跃"。
  */
 
 const STORAGE_KEY = 'slg_world_map_v1';
 const FROZEN_NOW = new Date('2026-01-01T00:00:00.000Z');
 const MAX_C3 = 760;
-/** 让 c3 的「伤害决定的那部分」落在 250：floor(760*0.06) + floor(damage/180) = 45 + 205 */
-const DAMAGE_FOR_250 = 36_900;
+/** 伤害侧扣减：形状 B 与它无关，这里只要一个稳定值 */
+const DAMAGE = 36_900;
 
 const loadWorldMap = async () => (await import('@/features/alliance/logic/WorldMap')).WorldMap;
 
@@ -49,7 +55,6 @@ const freshStore = async () => {
   return loadWorldMap();
 };
 
-/** settle 一次守方胜，返回结算后的 cur */
 const settleDefenderWin = async (
   cityId: string,
   damage: number,
@@ -71,7 +76,9 @@ const refWith = (value: { cityId: string | null; score: number } | null): Pendin
   current: value,
 });
 
-describe('G1a 小游戏得分接通', () => {
+const CAP_C3 = siegeScoreCap(MAX_C3); // 76
+
+describe('G1a 小游戏得分接通（形状 B）', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(FROZEN_NOW);
@@ -82,34 +89,46 @@ describe('G1a 小游戏得分接通', () => {
     localStorage.clear();
   });
 
-  it('A: 得分 0 与 2500 的城防差，落在 [max×3%, max×10%]，且高分方更低', async () => {
-    const cur0 = await settleDefenderWin('c3', DAMAGE_FOR_250, 0);
-    const cur2500 = await settleDefenderWin('c3', DAMAGE_FOR_250, 2500);
+  it('A: score 0 与 2500 的城防差恰等于 cap（2500 已饱和）', async () => {
+    const cur0 = await settleDefenderWin('c3', DAMAGE, 0);
+    const cur2500 = await settleDefenderWin('c3', DAMAGE, 2500);
 
-    const diff = cur0 - cur2500;
-    expect(diff, '得分没有影响扣减').toBeGreaterThan(0);
-    expect(diff, `差值 ${diff} 低于 max×3%=${MAX_C3 * 0.03}`).toBeGreaterThanOrEqual(
-      Math.ceil(MAX_C3 * 0.03),
-    );
-    expect(diff, `差值 ${diff} 超过 max×10%=${MAX_C3 * 0.1}`).toBeLessThanOrEqual(
-      Math.floor(MAX_C3 * 0.1),
-    );
     expect(cur2500, '高分方必须扣得更多').toBeLessThan(cur0);
+    expect(cur0 - cur2500, `差值应恰为 cap=${CAP_C3}`).toBe(CAP_C3);
+    expect(CAP_C3).toBe(Math.floor(MAX_C3 * SIEGE_SCORE_CAP_RATIO));
   });
 
-  it('C: 硬顶 —— 得分极高时贡献不超过 max×10%', async () => {
-    const cap = Math.floor(MAX_C3 * SIEGE_SCORE_CAP_RATIO);
-    expect(computeSiegeContribution({ score: 1_000_000, dmgBase: 418, max: MAX_C3 })).toBe(cap);
-    expect(computeSiegeContribution({ score: 1e9, dmgBase: 418, max: MAX_C3 }), '硬顶未生效').toBe(
-      cap,
-    );
+  it('A2: 中段线性 —— score 750 的差值 ≈ cap/2（±1）', async () => {
+    const cur0 = await settleDefenderWin('c3', DAMAGE, 0);
+    const cur750 = await settleDefenderWin('c3', DAMAGE, 750);
+
+    const diff = cur0 - cur750;
+    expect(
+      Math.abs(diff - CAP_C3 / 2),
+      `中段差值 ${diff} 偏离 cap/2=${CAP_C3 / 2} 超过 1`,
+    ).toBeLessThanOrEqual(1);
+  });
+
+  it('G: 曲线在 0 处连续 —— score 0 与 1 的贡献差 ≤ cap/1000（不许阶跃）', () => {
+    const c0 = computeSiegeContribution({ score: 0, max: MAX_C3 });
+    const c1 = computeSiegeContribution({ score: 1, max: MAX_C3 });
+
+    // 阶跃形状（旧实现）在这里会是 50~76，直接被拦住
+    expect(
+      Math.abs(c1 - c0),
+      `score 0→1 的贡献跳变 ${Math.abs(c1 - c0)}：曲线在 0 处不连续（阶跃）`,
+    ).toBeLessThanOrEqual(CAP_C3 / 1000);
+  });
+
+  it('C: 硬顶 —— 饱和后继续加分不再增加', () => {
+    expect(computeSiegeContribution({ score: 1_000_000, max: MAX_C3 })).toBe(CAP_C3);
+    expect(computeSiegeContribution({ score: 1e9, max: MAX_C3 }), '硬顶未生效').toBe(CAP_C3);
   });
 
   it('B: 只打小游戏、不发结算 → 城池状态完全不变（闸 ①）', async () => {
     const WorldMap = await freshStore();
     const before = WorldMap.getCityById('c3')?.defenseState.cur ?? 0;
 
-    // 记了分，但没有 onBattleEnd —— 容器只是被赋值，没有任何消费方
     const ref = refWith({ cityId: 'c3', score: 2500 });
 
     const after = WorldMap.getCityById('c3')?.defenseState.cur ?? 0;
@@ -118,13 +137,13 @@ describe('G1a 小游戏得分接通', () => {
   });
 
   it('D: 得分为 0 时与"没有这个参数"完全一致', async () => {
-    const withoutParam = await settleDefenderWin('c3', DAMAGE_FOR_250, undefined);
-    const withZero = await settleDefenderWin('c3', DAMAGE_FOR_250, 0);
+    const withoutParam = await settleDefenderWin('c3', DAMAGE, undefined);
+    const withZero = await settleDefenderWin('c3', DAMAGE, 0);
 
     expect(withZero, '传 0 与不传必须等价').toBe(withoutParam);
-    expect(computeSiegeContribution({ score: 0, dmgBase: 250, max: MAX_C3 })).toBe(0);
+    expect(computeSiegeContribution({ score: 0, max: MAX_C3 }), '不打必须是 0（无基线）').toBe(0);
     expect(
-      computeSiegeContribution({ score: 2500, dmgBase: 250, max: MAX_C3 }),
+      computeSiegeContribution({ score: 2500, max: MAX_C3 }),
       '0 与 2500 没有区分度',
     ).toBeGreaterThan(0);
   });
@@ -136,8 +155,8 @@ describe('G1a 小游戏得分接通', () => {
     expect(takenForC5, 'A 城的分数泄漏到了 B 城').toBe(0);
     expect(ref.current, '不匹配时也必须置空，否则会留到后面某场被误用').toBeNull();
 
-    const withGuard = await settleDefenderWin('c5', DAMAGE_FOR_250, takenForC5);
-    const withZeroScore = await settleDefenderWin('c5', DAMAGE_FOR_250, 0);
+    const withGuard = await settleDefenderWin('c5', DAMAGE, takenForC5);
+    const withZeroScore = await settleDefenderWin('c5', DAMAGE, 0);
 
     expect(withGuard, '跨城结果不一致：说明 A 城的分数影响了 B 城').toBe(withZeroScore);
   });
@@ -152,7 +171,7 @@ describe('G1a 小游戏得分接通', () => {
       WorldMap.applySiegeOutcome({
         cityId: 'c3',
         winner: 'defender',
-        attackerDamage: DAMAGE_FOR_250,
+        attackerDamage: DAMAGE,
         defenseBeforeCur: cur,
         siegeScore: score,
       });

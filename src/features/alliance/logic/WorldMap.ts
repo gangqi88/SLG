@@ -344,11 +344,8 @@ class WorldMapStore {
       const dmgBase = clampInt(base + raw, 1, Math.floor(max * 0.55));
       // 小游戏得分贡献：**追加在既有 clamp 之后**，不改动 clamp 与 minCur 的规则。
       // 若把它塞进上面的 clamp 里，55% 上限会把它一起吃掉，得分就失去区分度。
-      const contribution = computeSiegeContribution({
-        score: args.siegeScore ?? 0,
-        dmgBase,
-        max,
-      });
+      // 形状是「0 → cap 线性」：不打 = 0（无基线），打满 = floor(max×10%)。
+      const contribution = computeSiegeContribution({ score: args.siegeScore ?? 0, max });
       const dmg = dmgBase + contribution;
       const minCur = Math.floor(max * 0.1);
       const cur = Math.max(minCur, curBefore - dmg);
