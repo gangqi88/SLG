@@ -45,6 +45,10 @@ export const AllianceWorldMap: React.FC<{
     () => WorldMap.getSnapshot(),
   );
 
+  // 每秒重绘驱动：城防修复值是「当前时间」的函数，store 的 getSnapshot() 按秒缓存，
+  // 因此需要一次每秒的渲染来取新秒快照。这不是空转重渲 —— 去掉它，修复中的防御值
+  // 会停在最后一次 store 写入时的数值上（V-4 会红）。
+  // 已知良性：跨秒边界最多多一次 re-render，一次即收敛；>1 次/秒才算回归。
   useEffect(() => {
     const t = setInterval(() => {
       forceTick((v) => (v + 1) % 100000);
