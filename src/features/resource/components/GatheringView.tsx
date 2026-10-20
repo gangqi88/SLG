@@ -24,7 +24,7 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
     () => Team.getSnapshot(),
   );
   const startRef = useRef<number>(Date.now());
-  const [tick, setTick] = useState(0);
+  const [elapsedMs, setElapsedMs] = useState(0);
   const [progress, setProgress] = useState(0);
   const [sessionGain, setSessionGain] = useState({ wood: 0, ore: 0 });
   const remainderRef = useRef({ wood: 0, ore: 0 });
@@ -32,10 +32,7 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
   const teamHeroes = useMemo(() => getTeamHeroes(team.heroIds), [team.heroIds]);
   const rates = useMemo(() => computeGatherRates(teamHeroes), [teamHeroes]);
 
-  const sessionLabel = useMemo(() => {
-    const elapsed = Date.now() - startRef.current;
-    return formatRemaining(elapsed);
-  }, [tick]);
+  const sessionLabel = formatRemaining(elapsedMs);
 
   useEffect(() => {
     const key = 'slg_gathering_last_exit_v1';
@@ -84,7 +81,7 @@ const GatheringView: React.FC<GatheringViewProps> = ({ onExit }) => {
 
   useEffect(() => {
     const t = setInterval(() => {
-      setTick((v) => v + 1);
+      setElapsedMs(Date.now() - startRef.current);
       setProgress((p) => {
         const next = p + rates.progressPerSec;
         return next >= 100 ? 0 : next;

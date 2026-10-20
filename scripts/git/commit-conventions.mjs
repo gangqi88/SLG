@@ -72,7 +72,6 @@ const promptSelect = async (question, options) => {
   try {
     output.write(`${question}\n`);
     options.forEach((o, i) => output.write(`  ${i + 1}) ${o}\n`));
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       const ans = String(await ask('请选择序号: ')).trim();
       const n = Number(ans);
