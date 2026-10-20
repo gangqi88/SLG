@@ -1,17 +1,4 @@
-import { ALLIANCE_LEVEL_CONFIG, DEFAULT_TECH_LIST, DEFAULT_SHOP_ITEMS } from '../types/Alliance';
-
-export interface AllianceConfig {
-  createAllianceCost: number;
-  checkInReward: number;
-  leavePenaltyRate: number;
-  warDeclareRequiredLevel: number;
-  warDeclareDeposit: number;
-  warDuration: number;
-  maxChatMessages: number;
-  maxTradeRequests: number;
-  techList: typeof DEFAULT_TECH_LIST;
-  shopItems: typeof DEFAULT_SHOP_ITEMS;
-}
+import { ALLIANCE_LEVEL_CONFIG } from '../types/Alliance';
 
 export const getUpgradeCost = (currentLevel: number): number => {
   const config = ALLIANCE_LEVEL_CONFIG[currentLevel + 1];

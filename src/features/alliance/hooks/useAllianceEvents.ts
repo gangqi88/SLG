@@ -1,11 +1,3 @@
-// Mock event listener type
-export interface Web3Event {
-  eventName: string;
-  data: unknown;
-  blockNumber: number;
-  transactionHash: string;
-}
-
 // Helper to dispatch mock events (to be used by MockAllianceService)
 export const dispatchMockEvent = (eventName: string, data: unknown) => {
   const event = new CustomEvent('web3-alliance-event', {

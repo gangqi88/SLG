@@ -66,10 +66,6 @@ const rawManifest = [
 
 export const GAME_ASSETS: GameAsset[] = rawManifest.map(toGameAsset);
 
-export type ImageGameAsset = GameAsset & { type: 'image' };
-
-export type AudioGameAsset = GameAsset & { type: 'audio' };
-
 export const getGameAssetsByFeatures = (features?: string[]) => {
   if (!features || features.length === 0) {
     return GAME_ASSETS;
