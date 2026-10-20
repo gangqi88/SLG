@@ -45,6 +45,10 @@ describe('BattleHistory.getSnapshot 契约', () => {
     const first = BattleHistory.getSnapshot();
     const second = BattleHistory.getSnapshot();
 
+    // #2 机制前提：刚 add 过一条，这里必须真的拿到它。
+    // 否则 getSnapshot 退化成返回同一个空数组时，Object.is 也会绿。
+    expect(first.length, 'add 之后快照仍为空：引用稳定对空数组没有意义').toBe(1);
+
     expect(Object.is(first, second)).toBe(true);
   });
 

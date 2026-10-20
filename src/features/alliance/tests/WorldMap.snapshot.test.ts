@@ -51,6 +51,14 @@ describe('WorldMap.getSnapshot 契约', () => {
     const first = WorldMap.getSnapshot();
     const second = WorldMap.getSnapshot();
 
+    // #1 机制前提：Object.is 对「两侧同为 undefined」恒真。
+    // 若 getSnapshot 退化成返回 undefined，下面的断言会假绿 —— 先把"确实拿到了数组"钉住。
+    expect(Array.isArray(first), 'getSnapshot 没有返回数组：引用比较对它没有意义').toBe(true);
+    expect(
+      first.length,
+      'getSnapshot 返回空数组：引用稳定这件事仍然成立，但不是我们想验的场景',
+    ).toBeGreaterThan(0);
+
     expect(Object.is(first, second)).toBe(true);
   });
 
@@ -140,6 +148,10 @@ describe('WorldMap.getSnapshot 契约', () => {
     const fromSnapshot = WorldMap.getSnapshot().find((c) => c.id === 'c5');
     const fromGetter = WorldMap.getCityById('c5');
 
+    // #12 机制前提：两侧同为 undefined 时 ?. 链也会相等。
+    // 若城池 id 变了或尚未加载，这条会假绿 —— 先把"两边都真的读到了"钉住。
+    expect(fromSnapshot, 'c5 不在快照里：?.cur 的相等断言对它没有意义').toBeDefined();
+    expect(fromGetter, 'getCityById 没读到 c5：?.cur 的相等断言对它没有意义').toBeDefined();
     expect(fromGetter?.defenseState.cur).toBe(fromSnapshot?.defenseState.cur);
   });
 

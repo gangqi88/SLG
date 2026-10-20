@@ -32,6 +32,8 @@ describe('alliance string policy', () => {
   it('forbids legacy and npc literals in runtime code', async () => {
     const root = path.join(process.cwd(), 'src');
     const files = (await walk(root)).filter((f) => f.endsWith('.ts') || f.endsWith('.tsx'));
+    // #11 机制前提：文件列表为空时，下面整段 not.toMatch 一次都不执行 —— 恒真。
+    expect(files.length, 'walk 没有返回任何文件：违规字面量检查对它没有意义').toBeGreaterThan(0);
     const allow = new Set<string>([
       path.join(process.cwd(), 'src', 'features', 'alliance', 'config', 'npcAlliances.ts'),
     ]);

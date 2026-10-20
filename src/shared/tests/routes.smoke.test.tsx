@@ -575,10 +575,19 @@ describe('AC-08 路由挂载 smoke', () => {
       uncertain,
       `分类不确定（U1–U4）：\n${uncertain.map((c) => `${c.path} ${c.reason}`).join('\n')}`,
     ).toEqual([]);
+    // #7 机制前提：paths 为空时「三数之和 === paths.length」是 0 === 0，恒真。
+    // 原来这条守卫在另一个用例（A）里，属于"前提托管给别人"。
+    expect(paths.length, '路由枚举为空：三数相等对它没有意义').toBeGreaterThan(0);
     expect(
       plain.length + phaser.length + uncertain.length,
       `三数不自洽：enumerated=${paths.length} covered=${plain.length} skipped=${phaser.length} uncertain=${uncertain.length}`,
     ).toBe(paths.length);
+
+    // #6 机制前提（分母为 0）：一个说明符都没解析到时 other 必然是 0。
+    expect(
+      counts.relative + counts.aliasAtSlash + counts.bare + counts.nodeBuiltin,
+      '一个说明符都没解析到：counts.other === 0 是分母为 0 的假绿',
+    ).toBeGreaterThan(0);
     expect(counts.other, `未知说明符前缀：${counts.otherSamples.join(', ')}`).toBe(0);
 
     // A5 冲突规则（豁免表为空；非空时两条规则分别防漏撤销 / 路由已删）
@@ -600,6 +609,8 @@ describe('AC-08 路由挂载 smoke', () => {
     const missing = covered.filter((p) => !(p in ANCHORS));
     const extra = Object.keys(ANCHORS).filter((p) => !covered.includes(p));
 
+    // #8 机制前提：covered 为空时 missing/extra 都为空，"没有违规项"恒真。
+    expect(covered.length, 'covered 为空：锚点表双向相等对它没有意义').toBeGreaterThan(0);
     expect(missing, `锚点缺失（⑦ 对它们将是空的）：\n${missing.join('\n')}`).toEqual([]);
     expect(extra, `锚点多余（路由已删但锚点还在）：\n${extra.join('\n')}`).toEqual([]);
   });
@@ -705,6 +716,8 @@ describe('AC-08 路由挂载 smoke', () => {
   });
 
   it('store 级守卫仍然存在（mount test 的 B-half 依赖它们）', () => {
+    // #9 机制前提：STORE_GUARDS 被清空时 missing 恒为空，"守卫都在"恒真。
+    expect(STORE_GUARDS.length, 'STORE_GUARDS 为空：这条检查什么都没查').toBeGreaterThan(0);
     const missing: string[] = [];
     for (const { file, cases } of STORE_GUARDS) {
       const full = path.resolve(process.cwd(), file);

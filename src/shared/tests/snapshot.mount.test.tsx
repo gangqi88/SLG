@@ -123,9 +123,16 @@ describe('useSyncExternalStore 挂载契约', () => {
 
       // 第三条：抓「没抛错、也没 warn，但渲了很多次」。
       // 已修 = 1；原始实现约 54。
+      // #3 机制前提：renderCount 为 0 时 `<= 2` 恒真（根本没渲染也算"收敛"）。
+      expect(renderCount, '一次都没渲染：收敛断言对它没有意义').toBeGreaterThan(0);
       expect(renderCount, `挂载渲染了 ${renderCount} 次，超出收敛上限 2 次`).toBeLessThanOrEqual(2);
 
       // 值断言从 store 派生，不写死 6 —— 否则 baseCities 一变就误红。
+      // #4 机制前提：store 为空时 "0" === "0" 也会通过，那是空集恒真。
+      expect(
+        WorldMap.getSnapshot().length,
+        'store 为空：textContent 与长度的比较会变成 "0"==="0"',
+      ).toBeGreaterThan(0);
       expect(probe.host.textContent).toBe(String(WorldMap.getSnapshot().length));
     } finally {
       await unmountProbe(probe);
@@ -157,8 +164,15 @@ describe('useSyncExternalStore 挂载契约', () => {
         '挂载抛错（Maximum update depth）通常意味 getSnapshot 返回新引用，应缓存同一引用',
       ).toBeNull();
 
+      // #3 机制前提：同上，0 次渲染时 `<= 2` 恒真。
+      expect(renderCount, '一次都没渲染：收敛断言对它没有意义').toBeGreaterThan(0);
       expect(renderCount, `挂载渲染了 ${renderCount} 次，超出收敛上限 2 次`).toBeLessThanOrEqual(2);
 
+      // #4 机制前提：同上，store 为空时 "0" === "0" 也会通过。
+      expect(
+        BattleHistory.getSnapshot().length,
+        'store 为空：textContent 与长度的比较会变成 "0"==="0"',
+      ).toBeGreaterThan(0);
       expect(probe.host.textContent).toBe(String(BattleHistory.getSnapshot().length));
     } finally {
       await unmountProbe(probe);

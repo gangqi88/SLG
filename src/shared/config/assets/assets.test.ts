@@ -9,6 +9,8 @@ import {
 
 describe('assets config', () => {
   it('returns all assets when features are empty', () => {
+    // #10 机制前提：GAME_ASSETS 为空时 0 === 0 恒真。
+    expect(GAME_ASSETS.length, 'GAME_ASSETS 为空：长度相等对它没有意义').toBeGreaterThan(0);
     expect(getGameAssetsByFeatures().length).toBe(GAME_ASSETS.length);
     expect(getGameAssetsByFeatures([]).length).toBe(GAME_ASSETS.length);
   });
