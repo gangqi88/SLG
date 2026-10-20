@@ -1,6 +1,6 @@
-export type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
+type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
 
-export type ItemType = 'resource' | 'fragment' | 'hero' | 'box';
+type ItemType = 'resource' | 'fragment' | 'hero' | 'box';
 
 export interface GameItem {
   id: string;
@@ -11,7 +11,7 @@ export interface GameItem {
   icon?: string; // Optional icon path or emoji
 }
 
-export interface LootBoxDrop {
+interface LootBoxDrop {
   itemId: string;
   minQuantity: number;
   maxQuantity: number;
@@ -29,7 +29,7 @@ export interface InventoryItem {
 }
 
 // Define some default boxes
-export const BASIC_LOOT_BOX: LootBox = {
+const BASIC_LOOT_BOX: LootBox = {
   id: 'basic_lootbox',
   name: 'Basic Loot Box',
   type: 'box',

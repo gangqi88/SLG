@@ -1,4 +1,4 @@
-export const BATTLE_MODES = ['pvp', 'pve', 'siege'] as const;
+const BATTLE_MODES = ['pvp', 'pve', 'siege'] as const;
 
 export type BattleMode = (typeof BATTLE_MODES)[number];
 

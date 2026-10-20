@@ -29,7 +29,7 @@ const TROOP_RESTRAINT_BONUS: Partial<Record<TroopType, Partial<Record<TroopType,
  * Calculate damage reduction percentage based on defense.
  * Formula: Defense / (Defense + 200)
  */
-export const calculateDamageReduction = (defense: number): number => {
+const calculateDamageReduction = (defense: number): number => {
   return defense / (defense + 200);
 };
 
@@ -37,7 +37,7 @@ export const calculateDamageReduction = (defense: number): number => {
  * Calculate race restraint bonus.
  * Returns a multiplier (e.g., 1.25 for +25%).
  */
-export const getRaceRestraintMultiplier = (attackerRace: Race, defenderRace: Race): number => {
+const getRaceRestraintMultiplier = (attackerRace: Race, defenderRace: Race): number => {
   const bonus = RACE_RESTRAINT_BONUS[attackerRace]?.[defenderRace] || 0;
   return 1 + bonus;
 };
@@ -45,7 +45,7 @@ export const getRaceRestraintMultiplier = (attackerRace: Race, defenderRace: Rac
 /**
  * Calculate troop restraint bonus.
  */
-export const getTroopRestraintMultiplier = (
+const getTroopRestraintMultiplier = (
   attackerTroop: TroopType | string,
   defenderTroop: TroopType | string,
 ): number => {

@@ -1,4 +1,4 @@
-export enum TaskType {
+enum TaskType {
   MAIN = 'Main',
   SIDE = 'Side',
   DAILY = 'Daily',
@@ -13,7 +13,7 @@ export enum TaskState {
   CLAIMED = 'Claimed',
 }
 
-export interface TaskReward {
+interface TaskReward {
   type: 'resource' | 'item' | 'hero';
   id: string; // e.g., 'wood', 'diamond', 'hero_123'
   amount: number;

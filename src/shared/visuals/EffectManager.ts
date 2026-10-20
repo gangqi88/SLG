@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
 
-export interface EffectConfig {
+interface EffectConfig {
   color: number;
   duration: number;
   type: 'flash' | 'projectile' | 'explosion' | 'beam';
 }
 
-export const SkillEffects: { [key: string]: EffectConfig } = {
+const SkillEffects: { [key: string]: EffectConfig } = {
   default: { color: 0xffffff, duration: 200, type: 'flash' },
   fire: { color: 0xff4500, duration: 500, type: 'explosion' },
   heal: { color: 0x00ff00, duration: 500, type: 'flash' },

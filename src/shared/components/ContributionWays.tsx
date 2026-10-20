@@ -18,7 +18,7 @@ export const ContributionWaysContent: React.FC<{
   );
 };
 
-export const ContributionWaysContentInner: React.FC<{
+const ContributionWaysContentInner: React.FC<{
   onGo: (to: string) => void;
   needAmount?: number;
   haveAmount?: number;

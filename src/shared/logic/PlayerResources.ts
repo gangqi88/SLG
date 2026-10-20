@@ -1,6 +1,6 @@
 export type PlayerResourceKey = 'coin' | 'gem' | 'food' | 'wood' | 'ore' | 'bun';
 
-export type PlayerResourcesSnapshot = Record<PlayerResourceKey, number>;
+type PlayerResourcesSnapshot = Record<PlayerResourceKey, number>;
 
 type Listener = () => void;
 

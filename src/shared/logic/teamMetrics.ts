@@ -1,7 +1,7 @@
 import type { Hero } from '@/features/hero/types/Hero';
 import { HeroLogic } from '@/features/hero/logic/HeroLogic';
 
-export const computeHeroPower = (hero: Hero) => {
+const computeHeroPower = (hero: Hero) => {
   const s = HeroLogic.getStats(hero);
   return s.command * 4 + s.strength * 3 + s.strategy * 3 + s.defense * 2;
 };

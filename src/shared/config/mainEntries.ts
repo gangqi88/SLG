@@ -1,6 +1,6 @@
 import type { StringKey } from '@/shared/locale/strings';
 
-export type MainEntryKey =
+type MainEntryKey =
   | 'heroes'
   | 'main-city'
   | 'world'

@@ -1,4 +1,4 @@
-export type NpcAllianceConfig = {
+type NpcAllianceConfig = {
   id: string;
   name: string;
   colorHex: `#${string}`;

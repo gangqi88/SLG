@@ -1,6 +1,6 @@
 import type { BattleResult } from '@/shared/logic/battleResult';
 
-export type BattleReportEntry = {
+type BattleReportEntry = {
   label: string;
   value: string;
   tone?: 'normal' | 'good' | 'bad';

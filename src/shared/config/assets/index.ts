@@ -2,9 +2,9 @@ import backgroundManifest from './manifests/background.json';
 import characterManifest from './manifests/character.json';
 import uiAudioManifest from './manifests/ui-audio.json';
 
-export const GAME_ASSET_TYPES = ['image', 'audio'] as const;
+const GAME_ASSET_TYPES = ['image', 'audio'] as const;
 
-export type GameAssetType = (typeof GAME_ASSET_TYPES)[number];
+type GameAssetType = (typeof GAME_ASSET_TYPES)[number];
 
 export interface GameAsset {
   key: string;

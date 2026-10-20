@@ -2,7 +2,7 @@ import InventoryManager from '@/features/resource/logic/InventoryManager';
 import { TaskState } from '@/features/task/logic/TaskManager';
 import { getTaskManager } from '@/features/task/logic/taskSingleton';
 
-export type UINotificationsSnapshot = {
+type UINotificationsSnapshot = {
   lootBoxCount: number;
   taskClaimableCount: number;
   mailUnreadCount: number;

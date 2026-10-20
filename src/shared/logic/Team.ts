@@ -1,7 +1,7 @@
 import { allHeroes } from '@/features/hero/data/heroes';
 import type { Hero } from '@/features/hero/types/Hero';
 
-export type TeamSnapshot = {
+type TeamSnapshot = {
   heroIds: string[];
   maxSize: number;
 };

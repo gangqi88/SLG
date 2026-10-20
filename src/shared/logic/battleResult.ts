@@ -1,6 +1,6 @@
 import type { BattleEvent } from '@/features/battle/types/BattleTypes';
 
-export type BattleWinner = 'attacker' | 'defender' | 'draw';
+type BattleWinner = 'attacker' | 'defender' | 'draw';
 
 export type BattleSideStats = {
   damage: number;
@@ -36,7 +36,7 @@ export type BattleResult = {
   heroes: HeroBattleStats[];
 };
 
-export const emptySideStats = (): BattleSideStats => ({ damage: 0, heal: 0, deaths: 0 });
+const emptySideStats = (): BattleSideStats => ({ damage: 0, heal: 0, deaths: 0 });
 
 export type BattleStatsAccumulator = {
   sides: { attacker: BattleSideStats; defender: BattleSideStats };
