@@ -8,7 +8,16 @@ const projectRoot = path.resolve(__dirname, '../..');
 const manifestsDir = path.join(projectRoot, 'src', 'shared', 'config', 'assets', 'manifests');
 const publicDir = path.join(projectRoot, 'public');
 const gameAssetsDir = path.join(publicDir, 'game-assets');
-const allowedExtensions = new Set(['.png', '.jpg', '.jpeg', '.webp', '.svg', '.mp3', '.ogg', '.wav']);
+const allowedExtensions = new Set([
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.webp',
+  '.svg',
+  '.mp3',
+  '.ogg',
+  '.wav',
+]);
 const requiredOptionalKeys = new Set(['bg_battle', 'bg_city']);
 const strictMode = process.argv.includes('--strict');
 
@@ -38,7 +47,7 @@ const listFilesRecursive = async (dirPath) => {
         return listFilesRecursive(entryPath);
       }
       return [entryPath];
-    })
+    }),
   );
   return nested.flat();
 };
@@ -51,14 +60,14 @@ const loadManifestEntries = async () => {
   }
   const entriesByFile = await Promise.all(
     manifestFiles.map(async (file) => {
-    const filePath = path.join(manifestsDir, file);
-    const raw = await readFile(filePath, 'utf8');
-    const manifest = JSON.parse(raw);
-    if (!Array.isArray(manifest)) {
-      throw new TypeError(`${file} must be an array`);
-    }
+      const filePath = path.join(manifestsDir, file);
+      const raw = await readFile(filePath, 'utf8');
+      const manifest = JSON.parse(raw);
+      if (!Array.isArray(manifest)) {
+        throw new TypeError(`${file} must be an array`);
+      }
       return manifest;
-    })
+    }),
   );
   return entriesByFile.flat();
 };
@@ -143,7 +152,7 @@ const run = async () => {
   const seenKeys = new Set();
   const referencedFiles = new Set();
   await Promise.all(
-    manifest.map((asset, index) => validateAsset(asset, index, seenKeys, referencedFiles))
+    manifest.map((asset, index) => validateAsset(asset, index, seenKeys, referencedFiles)),
   );
   if (strictMode) {
     await validateOrphanFiles(referencedFiles);

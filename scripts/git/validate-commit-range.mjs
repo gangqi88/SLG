@@ -21,4 +21,3 @@ process.stderr.write('发现不合规的 commit message：\n');
 bad.forEach((m) => process.stderr.write(`- ${m}\n`));
 process.stderr.write(`\n要求正则：${COMMIT_REGEX}\n`);
 process.exit(1);
-

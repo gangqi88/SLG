@@ -21,6 +21,10 @@
     "cy:run": "cypress run",
     "lint": "eslint .",
     "lint:style": "stylelint \"**/*.css\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.check.json --noEmit",
+    "verify": "npm run lint && npm run lint:style && npm run format:check && npm run typecheck && vitest run && npm run build",
     "hooks:install": "node ./scripts/git-hooks/install.mjs",
     "commit:template": "node ./scripts/git/commit-template.mjs"
   },

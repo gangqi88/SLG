@@ -26,4 +26,3 @@ fs.writeFileSync(path.join(hooksDir, 'commit-msg'), commitMsg, { mode: 0o755 });
 fs.writeFileSync(path.join(hooksDir, 'pre-commit'), preCommit, { mode: 0o755 });
 
 process.stdout.write('Git hooks installed: commit-msg, pre-commit\n');
-

@@ -5,7 +5,9 @@ import { stdin as input, stdout as output } from 'node:process';
 export const COMMIT_REGEX = /^(feat|fix|refactor|docs|style|test|chore)\([a-z0-9-]+\):\s.{1,50}$/;
 
 export const validateCommitMessage = (message) => {
-  const firstLine = String(message ?? '').split(/\r?\n/)[0].trim();
+  const firstLine = String(message ?? '')
+    .split(/\r?\n/)[0]
+    .trim();
   return COMMIT_REGEX.test(firstLine);
 };
 
@@ -38,12 +40,15 @@ export const inferTypeFromFiles = (files) => {
   if (allDocs) return 'docs';
   const allTests = files.every((f) => /(\btest\b|__tests__|\.test\.)/.test(f));
   if (allTests) return 'test';
-  const allStyle = files.every((f) => f.endsWith('.css') || f.endsWith('.scss') || f.endsWith('.less'));
+  const allStyle = files.every(
+    (f) => f.endsWith('.css') || f.endsWith('.scss') || f.endsWith('.less'),
+  );
   if (allStyle) return 'style';
   if (files.some((f) => f.startsWith('scripts/') || f.startsWith('.github/'))) return 'chore';
   if (files.some((f) => f.startsWith('docs/'))) return 'docs';
   if (files.some((f) => /(\btest\b|__tests__|\.test\.)/.test(f))) return 'test';
-  if (files.some((f) => f.endsWith('.css') || f.endsWith('.scss') || f.endsWith('.less'))) return 'style';
+  if (files.some((f) => f.endsWith('.css') || f.endsWith('.scss') || f.endsWith('.less')))
+    return 'style';
   if (files.some((f) => f.startsWith('src/'))) return 'feat';
   return 'chore';
 };
@@ -64,7 +69,12 @@ export const inferScopeFromFiles = (files) => {
   return null;
 };
 
-const normalizeScope = (scope) => String(scope ?? '').toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+const normalizeScope = (scope) =>
+  String(scope ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
 
 const promptSelect = async (question, options) => {
   const rl = createInterface({ input, output });
@@ -91,13 +101,33 @@ export const generateCommitTemplate = async (args) => {
   const finalType =
     type ??
     (interactive
-      ? await promptSelect('无法推断变更类型，请选择 type：', ['feat', 'fix', 'refactor', 'docs', 'style', 'test', 'chore'])
+      ? await promptSelect('无法推断变更类型，请选择 type：', [
+          'feat',
+          'fix',
+          'refactor',
+          'docs',
+          'style',
+          'test',
+          'chore',
+        ])
       : 'chore');
 
   const finalScope =
     normalizeScope(scope) ||
     (interactive
-      ? normalizeScope(await promptSelect('无法推断 scope，请选择 scope：', ['alliance', 'battle', 'city', 'gacha', 'hero', 'shared', 'docs', 'build', 'ci']))
+      ? normalizeScope(
+          await promptSelect('无法推断 scope，请选择 scope：', [
+            'alliance',
+            'battle',
+            'city',
+            'gacha',
+            'hero',
+            'shared',
+            'docs',
+            'build',
+            'ci',
+          ]),
+        )
       : 'misc');
 
   const branch = getBranchName();

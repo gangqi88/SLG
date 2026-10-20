@@ -23,4 +23,3 @@ jobs:
           else
             node scripts/git/validate-commit-range.mjs "${{ github.event.before }}" "${{ github.sha }}"
           fi
-
