@@ -1,4 +1,4 @@
-import type { BattleEvent } from '@/features/battle/types/BattleTypes';
+import type { BattleEvent } from '@/shared/types/BattleTypes';
 
 type BattleWinner = 'attacker' | 'defender' | 'draw';
 

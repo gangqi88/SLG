@@ -1,5 +1,5 @@
 import { Hero, Bond } from '@/shared/types/hero';
-import { BattleUnit } from '@/features/battle/types/BattleTypes';
+import { BattleUnit } from '@/shared/types/BattleTypes';
 
 export class BondManager {
   /**
