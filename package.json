@@ -20,6 +20,8 @@
     "assets:check": "node ./scripts/assets/check-assets.mjs",
     "assets:check:strict": "node ./scripts/assets/check-assets.mjs --strict",
     "perf:first-load": "node ./scripts/perf/measure-first-load.mjs",
+    "perf:budget": "node ./scripts/perf/first-load-budget.mjs",
+    "perf:budget:selftest": "node ./scripts/perf/budget-selftest.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
