@@ -108,7 +108,9 @@ export const GameShell: React.FC<{
         ))}
       </div>
 
-      <div className={styles.content}>{children}</div>
+      <div className={styles.content} data-testid="route-content">
+        {children}
+      </div>
 
       <div className={`${styles.bottomBarWrap} ${styles.bottomSafe}`}>
         <div className={styles.bottomBar}>
