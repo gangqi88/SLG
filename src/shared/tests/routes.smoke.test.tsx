@@ -81,6 +81,19 @@ const ERROR_PAGE_MARKERS = ['Unexpected Application Error!', 'Error handled by R
 const CONTENT_SELECTOR = '[data-testid="route-content"]';
 const STABLE_TIMEOUT_MS = 8000;
 
+/**
+ * 机制前提：登记「首帧就不是 fallback」的路由。
+ *
+ * ⑦（已离开加载态 + 锚点命中）只在**确实经过加载态**时才有判别力。
+ * 若某条路由是同步渲染，firstFrame 直接就是内容，那么"离开加载态"这一项
+ * 从头到尾没有被验证过 —— 而 ⑦ 照样绿。这就是"前提消失导致断言恒真"。
+ *
+ * 现在是**空表**：9 条 plain 路由的 firstFrame 全是 `Loading...`，即全部都真的经过了加载态。
+ * 将来若有人把某条路由改成同步渲染，⑦-pre 会立刻红，要求在这里登记；
+ * 登记时必须写明"为什么这条路由的首帧必然是目标内容"，而不是只写个名字。
+ */
+const SYNC_ROUTES: Record<string, string> = {};
+
 // ──────────────────────────── 说明符分类 ────────────────────────────
 
 type SpecCounts = {
@@ -439,6 +452,16 @@ const mountAndJudge = async (
   // ②b 错误页 —— 在 host 上测（错误页会替换整棵树）
   for (const marker of ERROR_PAGE_MARKERS) {
     if (hostText.includes(marker)) reasons.push(`渲染落到 ErrorBoundary（含 "${marker}"）`);
+  }
+
+  // ⑦-pre 机制前提：「离开加载态」这一项只有在**确实经过加载态**时才有判别力。
+  // 不配这条时，若某路由改成同步渲染，⑦ 会静默恒真 —— 它一直绿，但守的东西已经不存在了。
+  if (firstFrame !== FALLBACK_TEXT && !(routePath in SYNC_ROUTES)) {
+    reasons.push(
+      `该路由未经加载态且未登记为 SYNC，"离开加载态"一项未验证：` +
+        `firstFrame=${JSON.stringify(firstFrame.slice(0, 40))}。` +
+        '若确为同步渲染，请在 SYNC_ROUTES 登记并说明为什么该路由首帧必然是目标内容',
+    );
   }
 
   // ⑦ 已离开加载态 + 锚点命中 —— 在 scope 上测
