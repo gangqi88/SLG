@@ -13,6 +13,7 @@
  *   S7 favicon 断言    → a) 越界 exit 1  b) 空集必须警告而非静默通过  c) 真实 dist 采集通路
  *   S8 单位双轴        → 102400 必须同时给出 100.00 KiB 与 102.40 kB
  *   S9 被测路径不是 /  → exit 2（换了路径就换了含义）
+ *   S10 传 --path      → exit 2（门禁拒绝该参数，不静默忽略）
  *
  * 其中 S5 是**端到端**的（真起 preview、真跑 Chrome、真取退出码），
  * S1–S3 / S6–S8 / S9 是纯判定层的（喂合成 measurement）。
@@ -233,6 +234,23 @@ const main = () => {
     );
   }
   record('S5 无运行时数据 exit 2', d.code === EXIT.UNDECIDABLE, `exit=${d.code}（期望 2）`);
+
+  // S10：门禁拒绝 --path。不静默忽略 —— 静默忽略会给出"看起来对、其实测了 /"的数。
+  {
+    const res = spawnSync(
+      process.execPath,
+      [CLI, '--dist', dirA, '--port', '4186', '--path', '/reports'],
+      {
+        encoding: 'utf8',
+        timeout: 180_000,
+      },
+    );
+    record(
+      'S10 传 --path 时拒判 exit 2',
+      res.status === EXIT.UNDECIDABLE,
+      `exit=${res.status}（期望 2）`,
+    );
+  }
 
   const failed = results.filter((r) => !r.ok);
   console.log('');

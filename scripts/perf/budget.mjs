@@ -24,9 +24,23 @@ export const EXIT = /** @type {const} */ ({ PASS: 0, OVER: 1, UNDECIDABLE: 2 });
  * 有了它，861 B 必须是一条带日期/理由/批准人的记录。
  */
 export const BUDGET = {
-  /** 门禁被测路径：钉死 '/'。换个路径量的就是另一个东西（/reports 会重 1,777 B）。 */
+  /**
+   * 门禁被测路径：钉死 '/'。
+   *
+   * 换个路径量的就是另一个东西 —— 实测同一份构建：
+   *   /         首屏 111,779 B
+   *   /reports  首屏 113,556 B  ← 已超阈值 916 B
+   * 也就是说：谁把门禁指向 /reports，它今天就是红的，**而这个红是路由重量，不是首屏回归**。
+   * 要测别的路径，另立脚本，不共用这个门禁。
+   */
   path: '/',
-  /** 当前实测基线（AC-09-1 实测，4 次逐字节一致）。 */
+  /**
+   * 当前实测基线（AC-09-1，runtime 口径，4 次逐字节一致）。
+   *
+   * ⚠️ 历史口径已作废：`109,794 B`（静态枚举、round-1 构建）**不得作为任何阈值依据**。
+   * 它与当前口径差 1,958 B（启动期 chunk）；另有 27 B 是同口径在两次构建之间的漂移，
+   * **逐项归属未知（round-1 未存逐项记录）**。两者不可相加 —— 前者是口径差异，后者是源码变化。
+   */
   baselineBytes: 111_779,
   /** 阶段一冻结线：基线 + 显式放宽。 */
   thresholdBytes: 112_640,
@@ -91,8 +105,9 @@ export const evaluate = (measurement, budget = BUDGET) => {
     return {
       code: EXIT.UNDECIDABLE,
       reasons: [
-        `被测路径不是 ${budget.path}：实际落在 ${measurement.finalPath}。` +
-          '不同路由的启动期 chunk 完全不同（/reports 比 / 更重），换了路径就等于换了含义',
+        `被测路径不是首页，本门禁的基线不适用：期望 ${budget.path}，实际 ${measurement.finalPath}`,
+        '不同路由的启动期 chunk 完全不同（实测 /reports 比 / 重 1,777 B，已超阈值），' +
+          '换了路径就等于换了含义',
       ],
       warnings,
     };
