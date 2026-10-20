@@ -27,6 +27,13 @@ import ts from 'typescript';
  * 【5】锚点是**形状断言**：若某路由合法地不渲染内容，正确处置是把它收窄成断言
  *   该路由的已知锚点，**不是删掉整条断言**。
  *
+ * 【5b】锚点同时承担「区分两层加载态」的职责：现实里有
+ *   router 级 fallback `Loading...` 与**组件级 loading**（如 AllianceDashboard 的
+ *   `加载联盟数据...`）。后者非空、≠ Loading、不含锚点，所以 ⑦ 必须**轮询到锚点出现**
+ *   才判稳定态；按「第一次 ≠ fallback」取样会在负载高时停在内层 loading 上（间歇假红）。
+ *   因此**不存在 `NO_ANCHOR` 例外**：9 条 covered 路由各有一个领域词锚点，
+ *   `/` 用 `通关第`（mainEntries 的 unlockTip，只在入口页渲染）。
+ *
  * 【6】升级口：将来若要覆盖 Phaser，评估 `vi.mock('phaser')`，并接受「被测对象改变」
  *   （验的是 React 层对上假 Phaser）的代价；**不要在豁免表里留空槽**。
  *
@@ -52,7 +59,7 @@ const PHASER_EXEMPT: Record<string, string> = {};
 
 /** 锚点表：领域词，必须在 [data-testid="route-content"] 内命中，且不能是导航栏文案。 */
 const ANCHORS: Record<string, string> = {
-  '/': 'NO_ANCHOR', // 该路由内容与导航同构（入口磁贴即导航项），无独立内容锚点
+  '/': '通关第', // mainEntries.ts:46 的 unlockTip「通关第 3 章解锁」，只在入口页渲染
   '/heroes': '武将',
   '/main-city': '城堡',
   '/tasks': '任务系统',
@@ -388,16 +395,23 @@ const mountAndJudge = async (
   const scopeText = () => (host.querySelector(CONTENT_SELECTOR)?.textContent ?? '').trim();
   const firstFrame = scopeText();
 
-  // 轮询至「不再是 fallback」；act 之外的懒加载 chunk 会在这段时间 resolve
+  // 轮询至**锚点出现**才算进入稳定态。
+  // 为什么不是「≠ fallback 就算稳定」：现实里有两层加载 ——
+  //   router 级 Suspense fallback `Loading...`
+  //   组件级 loading（例：AllianceDashboard.tsx:88-92 的 `加载联盟数据...`）
+  // 后者非空、≠ Loading、但不含锚点。按「第一次变化」取样会在负载高时停在内层 loading 上，
+  // 造成间歇假红（本机实测 4 次全量跑出现 1 次）。
   const deadline = Date.now() + STABLE_TIMEOUT_MS;
   let stableText = firstFrame;
-  while (Date.now() < deadline) {
+  let sawAnchor = firstFrame.includes(anchor);
+  while (!sawAnchor && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
     const text = scopeText();
-    if (text.length > 0 && text !== FALLBACK_TEXT) {
-      stableText = text;
+    stableText = text;
+    if (text.length > 0 && text.includes(anchor)) {
+      sawAnchor = true;
       break;
     }
-    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   const scope = host.querySelector(CONTENT_SELECTOR);
@@ -428,12 +442,14 @@ const mountAndJudge = async (
   }
 
   // ⑦ 已离开加载态 + 锚点命中 —— 在 scope 上测
-  if (stableText === FALLBACK_TEXT) {
-    reasons.push(`未离开加载态：${STABLE_TIMEOUT_MS}ms 后正文仍是 "${FALLBACK_TEXT}"`);
-  } else if (anchor === 'NO_ANCHOR') {
-    if (stableText.length === 0) reasons.push('无法判定：正文为空，既非 fallback 也无内容');
-  } else if (!stableText.includes(anchor)) {
-    reasons.push(`稳定态未命中锚点 "${anchor}"`);
+  if (!sawAnchor) {
+    if (stableText === FALLBACK_TEXT) {
+      reasons.push(`未离开加载态：${STABLE_TIMEOUT_MS}ms 后正文仍是 "${FALLBACK_TEXT}"`);
+    } else {
+      reasons.push(
+        `稳定态未命中锚点 "${anchor}"：超时后正文可能是组件级 loading，仍未渲染出目标内容`,
+      );
+    }
   }
 
   // ④ error = 0（排除测试环境噪声后）
@@ -578,8 +594,11 @@ describe('AC-08 路由挂载 smoke', () => {
     const rows: string[] = [];
 
     for (const routePath of targets) {
-      const anchor = ANCHORS[routePath] ?? 'NO_ANCHOR';
-      const r = await mountAndJudge(routes, routePath, anchor);
+      // 每条 covered 路由都必须有锚点 —— 锚点表集合相等（E 测试）已在前面保证，
+      // 这里缺了就是分类与锚点表脱节，直接 fail 而不是拿默认值凑。
+      const anchor = ANCHORS[routePath];
+      expect(anchor, `路由 ${routePath} 缺少锚点：⑦ 对它将是空的`).toBeTruthy();
+      const r = await mountAndJudge(routes, routePath, anchor as string);
 
       rows.push(
         `${routePath.padEnd(14)} ${r.status.padEnd(13)} anchor=${anchor.padEnd(22)} ` +
@@ -592,12 +611,7 @@ describe('AC-08 路由挂载 smoke', () => {
       if (r.status === 'UNDETERMINED') undetermined.push(`${routePath}: ${r.reasons.join(' | ')}`);
     }
 
-    const noAnchorPaths = targets.filter((p) => ANCHORS[p] === 'NO_ANCHOR');
-    process.stdout.write(
-      `\n[AC-08] 挂载判定（${targets.length} 条 plain）\n${rows.join('\n')}\n` +
-        // 只打印不断言：例外表若变长必须可见（只增不减的例外表 = 判据在慢慢失效）
-        `[AC-08] no_anchor: ${noAnchorPaths.length} [${noAnchorPaths.join(', ')}]\n`,
-    );
+    process.stdout.write(`\n[AC-08] 挂载判定（${targets.length} 条 plain）\n${rows.join('\n')}\n`);
 
     // UNDETERMINED 必须让 verify 非 0 —— 不阻塞的第三态等于第二态
     expect(undetermined, `无法判定（确定性观测失败）：\n${undetermined.join('\n')}`).toEqual([]);
