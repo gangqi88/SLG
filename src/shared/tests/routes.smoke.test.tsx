@@ -633,8 +633,8 @@ describe('AC-08 路由挂载 smoke', () => {
     }
 
     const hostText = host.textContent ?? '';
-    const childCount = host.childElementCount;
-    const errorCount = errSpy.mock.calls.length;
+    const scope = host.querySelector(CONTENT_SELECTOR);
+    const captured = errSpy.mock.calls.map((call) => call.map(String).join(' '));
     errSpy.mockRestore();
     try {
       await act(async () => {
@@ -646,21 +646,24 @@ describe('AC-08 路由挂载 smoke', () => {
     host.remove();
 
     process.stdout.write(
-      `\n[AC-08] 阴性对照：childCount=${childCount} errorCount=${errorCount} hasErrorPage=${hostText.includes('Unexpected Application Error!')}\n`,
+      `\n[AC-08] 阴性对照：scope=${scope ? 'present' : 'null'} captured=${captured.length} hasErrorPage=${hostText.includes('Unexpected Application Error!')}\n`,
     );
 
-    // 三条通道同时校验：任一条失效，说明「探测能力」已经坏了，而不是路由干净
-    expect(hostText, '阴性对照失效：抛错组件没有渲染出 Router 错误页').toContain(
+    // 三条通道同时校验：任一条失效，说明「探测能力」已经坏了，而不是路由干净。
+    // 这三条是「守卫的守卫」—— ②b / ②a 的容器分支 / ④ 各自能不能工作，全靠它证明。
+    expect(hostText, '错误页通道失效：抛错组件没有渲染出 Router 错误页').toContain(
       'Unexpected Application Error!',
     );
     expect(
-      childCount,
-      '阴性对照失效：错误页没有任何 DOM 节点 —— 「容器非空」这条判据的测量对象变了',
-    ).toBeGreaterThan(0);
+      captured,
+      'console.error 通道失效：抛错没有进 console.error —— ④ 的判据将恒过',
+    ).not.toEqual([]);
+    // ②a 已改成 scope 口径：错误页会替换整棵树，所以「route-content 不存在」才是该分支的正解；
+    // 用 host.childElementCount > 0 会重新变成空判据（错误页节点数仍 >0）。
     expect(
-      errorCount,
-      '阴性对照失效：抛错没有进 console.error —— ④ 唯一可用的错误通道失效了',
-    ).toBeGreaterThan(0);
+      scope,
+      '②a 的「内容容器不存在」分支失效：错误页本应替换整棵树，route-content 应当不存在',
+    ).toBeNull();
   });
 
   it('store 级守卫仍然存在（mount test 的 B-half 依赖它们）', () => {
