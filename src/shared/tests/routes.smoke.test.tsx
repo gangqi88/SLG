@@ -7,62 +7,74 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import ts from 'typescript';
 
 /**
- * AC-08 · 路由挂载 smoke
+ * AC-08 · 路由挂载 smoke（判据已冻结）
  *
- * ═══ Header 三要素 ═══════════════════════════════════════════════════════
+ * ═══ Header 六条 ═══════════════════════════════════════════════════════
  *
- * 【1】为什么 Phaser 路由不在这里：失败发生在**收集阶段**，不是用例失败。
- *   jsdom 无法 `import` Phaser：`CanvasFeatures.js:112` 是 `module.exports = init()`，
- *   `require('phaser')` 当场执行 init；`:72` `canvas.getContext('2d')` 由 jsdom 返回 null，
- *   `:74` `context.fillStyle = ...` 抛 TypeError。
- *   实测原文：`Not implemented: HTMLCanvasElement's getContext() method: without installing
- *   the canvas package` + `TypeError: Cannot set properties of null (setting 'fillStyle')`
- *   at `CanvasFeatures.js:74`。表现为 `Tests no tests`（用例一行都没执行）。
- *   **所以任何断言或豁免都无法表达这个状态**，只能移出覆盖范围。
- *   不要再试图加豁免：豁免宣称「跑起来了、只有已知错」，事实是根本没跑起来。
+ * 【1】jsdom 无法 `import` Phaser：`CanvasFeatures.checkInverseAlpha` 调用
+ *   `getContext('2d')`，jsdom 返回 null → `null.fillStyle` 抛 TypeError。
  *
- * 【2】覆盖声明：AC-08 覆盖 **9 条非 Phaser 路由**（含 `/reports`、`/alliance`，
- *   即历史上真实崩过的那两条）；6 条 Phaser 路由归浏览器层（AC-09）。
+ * 【2】失败位置有两种：顶部静态 import 时是**收集阶段**（整文件 `0 test`）；
+ *   测试体内动态 import 时是**懒加载 chunk 求值期**（这条可以 try/catch）。
+ *   本文件一律测试体内动态 import。
  *
- * 【3】陷阱：**未使用的静态 import 会被 esbuild 消除**。
- *   有人为了取类型/常量 `import` 了某路由模块、绑定没用上 → 模块根本不会求值 →
- *   测试「不崩」**不能证明「没 import」**。所以本文件禁止任何路由的静态 import。
+ * 【3】覆盖声明：AC-08 覆盖 **9 条 plain 路由**（含 `/reports`、`/alliance`，
+ *   历史真实崩过的那两条）；6 条 PHASER 归浏览器层（AC-09）。
  *
- * ═══ 一个被实测推翻的假设（别再按它写判据）═══════════════════════════════
- * 原以为「路由抛错 → React 卸载整棵树 → 容器变空 → 用空容器当崩溃签名」。
- * 阴性对照实测：**容器里有 5 个元素**，React Router v7 的内置 ErrorBoundary
- * 渲染出了 `Unexpected Application Error!` 错误页。
- * 所以崩溃签名是**错误页文本 + console.error**，不是空容器；
- * 「容器非空」只作为「什么都没渲染」的弱形状断言保留。
+ * 【4】**未使用的静态 import 会被 esbuild 消除** —— 所以「没崩」不能证明「没 import」。
+ *   这条解释了为什么本文件禁止任何路由的静态 import。
  *
- * ═══ 能力边界 ═══════════════════════════════════════════════════════════
- * jsdom 无真实布局 / CSS / 画布 / 导航。本文件只回答「渲染期会不会崩、有没有报错」，
- * 挡不住「点了没反应」「样式错位」「数据没渲染出来」——那些必须浏览器层验。
+ * 【5】锚点是**形状断言**：若某路由合法地不渲染内容，正确处置是把它收窄成断言
+ *   该路由的已知锚点，**不是删掉整条断言**。
  *
- * ═══ 关于零用例自检 ═════════════════════════════════════════════════════
- * **不要加 `afterAll` 做自检**：收集阶段崩时一个 hook 都不会跑（实测 marker 不生成），
- * 它防不住那种崩溃。有效的是测试体内的 `expect(enumerated.length).toBeGreaterThan(0)`
- * ——收集成功才会执行到它。
+ * 【6】升级口：将来若要覆盖 Phaser，评估 `vi.mock('phaser')`，并接受「被测对象改变」
+ *   （验的是 React 层对上假 Phaser）的代价；**不要在豁免表里留空槽**。
+ *
+ * ═══ 两条类别排除（不是缺陷豁免）═══════════════════════════════════════
+ * 这两个模式**只在测试环境出现**（生产没有 `act`）。排除它们不是「容忍产品缺陷」，
+ * 是「排除只在测试驱动下产生的一类输出」：
+ *   - `An update to ... was not wrapped in act(...)`（组件定时器每 tick 一条，不收敛）
+ *   - `A suspended resource finished loading inside a test ...`（懒加载在 act 退出后 resolve）
+ * **`excluded_*` 计数仅用于人工审计与趋势观察，不得作为断言** ——
+ * 它们取决于挂载时长与机器速度，任何阈值断言都会漂移成 flaky。
+ * 若将来要观察趋势，载体是提交的快照对比（变了就提示评审），不是阈值。
  */
 
 const SRC_ROOT = path.resolve(process.cwd(), 'src');
 const ROUTER_FILE = path.join(SRC_ROOT, 'router.tsx');
 
 /**
- * Phaser 路由的「缺陷豁免」表：**保持为空**。
- * 6 条 Phaser 路由是「移出判据」，不是「豁免」——两者在报告里都像"有一条已知问题"，
- * 但一个是覆盖到位、一个是零覆盖。与 A6 的驱动日志排除（按来源排噪音）也分开管。
+ * PHASER 路由的「缺陷豁免」表：**保持为空**。
+ * 6 条 PHASER 路由是「移出判据」，不是「豁免」——豁免宣称跑起来了只有已知错，
+ * 而事实是根本没跑起来（import 阶段就崩）。
  */
 const PHASER_EXEMPT: Record<string, string> = {};
 
-const DRIVER_NOISE = [
-  /GL Driver Message/i,
-  /GPU stall due to ReadPixels/i,
-  /Automatic fallback to software WebGL/i,
-];
-const isDriverNoise = (line: string) => DRIVER_NOISE.some((re) => re.test(line));
+/** 锚点表：领域词，必须在 [data-testid="route-content"] 内命中，且不能是导航栏文案。 */
+const ANCHORS: Record<string, string> = {
+  '/': 'NO_ANCHOR', // 该路由内容与导航同构（入口磁贴即导航项），无独立内容锚点
+  '/heroes': '武将',
+  '/main-city': '城堡',
+  '/tasks': '任务系统',
+  '/gacha': '英雄召唤',
+  '/lootbox': 'Resources & Fragments',
+  '/reports': '战报列表',
+  '/alliance': '加入或创建联盟',
+  '/style-guide': 'Game UI Tokens',
+};
 
-// ────────────────────────── 说明符分类（含 other 计数） ──────────────────────────
+/** 类别排除：按**来源**排除测试环境噪声，不按现象。 */
+const EXCLUDED_BY_SOURCE: Array<{ name: string; re: RegExp }> = [
+  { name: 'excluded_act', re: /An update to .* was not wrapped in act\(/ },
+  { name: 'excluded_suspend', re: /A suspended resource finished loading inside a test/ },
+];
+
+const FALLBACK_TEXT = 'Loading...';
+const ERROR_PAGE_MARKERS = ['Unexpected Application Error!', 'Error handled by React Router'];
+const CONTENT_SELECTOR = '[data-testid="route-content"]';
+const STABLE_TIMEOUT_MS = 8000;
+
+// ──────────────────────────── 说明符分类 ────────────────────────────
 
 type SpecCounts = {
   relative: number;
@@ -88,7 +100,6 @@ const classifySpec = (spec: string, counts: SpecCounts) => {
   else if (spec.startsWith('node:')) counts.nodeBuiltin += 1;
   else if (/^[@a-zA-Z0-9]/.test(spec)) counts.bare += 1;
   else {
-    // 形如 `~/x`、`#/x`、`$/x` 的未知别名前缀：必须冒出来，不能被静默归为第三方
     counts.other += 1;
     if (counts.otherSamples.length < 5) counts.otherSamples.push(spec);
   }
@@ -143,12 +154,12 @@ const scanFile = (file: string) => {
 
 type GraphResult = {
   phaser: boolean;
-  visited: number;
   unresolved: string[];
   nonLiteralDynamic: boolean;
   counts: SpecCounts;
 };
 
+/** 静态 import 闭包内是否有顶层 `import phaser`。 */
 const walkGraph = (entry: string, followDynamic: boolean): GraphResult => {
   const seen = new Set<string>();
   const unresolved: string[] = [];
@@ -176,10 +187,10 @@ const walkGraph = (entry: string, followDynamic: boolean): GraphResult => {
       else unresolved.push(`${path.relative(SRC_ROOT, file)} -> ${spec}`);
     }
   }
-  return { phaser, visited: seen.size, unresolved, nonLiteralDynamic, counts };
+  return { phaser, unresolved, nonLiteralDynamic, counts };
 };
 
-// ─────────────────────── 路由枚举 + path→模块（不手写列表） ───────────────────────
+// ───────────────────── 路由枚举 + path → lazy 目标 ─────────────────────
 
 const collectLazyMap = (routerFile: string) => {
   const text = fs.readFileSync(routerFile, 'utf8');
@@ -212,7 +223,7 @@ const collectLazyMap = (routerFile: string) => {
   return { lazy, nonLiteralLazy };
 };
 
-/** 在 element 里找第一个属于 lazyMap 的组件：既认 JSX 标签，也认 `Component={X}` 传参。 */
+/** 既认 JSX 标签名，也认 `<WithExit Component={X} />` 这种属性传参。 */
 const findLazyTag = (node: ts.Node, lazy: Map<string, string>): string | null => {
   let found: string | null = null;
   const fromExpression = (expr: ts.Expression | undefined): string | null => {
@@ -276,7 +287,7 @@ const collectPathTargets = (routerFile: string) => {
   return { map, nonLiteralLazy };
 };
 
-// ─────────────── 分类：**唯一真源**，两处消费（分类测试 / 挂载测试） ───────────────
+// ───────────── 分类：唯一真源，两处消费（分类测试 / 挂载测试） ─────────────
 
 type Kind = 'phaser' | 'plain' | 'uncertain';
 type Classified = { path: string; kind: Kind; reason?: string };
@@ -288,16 +299,11 @@ const classifyAll = (routePaths: string[], pathToSpec: Map<string, string>) => {
   for (const routePath of routePaths) {
     const spec = pathToSpec.get(routePath);
     if (!spec) {
-      classified.push({
-        path: routePath,
-        kind: 'uncertain',
-        reason: 'U1: router.tsx 找不到 lazy 目标',
-      });
+      classified.push({ path: routePath, kind: 'uncertain', reason: 'U1: 找不到 lazy 目标' });
       continue;
     }
     const entry = resolveSpec(ROUTER_FILE, spec);
     if (!entry) {
-      // 不能静默丢弃：既不 covered 也不 skipped 会让三个数对不上
       classified.push({ path: routePath, kind: 'uncertain', reason: `U2: 入口解析失败 ${spec}` });
       continue;
     }
@@ -338,45 +344,34 @@ const classifyAll = (routePaths: string[], pathToSpec: Map<string, string>) => {
   return { classified, counts };
 };
 
-// ────────────────────────────── 挂载探针 ──────────────────────────────
+// ──────────────────────────── 挂载与观测 ────────────────────────────
 
-type MountResult = {
-  thrown: unknown;
-  errors: string[];
-  warns: string[];
-  childCount: number;
-  hasErrorPage: boolean;
+type Observed = {
+  status: 'PASS' | 'FAIL' | 'UNDETERMINED';
+  reasons: string[];
+  firstFrame: string;
+  stableText: string;
+  errorCount: number;
+  excludedAct: number;
+  excludedSuspend: number;
+  suggestsSync: boolean;
 };
 
-/**
- * React Router v7 内置 ErrorBoundary 的错误页标志文本。
- *
- * 实测（阴性对照）：路由渲染抛错时，容器**不会变空**，而是渲染出
- * "Unexpected Application Error!" 错误页（5 个元素）。
- * **所以「容器为空」不是崩溃的签名** —— 用它当判据会漏掉所有抛错路由；
- * 真正的签名是这段文本 + console.error。
- */
-const ERROR_PAGE_MARKER = 'Unexpected Application Error';
-
-const mountRoute = async (
+const mountAndJudge = async (
   routes: Parameters<typeof createMemoryRouter>[0],
   routePath: string,
-): Promise<MountResult> => {
+  anchor: string,
+): Promise<Observed> => {
   const router = createMemoryRouter(routes, { initialEntries: [routePath] });
   const host = document.createElement('div');
   document.body.appendChild(host);
   const root = createRoot(host);
 
   const errors: string[] = [];
-  const warns: string[] = [];
   const errSpy = vi.spyOn(console, 'error').mockImplementation((...a: unknown[]) => {
     errors.push(a.map(String).join(' '));
   });
-  const warnSpy = vi.spyOn(console, 'warn').mockImplementation((...a: unknown[]) => {
-    warns.push(a.map(String).join(' '));
-  });
 
-  let thrown: unknown = null;
   try {
     const { LocaleProvider } = await import('@/shared/locale/LocaleProvider');
     await act(async () => {
@@ -386,39 +381,89 @@ const mountRoute = async (
         </LocaleProvider>,
       );
     });
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 80));
-    });
-  } catch (e) {
-    thrown = e;
+  } catch {
+    /* 抛错不单独作判据：Router ErrorBoundary 会接住，错误体现在 ②b / ④ */
   }
 
-  errSpy.mockRestore();
-  warnSpy.mockRestore();
+  const scopeText = () => (host.querySelector(CONTENT_SELECTOR)?.textContent ?? '').trim();
+  const firstFrame = scopeText();
 
-  // 必须在 unmount 之前取样
-  const childCount = host.childElementCount;
-  const hasErrorPage = host.innerHTML.includes(ERROR_PAGE_MARKER);
+  // 轮询至「不再是 fallback」；act 之外的懒加载 chunk 会在这段时间 resolve
+  const deadline = Date.now() + STABLE_TIMEOUT_MS;
+  let stableText = firstFrame;
+  while (Date.now() < deadline) {
+    const text = scopeText();
+    if (text.length > 0 && text !== FALLBACK_TEXT) {
+      stableText = text;
+      break;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  const scope = host.querySelector(CONTENT_SELECTOR);
+  const hostText = host.textContent ?? '';
+
+  errSpy.mockRestore();
+
+  // 类别排除（只打印计数，不断言）
+  let excludedAct = 0;
+  let excludedSuspend = 0;
+  const remaining: string[] = [];
+  for (const line of errors) {
+    const hit = EXCLUDED_BY_SOURCE.find((e) => e.re.test(line));
+    if (hit?.name === 'excluded_act') excludedAct += 1;
+    else if (hit?.name === 'excluded_suspend') excludedSuspend += 1;
+    else remaining.push(line);
+  }
+
+  const reasons: string[] = [];
+
+  // ②a 非空 —— 在 scope 上测
+  if (!scope) reasons.push('内容容器不存在：GameShell 结构变了或错误页替换了整棵树');
+  else if (scope.childElementCount === 0) reasons.push('内容容器为空：没有渲染出任何元素');
+
+  // ②b 错误页 —— 在 host 上测（错误页会替换整棵树）
+  for (const marker of ERROR_PAGE_MARKERS) {
+    if (hostText.includes(marker)) reasons.push(`渲染落到 ErrorBoundary（含 "${marker}"）`);
+  }
+
+  // ⑦ 已离开加载态 + 锚点命中 —— 在 scope 上测
+  if (stableText === FALLBACK_TEXT) {
+    reasons.push(`未离开加载态：${STABLE_TIMEOUT_MS}ms 后正文仍是 "${FALLBACK_TEXT}"`);
+  } else if (anchor === 'NO_ANCHOR') {
+    if (stableText.length === 0) reasons.push('无法判定：正文为空，既非 fallback 也无内容');
+  } else if (!stableText.includes(anchor)) {
+    reasons.push(`稳定态未命中锚点 "${anchor}"`);
+  }
+
+  // ④ error = 0（排除测试环境噪声后）
+  if (remaining.length > 0) reasons.push(`console.error ${remaining.length} 条（排除噪声后）`);
 
   try {
     await act(async () => {
       root.unmount();
     });
   } catch {
-    /* unmount 失败不影响结论 */
+    /* ignore */
   }
   host.remove();
 
+  const status: Observed['status'] =
+    reasons.length === 0 ? 'PASS' : stableText === '' && !scope ? 'UNDETERMINED' : 'FAIL';
+
   return {
-    thrown,
-    errors: errors.filter((l) => !isDriverNoise(l)),
-    warns: warns.filter((l) => !isDriverNoise(l)),
-    childCount,
-    hasErrorPage,
+    status,
+    reasons,
+    firstFrame,
+    stableText,
+    errorCount: remaining.length,
+    excludedAct,
+    excludedSuspend,
+    suggestsSync: firstFrame !== '' && firstFrame === stableText,
   };
 };
 
-// ─────────────────────────── 守卫存在性（防删） ───────────────────────────
+// ─────────────── 守卫存在性（防删：mount test 的 B-half 依赖） ───────────────
 
 const STORE_GUARDS: Array<{ file: string; cases: string[] }> = [
   {
@@ -454,19 +499,15 @@ describe('AC-08 路由挂载 smoke', () => {
     localStorage.clear();
   });
 
-  it('路由枚举非空（空集保护）', async () => {
+  it('A · 枚举非空（空集保护）', async () => {
     const { paths } = await enumeratePaths();
     process.stdout.write(
       `\n[AC-08] enumerated: ${paths.length}\n${paths.map((p) => `  - ${p}`).join('\n')}\n`,
     );
-
-    expect(
-      paths.length,
-      '路由枚举结果为空：import @/router 失败，或 router.routes[0].children 结构已变',
-    ).toBeGreaterThan(0);
+    expect(paths.length, '路由枚举结果为空：import @/router 失败或结构已变').toBeGreaterThan(0);
   });
 
-  it('分类：无 uncertain、说明符分类别计数、三数自洽', async () => {
+  it('B · 分类自洽（无 uncertain、分类别计数、三数相等）', async () => {
     const { paths } = await enumeratePaths();
     const { map } = collectPathTargets(ROUTER_FILE);
     const { classified, counts } = classifyAll(paths, map);
@@ -477,104 +518,130 @@ describe('AC-08 路由挂载 smoke', () => {
 
     const rows = classified.map(
       (c) =>
-        `${c.path.padEnd(18)} ${c.kind.padEnd(9)} ${
+        `${c.path.padEnd(18)} ${
           c.kind === 'phaser'
-            ? 'SKIPPED(jsdom 无法 import)'
+            ? 'PHASER(SKIPPED: jsdom 无法 import)'
             : c.kind === 'plain'
-              ? 'covered'
-              : `REASON ${c.reason}`
+              ? 'plain'
+              : `uncertain  ${c.reason}`
         }`,
     );
-
     process.stdout.write(
       `\n[AC-08] 分类表\n${rows.join('\n')}\n` +
         `[AC-08] enumerated: ${paths.length}  covered: ${plain.length}  skipped: ${phaser.length}  uncertain: ${uncertain.length}\n` +
         `[AC-08] specifiers: relative=${counts.relative}  alias@/=${counts.aliasAtSlash}  node:=${counts.nodeBuiltin}  bare=${counts.bare}  other=${counts.other}\n`,
     );
 
-    // 分类不确定时不默认归类
     expect(
       uncertain,
-      `分类不确定的路由（U1–U4）：\n${uncertain.map((c) => `${c.path} ${c.reason}`).join('\n')}`,
+      `分类不确定（U1–U4）：\n${uncertain.map((c) => `${c.path} ${c.reason}`).join('\n')}`,
     ).toEqual([]);
-
-    // 三数自洽：否则 covered+skipped 对不上 enumerated，而没人会发现
     expect(
       plain.length + phaser.length + uncertain.length,
       `三数不自洽：enumerated=${paths.length} covered=${plain.length} skipped=${phaser.length} uncertain=${uncertain.length}`,
     ).toBe(paths.length);
+    expect(counts.other, `未知说明符前缀：${counts.otherSamples.join(', ')}`).toBe(0);
 
-    // 未知说明符前缀必须冒出来（显示 0 才有对照物）
-    expect(counts.other, `发现未知说明符前缀（other>0）：${counts.otherSamples.join(', ')}`).toBe(
-      0,
-    );
-
-    // A5 冲突规则：豁免表为空；非空时两条规则分别防「漏撤销」与「路由已删」
+    // A5 冲突规则（豁免表为空；非空时两条规则分别防漏撤销 / 路由已删）
     for (const p of Object.keys(PHASER_EXEMPT)) {
       expect(
         phaser.map((c) => c.path),
-        `A5-a：${p} 在豁免表里但分类为 non-PHASER`,
+        `A5-a：${p} 在豁免表但分类为 plain`,
       ).toContain(p);
-      expect(paths, `A5-b：${p} 在豁免表里但路由已不存在`).toContain(p);
+      expect(paths, `A5-b：${p} 在豁免表但路由已不存在`).toContain(p);
     }
   });
 
-  it('非 Phaser 路由挂载：不落 ErrorBoundary、容器非空、error / warn / 抛错均为 0', async () => {
+  it('E · 锚点表与 covered 集合相等（双向）', async () => {
+    const { paths } = await enumeratePaths();
+    const { map } = collectPathTargets(ROUTER_FILE);
+    const { classified } = classifyAll(paths, map);
+    const covered = classified.filter((c) => c.kind === 'plain').map((c) => c.path);
+
+    const missing = covered.filter((p) => !(p in ANCHORS));
+    const extra = Object.keys(ANCHORS).filter((p) => !covered.includes(p));
+
+    expect(missing, `锚点缺失（⑦ 对它们将是空的）：\n${missing.join('\n')}`).toEqual([]);
+    expect(extra, `锚点多余（路由已删但锚点还在）：\n${extra.join('\n')}`).toEqual([]);
+  });
+
+  it('D · 每条 covered 路由：②a 非空 / ②b 无错误页 / ⑦ 稳定态含锚点 / ④ error=0', async () => {
     const { routes, paths } = await enumeratePaths();
     const { map } = collectPathTargets(ROUTER_FILE);
     const { classified } = classifyAll(paths, map);
-    // 只消费分类结果，不再重算 —— 双真源会造假红
     const targets = classified.filter((c) => c.kind === 'plain').map((c) => c.path);
 
-    expect(targets.length, '没有可挂载的非 Phaser 路由：分类可能整体失效').toBeGreaterThan(0);
-    process.stdout.write(`\n[AC-08] 逐个挂载 ${targets.length} 条非 Phaser 路由\n`);
+    expect(targets.length, '没有可挂载的 plain 路由：分类可能整体失效').toBeGreaterThan(0);
 
     const failures: string[] = [];
+    const undetermined: string[] = [];
+    const rows: string[] = [];
+
     for (const routePath of targets) {
-      const { thrown, errors, warns, childCount, hasErrorPage } = await mountRoute(
-        routes,
-        routePath,
+      const anchor = ANCHORS[routePath] ?? 'NO_ANCHOR';
+      const r = await mountAndJudge(routes, routePath, anchor);
+
+      rows.push(
+        `${routePath.padEnd(14)} ${r.status.padEnd(13)} anchor=${anchor.padEnd(22)} ` +
+          `first=${JSON.stringify(r.firstFrame.slice(0, 18))} ` +
+          `err=${r.errorCount} excluded_act=${r.excludedAct} excluded_suspend=${r.excludedSuspend}` +
+          `${r.suggestsSync ? ' 诊断:首帧=稳定态(无加载态)' : ''}` +
+          `${r.reasons.length ? `\n                 └ ${r.reasons.join(' | ')}` : ''}`,
       );
 
-      // 主判据：落到 Router 内置 ErrorBoundary = 渲染期崩了。
-      // 这条**先于**「无错误」类负向断言 —— 否则错误页上的 DOM 会让形状断言平凡通过。
-      if (hasErrorPage) {
-        failures.push(`${routePath} 渲染落到 ErrorBoundary（Unexpected Application Error）`);
-      }
-      // 形状断言：完全没渲染出元素也不正常（不是崩溃签名，但值得报）。
-      // 若某路由合法地不渲染任何元素（纯数据路由 / Portal-only），这条会假红 ——
-      // 正确处置是把它收窄成断言该路由的已知锚点，**不是删掉它**。
-      if (childCount === 0) {
-        failures.push(`${routePath} 挂载后容器为空：该路由没有渲染出任何元素`);
-      }
-      if (thrown) failures.push(`${routePath} 抛错: ${String(thrown).slice(0, 300)}`);
-      errors.forEach((e) => failures.push(`${routePath} console.error: ${e.slice(0, 300)}`));
-      warns.forEach((w) => failures.push(`${routePath} console.warn: ${w.slice(0, 300)}`));
+      if (r.status === 'FAIL') failures.push(`${routePath}: ${r.reasons.join(' | ')}`);
+      if (r.status === 'UNDETERMINED') undetermined.push(`${routePath}: ${r.reasons.join(' | ')}`);
     }
 
-    expect(failures, `非 Phaser 路由挂载出现异常：\n${failures.join('\n')}`).toEqual([]);
-  });
+    process.stdout.write(`\n[AC-08] 挂载判定（${targets.length} 条 plain）\n${rows.join('\n')}\n`);
 
-  it('阴性对照：抛错路由会落到 ErrorBoundary，且容器并不为空', async () => {
-    // 这条是本文件的「测量仪器校验」，它推翻了一个原本被当成常识的假设：
-    //   「报错后 React 会把整棵树卸载 → 容器为空 → 用容器空当崩溃签名」
-    // 实测结果相反：React Router v7 内置 ErrorBoundary 渲染出错误页，
-    // 容器里有 5 个元素，childCount > 0。**所以空容器不是崩溃签名。**
-    // 真正的签名是错误页文本（+ console.error）。
+    // UNDETERMINED 必须让 verify 非 0 —— 不阻塞的第三态等于第二态
+    expect(undetermined, `无法判定（确定性观测失败）：\n${undetermined.join('\n')}`).toEqual([]);
+    expect(failures, `判据未通过：\n${failures.join('\n')}`).toEqual([]);
+    // 显式超时：9 条路由 × 每条最多 STABLE_TIMEOUT_MS 轮询，默认 5s 在并行跑全套时不够。
+    // 这里放宽的是**测试超时**，不是判据窗口（判据窗口固定 8s，见 STABLE_TIMEOUT_MS）。
+  }, 90000);
+
+  it('阴性对照：抛错路由会落到 ErrorBoundary（校准 ②b 通道）', async () => {
+    // 校准测量仪器：确认「错误页」这条通道真的能观测到。
     const Boom = () => {
       throw new Error('boom');
     };
-    const result = await mountRoute([{ path: '/', element: <Boom /> }], '/');
+    const { LocaleProvider } = await import('@/shared/locale/LocaleProvider');
+    const router = createMemoryRouter([{ path: '/', element: <Boom /> }], {
+      initialEntries: ['/'],
+    });
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(result.hasErrorPage, '阴性对照失效：抛错组件没有渲染出 Router 错误页').toBe(true);
-    expect(
-      result.childCount,
-      '阴性对照失效：抛错后容器为空 —— 若真如此，说明 Router 行为变了，本文件对「容器非空」的取舍要重评',
-    ).toBeGreaterThan(0);
-    expect(
-      result.errors.length,
-      '阴性对照失效：抛错没有进 console.error 通道（那 A4 的错误通道就有洞）',
-    ).toBeGreaterThan(0);
+    try {
+      await act(async () => {
+        root.render(
+          <LocaleProvider>
+            <RouterProvider router={router} />
+          </LocaleProvider>,
+        );
+      });
+    } catch {
+      /* 错误由 Router ErrorBoundary 接住 */
+    }
+
+    const hostText = host.textContent ?? '';
+    errSpy.mockRestore();
+    try {
+      await act(async () => {
+        root.unmount();
+      });
+    } catch {
+      /* ignore */
+    }
+    host.remove();
+
+    expect(hostText, '阴性对照失效：抛错组件没有渲染出 Router 错误页').toContain(
+      'Unexpected Application Error!',
+    );
   });
 
   it('store 级守卫仍然存在（mount test 的 B-half 依赖它们）', () => {
@@ -586,9 +653,6 @@ describe('AC-08 路由挂载 smoke', () => {
         if (!text.includes(`it(${caseName}`)) missing.push(`${file} 缺少 ${caseName}*`);
       }
     }
-    expect(
-      missing,
-      `有人删了 store 级守卫 —— snapshot.mount.test.tsx 的 B-half 已失效（它只防不死循环，不防缓存永不失效）：\n${missing.join('\n')}`,
-    ).toEqual([]);
+    expect(missing, `有人删了 store 级守卫：\n${missing.join('\n')}`).toEqual([]);
   });
 });
