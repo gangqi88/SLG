@@ -1,6 +1,6 @@
 import InventoryManager from '@/features/resource/logic/InventoryManager';
-import { TaskState } from '@/features/task/logic/TaskManager';
-import { getTaskManager } from '@/features/task/logic/taskSingleton';
+import { TaskState } from '@/shared/logic/task/TaskManager';
+import { getTaskManager } from '@/shared/logic/task/taskSingleton';
 
 type UINotificationsSnapshot = {
   lootBoxCount: number;

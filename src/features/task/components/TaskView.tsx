@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { TaskManager, Task } from '@/features/task/logic/TaskManager';
-import { getTaskManager } from '@/features/task/logic/taskSingleton';
+import { TaskManager, Task } from '@/shared/logic/task/TaskManager';
+import { getTaskManager } from '@/shared/logic/task/taskSingleton';
 import { useModal } from '@/shared/components/ModalContext';
 import { applyRewards, formatRewardLines } from '@/shared/logic/rewards';
 
