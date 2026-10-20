@@ -44,6 +44,7 @@ export default defineConfig({
        * 不清理报告目录：删除整棵 coverage 树在带删除保护的环境（沙箱/企业安全策略）
        * 会被拦成硬错误，让整条 verify 无故变红。影响仅限 html 报告里可能残留已删文件，
        * 阈值计算不受影响（每次运行都重新生成）。CI 是干净检出，无需清理。
+       * 代价：本地会长期累积报告文件，需要时手动清理（`coverage/` 已在 .gitignore）。
        */
       clean: false,
       /**
