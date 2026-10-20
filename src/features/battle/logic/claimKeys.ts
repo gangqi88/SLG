@@ -1,47 +1,38 @@
 /**
  * 战斗结算的「领奖键」派生。
  *
- * ── 为什么必须派生，不能用 newClaimKey() ────────────────────────────────
- * `newClaimKey()` 每次调用生成随机 UUID。原来的写法是
- * `useRef(newClaimKey('siege'))` —— 于是**每次挂载**都得到一把全新的钥匙：
- * 离开页面再回来、React 双挂载、路由重进，都会重新变成"没领过"。
- * ledger 里留下的是 N 条互不相干的记录，它拦不住任何东西。
+ * ── 身份用谁 ──────────────────────────────────────────────────────────
+ * 用**战报自身的 `battleId`**（`BattleResult.battleId`，必填字段）。
  *
- * 派生键的语义：**同一个逻辑结算单元只发一次奖励**。
- *   攻城：war（哪场战争）+ city（哪座城）
- *   常规战：mode（模式）+ 双方阵容
+ * 它就是「一场战斗」的持久化身份：
+ *   · 每场唯一 —— 每次结算生成一个，写进战报，battleHistory.add 以它去重
+ *   · 跨挂载稳定 —— 它随战报被持久化，重新读到的是同一场战斗
  *
- * ── 与 battleId 的区别（重要）────────────────────────────────────────────
- * battleId 标识**一次具体的战斗实例**，用于战报去重与场景内事件关联，
- * 必须是每场战斗唯一的。本模块派生的 key 标识**结算单元**，跨挂载稳定。
- * 两者不能合并：合并会让"同一城池打两场"的两份战报因为 battleId 相同而被去重掉。
+ * 所以派生规则只有一条：**一场战斗 = 一个领奖单元**。
+ *
+ * ── 为什么不用 mode / 阵容 / 城池派生（曾经写错，勿回退）──────────────
+ * 曾用 `battle:${mode}:${阵容}` 作为身份。那是**玩法变更**，不是幂等修复：
+ * 同一模式同一阵容的第二场战斗会拿不到奖励 —— 从「一场一领」变成「一阵容一领」。
+ * `round` 这个维度在代码里不存在；这里缺的不是"更粗的粒度"，而是"这一场的实例标识"，
+ * 而实例标识已经有了，就是 battleId。
+ *
+ * ── 与"每次挂载随机"的区别 ────────────────────────────────────────────
+ * 原来的写法把 key 绑在一个**组件内的可变 ref** 上（claimKeyRef，在 effect 里赋值）。
+ * 本模块把它改成**从已产生的战报派生**：key 由数据决定，不由"组件这一刻的状态"决定。
+ * 少了这条 ref，就不存在"ref 还没赋值 / 被重新赋值 / effect 顺序变了"这一类漂移。
  */
 
-/** 归一化：去空白、转小写。避免 'c3' / 'C3 ' / 'c3' 被当成三个不同的城。 */
-const norm = (s: string | null | undefined) => (s ?? '').trim().toLowerCase();
+const norm = (s: string) => s.trim().toLowerCase();
 
-/** 阵容身份按**集合**算：同一批英雄换个站位，不该被当成一次新的结算。 */
-const lineup = (ids: readonly string[]) => ids.map(norm).filter(Boolean).sort().join('+') || 'none';
+const derive = (scope: 'siege' | 'battle', battleId: string) => {
+  const id = norm(battleId);
+  if (!id) {
+    // 空 id 会让所有"没有 id 的战斗"共用同一个键 —— 那会把奖励互相顶掉。
+    // 宁可炸，也不静默地把多场战斗合并成一次结算。
+    throw new Error(`${scope} 的 battleId 为空：领奖键无法派生（空 id 会让多场战斗共用一个键）`);
+  }
+  return `${scope}:${id}`;
+};
 
-/**
- * 攻城：war + city。
- * 没有进行中的战争时用 'no-war' 占位 —— 仍然是稳定的，
- * 不会因为"这次没读战争"就退化成随机键。
- */
-export const deriveSiegeClaimKey = (args: { warId?: string | null; cityId?: string | null }) =>
-  `siege:${norm(args.warId) || 'no-war'}:${norm(args.cityId) || 'unknown-city'}`;
-
-/**
- * 常规战：mode + 双方阵容。
- *
- * ⚠️ 规格里写的是"battle + round"，但**代码里没有 round 这个概念**：
- * BattleRoute 只从 URL 取 `?mode=`，一场战斗就是一次挂载。
- * 所以这里用「模式 + 双方阵容」作为可用的稳定身份。
- * 后果：同一模式、同一阵容的第二次战斗不再发奖（首次之后即视为已领取）。
- * 若将来引入关卡/回合，应把那个维度加进来，而不是改回随机键。
- */
-export const deriveBattleClaimKey = (args: {
-  mode: string;
-  attackerHeroIds: readonly string[];
-  defenderHeroIds: readonly string[];
-}) => `battle:${norm(args.mode)}:${lineup(args.attackerHeroIds)}:${lineup(args.defenderHeroIds)}`;
+export const deriveSiegeClaimKey = (battleId: string) => derive('siege', battleId);
+export const deriveBattleClaimKey = (battleId: string) => derive('battle', battleId);

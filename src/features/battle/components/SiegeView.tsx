@@ -39,9 +39,7 @@ const SiegeBattleGame: React.FC<{
   const gameRef = useRef<Phaser.Game | null>(null);
   const modal = useModal();
   // battleId 标识**一次战斗实例**（战报去重 / 场景事件关联），必须每场唯一。
-  // 领奖键不用它派生 —— 见 claimKeyRef 与 claimKeys.ts 顶部注释。
   const battleIdRef = useRef<string>(newClaimKey('siege'));
-  const claimKeyRef = useRef<string>('');
   const [auto, setAuto] = useState(true);
   const [speed, setSpeed] = useState<1 | 2>(1);
   const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
@@ -115,13 +113,6 @@ const SiegeBattleGame: React.FC<{
     game.registry.set('battleCommands', []);
     game.registry.set('battleCooldowns', {});
     setBattleResult(null);
-    // 领奖键由 (war, city) 派生，**跨挂载稳定**。
-    // 原来这里是 `siege:${battleId}`，而 battleId 每次挂载随机 ——
-    // 于是离开页面再回来就等于"没领过"，同一场战争同一座城可以反复领奖。
-    claimKeyRef.current = deriveSiegeClaimKey({
-      warId: activeWarRef.current?.id,
-      cityId: targetCityIdRef.current,
-    });
 
     // Restart scene with data to ensure init receives it
     // Use a slight timeout to ensure scene manager is ready if needed,
@@ -366,7 +357,10 @@ const SiegeBattleGame: React.FC<{
                   modal.openAlert({ title: '结算', message: '战斗尚未结束。' });
                   return;
                 }
-                if (hasClaimed(claimKeyRef.current)) {
+                // 领奖键由**这一场战报的 battleId** 派生（唯一且随战报持久化）。
+                // 不再依赖组件内的可变 ref —— 键由数据决定，不由组件此刻的状态决定。
+                const claimKey = deriveSiegeClaimKey(battleResult.battleId);
+                if (hasClaimed(claimKey)) {
                   modal.openAlert({ title: '结算', message: '奖励已领取。' });
                   return;
                 }
@@ -416,7 +410,7 @@ const SiegeBattleGame: React.FC<{
                       variant: 'primary',
                       onClick: () => {
                         applyRewards(rewards);
-                        markClaimed(claimKeyRef.current);
+                        markClaimed(claimKey);
                         modal.close();
                         modal.openAlert({ title: '获得奖励', message: '奖励已发放。' });
                       },

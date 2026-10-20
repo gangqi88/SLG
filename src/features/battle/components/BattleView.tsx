@@ -32,7 +32,6 @@ const BattleView: React.FC<BattleViewProps> = ({
   const gameRef = useRef<Phaser.Game | null>(null);
   const modal = useModal();
   const battleIdRef = useRef<string>(newClaimKey('battle'));
-  const claimKeyRef = useRef<string>('');
   const [auto, setAuto] = useState(true);
   const [speed, setSpeed] = useState<1 | 2>(1);
   const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
@@ -84,14 +83,6 @@ const BattleView: React.FC<BattleViewProps> = ({
     const game = new Phaser.Game(config);
     gameRef.current = game;
     setBattleResult(null);
-    // 领奖键由 (mode, 双方阵容) 派生，**跨挂载稳定**。
-    // 原来这里是 `battle:${battleId}`，而 battleId 每次挂载随机 ——
-    // 离开页面再回来就等于"没领过"，同一模式同一阵容可以反复领奖。
-    claimKeyRef.current = deriveBattleClaimKey({
-      mode: battleMode,
-      attackerHeroIds: attackerHeroes.map((h) => h.id),
-      defenderHeroIds: defenderHeroes.map((h) => h.id),
-    });
 
     game.registry.set('battleSettings', { auto, speed });
     game.registry.set('battleCommands', []);
@@ -255,7 +246,10 @@ const BattleView: React.FC<BattleViewProps> = ({
                 modal.openAlert({ title: '结算', message: '战斗尚未结束。' });
                 return;
               }
-              if (hasClaimed(claimKeyRef.current)) {
+              // 领奖键由**这一场战报的 battleId** 派生：一场战斗 = 一个领奖单元。
+              // 不用 mode/阵容派生 —— 那会让"同一阵容的第二场"领不到奖（玩法变更）。
+              const claimKey = deriveBattleClaimKey(battleResult.battleId);
+              if (hasClaimed(claimKey)) {
                 modal.openAlert({ title: '战报', message: '奖励已领取。' });
                 return;
               }
@@ -304,7 +298,7 @@ const BattleView: React.FC<BattleViewProps> = ({
                     variant: 'primary',
                     onClick: () => {
                       applyRewards(rewards);
-                      markClaimed(claimKeyRef.current);
+                      markClaimed(claimKey);
                       modal.close();
                       modal.openAlert({ title: '获得奖励', message: '奖励已发放。' });
                     },
