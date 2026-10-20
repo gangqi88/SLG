@@ -11,6 +11,7 @@ import { BattleReportView } from '@/shared/components/BattleReportView';
 import { createBattleReportFromResult, type BattleReport } from '@/shared/logic/battleReport';
 import { applyRewards, formatRewardLines, type Reward } from '@/shared/logic/rewards';
 import { hasClaimed, markClaimed, newClaimKey } from '@/shared/logic/claimLedger';
+import { deriveBattleClaimKey } from '@/features/battle/logic/claimKeys';
 import { computeTeamPower } from '@/shared/logic/teamMetrics';
 import type { BattleResult } from '@/shared/logic/battleResult';
 import { BattleHistory } from '@/shared/logic/battleHistory';
@@ -83,7 +84,14 @@ const BattleView: React.FC<BattleViewProps> = ({
     const game = new Phaser.Game(config);
     gameRef.current = game;
     setBattleResult(null);
-    claimKeyRef.current = `battle:${battleIdRef.current}`;
+    // 领奖键由 (mode, 双方阵容) 派生，**跨挂载稳定**。
+    // 原来这里是 `battle:${battleId}`，而 battleId 每次挂载随机 ——
+    // 离开页面再回来就等于"没领过"，同一模式同一阵容可以反复领奖。
+    claimKeyRef.current = deriveBattleClaimKey({
+      mode: battleMode,
+      attackerHeroIds: attackerHeroes.map((h) => h.id),
+      defenderHeroIds: defenderHeroes.map((h) => h.id),
+    });
 
     game.registry.set('battleSettings', { auto, speed });
     game.registry.set('battleCommands', []);

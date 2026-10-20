@@ -21,6 +21,7 @@ import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import AllianceManager from '@/features/alliance/logic/AllianceManager';
 import { createSiegeDefenderProfile } from '@/features/battle/logic/siegeDefenders';
 import { buildSiegeCityFields } from '@/features/battle/logic/siegeReport';
+import { deriveSiegeClaimKey } from '@/features/battle/logic/claimKeys';
 
 interface SiegeViewProps {
   onExit: () => void;
@@ -33,10 +34,12 @@ const SiegeBattleGame: React.FC<{
   targetCityId?: string | null;
   targetCityName?: string | null;
   attackerAlliance?: { id: string; name: string } | null;
-  activeWar?: { defenderId: string; status: string; targetCityId?: string };
+  activeWar?: { id?: string; defenderId: string; status: string; targetCityId?: string };
 }> = ({ onExit, targetCityId, targetCityName, attackerAlliance, activeWar }) => {
   const gameRef = useRef<Phaser.Game | null>(null);
   const modal = useModal();
+  // battleId 标识**一次战斗实例**（战报去重 / 场景事件关联），必须每场唯一。
+  // 领奖键不用它派生 —— 见 claimKeyRef 与 claimKeys.ts 顶部注释。
   const battleIdRef = useRef<string>(newClaimKey('siege'));
   const claimKeyRef = useRef<string>('');
   const [auto, setAuto] = useState(true);
@@ -112,7 +115,13 @@ const SiegeBattleGame: React.FC<{
     game.registry.set('battleCommands', []);
     game.registry.set('battleCooldowns', {});
     setBattleResult(null);
-    claimKeyRef.current = `siege:${battleIdRef.current}`;
+    // 领奖键由 (war, city) 派生，**跨挂载稳定**。
+    // 原来这里是 `siege:${battleId}`，而 battleId 每次挂载随机 ——
+    // 于是离开页面再回来就等于"没领过"，同一场战争同一座城可以反复领奖。
+    claimKeyRef.current = deriveSiegeClaimKey({
+      warId: activeWarRef.current?.id,
+      cityId: targetCityIdRef.current,
+    });
 
     // Restart scene with data to ensure init receives it
     // Use a slight timeout to ensure scene manager is ready if needed,
