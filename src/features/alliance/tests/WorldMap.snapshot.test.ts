@@ -77,6 +77,7 @@ describe('WorldMap.getSnapshot 契约', () => {
       cityId: 'c5',
       winner: 'defender',
       attackerDamage: 1_800,
+      defenseBeforeCur: WorldMap.getCityById('c5')?.defenseState.cur ?? 0,
     });
 
     expect(ok).toBe(true);
@@ -103,7 +104,12 @@ describe('WorldMap.getSnapshot 契约', () => {
   // ── C：值语义 + 时间推进 ──────────────────────────────────────────────
   it('C: 跨秒后防御值随修复进度变化，且同一秒内只算一次', async () => {
     const WorldMap = await loadWorldMap();
-    WorldMap.applySiegeOutcome({ cityId: 'c5', winner: 'defender', attackerDamage: 1_800 });
+    WorldMap.applySiegeOutcome({
+      cityId: 'c5',
+      winner: 'defender',
+      attackerDamage: 1_800,
+      defenseBeforeCur: WorldMap.getCityById('c5')?.defenseState.cur ?? 0,
+    });
 
     const t0 = WorldMap.getCityById('c5');
     const t0Again = WorldMap.getCityById('c5');
@@ -123,7 +129,12 @@ describe('WorldMap.getSnapshot 契约', () => {
   // ── D：单城查询与全量快照必须同一口径（V-3 的单元级守卫） ──────────────
   it('D: getCityById() 与 getSnapshot() 中同一城池的防御值必须一致', async () => {
     const WorldMap = await loadWorldMap();
-    WorldMap.applySiegeOutcome({ cityId: 'c5', winner: 'defender', attackerDamage: 1_800 });
+    WorldMap.applySiegeOutcome({
+      cityId: 'c5',
+      winner: 'defender',
+      attackerDamage: 1_800,
+      defenseBeforeCur: WorldMap.getCityById('c5')?.defenseState.cur ?? 0,
+    });
     vi.setSystemTime(new Date(FROZEN_NOW.getTime() + 30_000));
 
     const fromSnapshot = WorldMap.getSnapshot().find((c) => c.id === 'c5');
@@ -190,7 +201,12 @@ describe('WorldMap.getSnapshot 契约', () => {
     // 修复中：5s / 60s 的进度 → 已回到 100 以上
     expect(beforeCur).toBeGreaterThan(100);
 
-    WorldMap.applySiegeOutcome({ cityId: 'c3', winner: 'defender', attackerDamage: 500 });
+    WorldMap.applySiegeOutcome({
+      cityId: 'c3',
+      winner: 'defender',
+      attackerDamage: 500,
+      defenseBeforeCur: WorldMap.getCityById('c3')?.defenseState.cur ?? 0,
+    });
 
     const after = WorldMap.getCityById('c3');
     const afterCur = after?.defenseState.cur ?? -1;

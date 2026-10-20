@@ -300,18 +300,27 @@ class WorldMapStore {
     cityId: string;
     winner: 'attacker' | 'defender' | 'draw';
     attackerDamage: number;
+    /**
+     * 战斗开始时采用的防御值（调用方持有的冻结快照，见 SiegeView 的 `city` useMemo）。
+     *
+     * **必填，不提供缺省重算。** 原因：城池在战斗中持续修复，
+     * 若结算内部按 `currentSec()` 重算，就会用上「战斗中修回来的血」，
+     * 与战斗实际采用的基数脱钩 —— 同一场战斗，结算晚 60s 城防就多留一截。
+     * 做成必填是为了让"漏传"变成编译错误，而不是一个静默的旧行为。
+     */
+    defenseBeforeCur: number;
     attackerAllianceId?: string | null;
     attackerAllianceName?: string | null;
   }) {
     const idx = this.cities.findIndex((c) => c.id === args.cityId);
     if (idx < 0) return false;
     const prev = this.cities[idx];
-    // 与 getSnapshot()/getCityById() 共用同一时间口径与同一计算入口，
-    // 否则会出现「结算按现算扣血、地图按缓存显示」的分裂。
+    // 时间戳仍取当前秒：修复窗口是从**结算时刻**开始计的，这部分必须实时。
     const sec = currentSec();
     const nowMs = sec * 1000;
-    const curBefore = this.computeCity(prev, sec).defenseState.cur;
     const max = prev.defenseState.max;
+    // 扣血基数用调用方的冻结值，不用现算 —— 见 defenseBeforeCur 的注释。
+    const curBefore = clampInt(args.defenseBeforeCur, 0, max);
     let defenseState: CityDefenseState = { ...prev.defenseState, cur: curBefore };
     let ownerAllianceId = prev.ownerAllianceId;
     let ownerAllianceName = prev.ownerAllianceName;

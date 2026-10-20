@@ -20,6 +20,7 @@ import { WorldMap } from '@/features/alliance/logic/WorldMap';
 import { useAlliance } from '@/features/alliance/hooks/useAlliance';
 import AllianceManager from '@/features/alliance/logic/AllianceManager';
 import { createSiegeDefenderProfile } from '@/features/battle/logic/siegeDefenders';
+import { buildSiegeCityFields } from '@/features/battle/logic/siegeReport';
 
 interface SiegeViewProps {
   onExit: () => void;
@@ -132,25 +133,27 @@ const SiegeBattleGame: React.FC<{
       const cityId = targetCityIdRef.current;
       const aa = attackerAllianceRef.current;
       const war = activeWarRef.current;
-      const before = cityId ? WorldMap.getCityById(cityId) : null;
-      const ok = cityId
-        ? WorldMap.applySiegeOutcome({
-            cityId,
-            winner: result.winner,
-            attackerDamage: result.stats.attacker.damage,
-            attackerAllianceId: aa?.id ?? null,
-            attackerAllianceName: aa?.name ?? null,
-          })
-        : false;
-      const after = ok && cityId ? WorldMap.getCityById(cityId) : before;
+      // 战前城池一律用挂载时冻结的 `city`（useMemo 的依赖只有 targetCityId），
+      // 不再在结算瞬间重读 —— 城池在战斗中会持续修复，重读得到的是 cur(T1)，
+      // 与战斗实际采用的 cur(T0) 脱钩（A4）。frozenDefenseCur 就是这个 T0 值。
+      const frozen = city;
+      const frozenDefenseCur = frozen?.defenseState.cur ?? null;
+      const ok =
+        cityId && frozenDefenseCur !== null
+          ? WorldMap.applySiegeOutcome({
+              cityId,
+              winner: result.winner,
+              attackerDamage: result.stats.attacker.damage,
+              defenseBeforeCur: frozenDefenseCur,
+              attackerAllianceId: aa?.id ?? null,
+              attackerAllianceName: aa?.name ?? null,
+            })
+          : false;
+      const after = ok && cityId ? WorldMap.getCityById(cityId) : null;
       const enriched: BattleResult = {
         ...result,
         targetCityId: cityId,
-        targetCityName: after?.name ?? null,
-        cityDefenseBefore: before?.defenseState.cur ?? null,
-        cityDefenseAfter: after?.defenseState.cur ?? null,
-        cityOwnerBefore: before?.ownerAllianceName ?? null,
-        cityOwnerAfter: after?.ownerAllianceName ?? null,
+        ...buildSiegeCityFields({ frozen, after }),
       };
       setBattleResult(enriched);
       BattleHistory.add(enriched);
@@ -173,7 +176,9 @@ const SiegeBattleGame: React.FC<{
       game.destroy(true);
       gameRef.current = null;
     };
-  }, [attackerTeam, auto, defenderProfile, speed]);
+    // city 必须进依赖：onBattleEnd 现在直接用挂载时冻结的 city 作为战前快照（A4）。
+    // city 由 useMemo([targetCityId]) 产出，同一城池下引用稳定，加进来不会引发重开战局。
+  }, [attackerTeam, auto, city, defenderProfile, speed]);
 
   useEffect(() => {
     const game = gameRef.current;
