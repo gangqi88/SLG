@@ -160,4 +160,46 @@ describe('WorldMap.getSnapshot 契约', () => {
     // 承重断言②：若 load() 未失效，仍命中上一个缓存，这里必红
     expect(WorldMap.getCityById('c5')?.ownerAllianceId).toBe('a9');
   });
+
+  // ── G：V-8 的 store 层哨兵（UI 层未验证） ──────────────────────────────
+  // 锁两件事：① 写操作之后**数值真的变了**（不是只换了个对象）
+  //           ② 同一秒内再读**仍是同一对象**（引用稳定）
+  // 与 D 的区别：D 锁「两条读路径一致」= 对象身份；G 锁「写后数值变化」。
+  // 「对象不同但数值没变」是完全可能的（M2 变异即如此），D 抓不到那种情况。
+  // 时间必须冻结：这是坑 2 成立的条件（同秒 → cachedSec 不变 → 只剩 version 能区分）。
+  it('G: 攻城结算后同一秒内，防御数值必须随写操作变小', async () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        version: 2,
+        owners: {},
+        defense: {
+          c3: {
+            max: 760,
+            cur: 100,
+            repairFromMs: FROZEN_NOW.getTime() - 5_000,
+            repairToMs: FROZEN_NOW.getTime() + 55_000,
+          },
+        },
+      }),
+    );
+
+    const WorldMap = await loadWorldMap();
+    const before = WorldMap.getCityById('c3');
+    const beforeCur = before?.defenseState.cur ?? -1;
+    // 修复中：5s / 60s 的进度 → 已回到 100 以上
+    expect(beforeCur).toBeGreaterThan(100);
+
+    WorldMap.applySiegeOutcome({ cityId: 'c3', winner: 'defender', attackerDamage: 500 });
+
+    const after = WorldMap.getCityById('c3');
+    const afterCur = after?.defenseState.cur ?? -1;
+
+    // a) 数值确实变小（守方胜 → 扣血）。同秒命中旧缓存时这里会相等而失败。
+    expect(afterCur).toBeLessThan(beforeCur);
+    // b) 对象身份也变了
+    expect(Object.is(before, after)).toBe(false);
+    // c) 同一秒内再读仍是同一对象（引用稳定）
+    expect(Object.is(WorldMap.getCityById('c3'), after)).toBe(true);
+  });
 });
