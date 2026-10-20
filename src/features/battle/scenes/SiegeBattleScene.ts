@@ -5,7 +5,7 @@ import { Hero, TroopType } from '@/shared/types/hero';
 import { VisualUnit } from '@/shared/visuals/VisualUnit';
 import { EffectManager } from '@/shared/visuals/EffectManager';
 import { PerformanceMonitor } from '@/shared/visuals/PerformanceMonitor';
-import { WALL_HERO, STREET_FIGHT_DEFENDERS } from '@/features/hero/data/siegeHeroes';
+import { WALL_HERO, STREET_FIGHT_DEFENDERS } from '@/shared/data/hero/siegeHeroes';
 import {
   accumulateFromEvents,
   createBattleAccumulator,

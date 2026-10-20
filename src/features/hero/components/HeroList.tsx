@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Hero, Quality, Race, TroopType } from '@/shared/types/hero';
-import { allHeroes } from '@/features/hero/data/heroes';
+import { allHeroes } from '@/shared/data/hero/heroes';
 import { HeroLogic } from '@/features/hero/logic/HeroLogic';
 import HeroDevelopmentView from './HeroDevelopmentView';
 import styles from './HeroView.module.css';

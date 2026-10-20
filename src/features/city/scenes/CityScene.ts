@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { CityManager } from '../logic/CityManager';
-import { humanHeroes } from '@/features/hero/data/humanHeroes'; // Default to human heroes for now
+import { humanHeroes } from '@/shared/data/hero/humanHeroes'; // Default to human heroes for now
 import { ResourceType } from '@/features/resource/logic/ResourceManager';
 
 export class CityScene extends Phaser.Scene {

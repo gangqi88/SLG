@@ -12,7 +12,7 @@ import { createBattleReportFromResult, type BattleReport } from '@/shared/logic/
 import { applyRewards, formatRewardLines, type Reward } from '@/shared/logic/rewards';
 import { hasClaimed, markClaimed, newClaimKey } from '@/shared/logic/claimLedger';
 import { computeTeamPower } from '@/shared/logic/teamMetrics';
-import { WALL_HERO } from '@/features/hero/data/siegeHeroes';
+import { WALL_HERO } from '@/shared/data/hero/siegeHeroes';
 import type { BattleResult } from '@/shared/logic/battleResult';
 import { BattleHistory } from '@/shared/logic/battleHistory';
 import { useSearchParams } from 'react-router-dom';

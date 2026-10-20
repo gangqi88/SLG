@@ -1,6 +1,6 @@
 import type { Hero } from '@/shared/types/hero';
 import { Quality } from '@/shared/types/hero';
-import { WALL_HERO, STREET_FIGHT_DEFENDERS } from '@/features/hero/data/siegeHeroes';
+import { WALL_HERO, STREET_FIGHT_DEFENDERS } from '@/shared/data/hero/siegeHeroes';
 import type { WorldCity } from '@/features/alliance/logic/WorldMap';
 
 export type SiegeDefenderProfile = {

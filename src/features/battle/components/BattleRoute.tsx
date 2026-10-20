@@ -1,7 +1,7 @@
 import React, { useMemo, useSyncExternalStore } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import BattleView from '@/features/battle/components/BattleView';
-import { demonHeroes } from '@/features/hero/data/demonHeroes';
+import { demonHeroes } from '@/shared/data/hero/demonHeroes';
 import { parseBattleMode } from '@/features/battle/types/battleMode';
 import { Team, getTeamHeroes } from '@/shared/logic/Team';
 

@@ -1,4 +1,4 @@
-import { allHeroes } from '@/features/hero/data/heroes';
+import { allHeroes } from '@/shared/data/hero/heroes';
 import type { Hero } from '@/shared/types/hero';
 
 type TeamSnapshot = {
