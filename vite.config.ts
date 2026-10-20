@@ -47,15 +47,19 @@ export default defineConfig({
        */
       clean: false,
       /**
-       * 阈值基线（2026-xx 实测）：Statements 11.29 / Branches 8.46 /
-       * Functions 10.97 / Lines 11.32。阈值取整下调留余量，只允许升不允许降。
-       * 注意：本门禁只在 `--coverage` 运行时生效（见 package.json 的 test:coverage）。
+       * 阈值基线（2026-10-20 实测，Node 22）：Statements 11.29 / Branches 8.46 /
+       * Functions 10.97 / Lines 11.32。
+       * 取值规则 = floor(实测) − 1，只允许升不允许降：阈值语义是「锁住不倒退」，
+       * 不是「设一个能过的数」。放低到远低于实测值，等于给门禁留出 20% 的相对松弛，
+       * 覆盖率从 11.32 掉到 9.05 都照样绿。
+       * 注意：本门禁只在 `--coverage` 运行时生效（见 package.json 的 test:coverage），
+       * 且对 Node 大版本敏感（v8 语句/分支计数会漂移），故 .nvmrc 与 engines 一并钉死。
        */
       thresholds: {
-        lines: 9,
-        statements: 9,
+        lines: 10,
+        statements: 10,
         branches: 7,
-        functions: 8,
+        functions: 9,
       },
     },
   },
