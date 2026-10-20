@@ -658,8 +658,9 @@ describe('AC-08 路由挂载 smoke', () => {
       captured,
       'console.error 通道失效：抛错没有进 console.error —— ④ 的判据将恒过',
     ).not.toEqual([]);
-    // ②a 已改成 scope 口径：错误页会替换整棵树，所以「route-content 不存在」才是该分支的正解；
-    // 用 host.childElementCount > 0 会重新变成空判据（错误页节点数仍 >0）。
+    // 用 scope 而非 host：错误页会替换整棵树，route-content 不存在才是该分支的正解。
+    // 这条断言守的是跨文件字符串契约（CONTENT_SELECTOR ↔ GameShell 的 data-testid）——
+    // 编译器看不见它；若 GameShell 结构变更导致选择器失效，②b 不会红，这里是唯一信号。
     expect(
       scope,
       '②a 的「内容容器不存在」分支失效：错误页本应替换整棵树，route-content 应当不存在',
