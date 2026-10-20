@@ -12,6 +12,11 @@
  * 若允许换路径，一个"测错页面"就会得到一条与首屏预算无关的红，
  * 而排错的人会以为是首屏回归。要测别的路径，另立脚本，不共用这个门禁。
  *
+ * **执行位置：只在 CI（`.github/workflows/verify.yml`）里跑，不在 `npm run verify` 链中。**
+ * 原因：本地 `verify` 不该强依赖 Chrome。
+ * ⚠️ 所以：**本地 `npm run verify` 全绿 ≠ 体积没超预算**。要提前发现，手动跑
+ * `npm run perf:budget`（或 `npm run perf:budget:selftest` 先验门禁本身）。
+ *
  * 退出码语义见 budget.mjs 顶部（1 = 代码问题，2 = 无法判定/环境问题）。
  *
  * 每次运行都会打印三件本可以省略、但省略后就无法追责的东西：
