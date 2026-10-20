@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useSyncExternalStore } from 'react';
 import { allHeroes } from '@/features/hero/data/heroes';
-import { Quality, Race, TroopType } from '@/features/hero/types/Hero';
+import { Quality, Race, TroopType } from '@/shared/types/hero';
 import { Team } from '@/shared/logic/Team';
 import styles from './TeamEditor.module.css';
 

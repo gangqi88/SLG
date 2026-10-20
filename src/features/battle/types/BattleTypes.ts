@@ -1,4 +1,4 @@
-import { Hero, HeroStats } from '@/features/hero/types/Hero';
+import { Hero, HeroStats } from '@/shared/types/hero';
 
 export interface BattleUnit extends Hero {
   uniqueId: string; // Runtime unique ID (e.g., heroId_1)

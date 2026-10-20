@@ -1,4 +1,4 @@
-import type { Hero } from '@/features/hero/types/Hero';
+import type { Hero } from '@/shared/types/hero';
 import { HeroLogic } from '@/features/hero/logic/HeroLogic';
 
 const computeHeroPower = (hero: Hero) => {

@@ -1,4 +1,4 @@
-import { Hero, Race, Quality } from '@/features/hero/types/Hero';
+import { Hero, Race, Quality } from '@/shared/types/hero';
 
 export const demonHeroes: Hero[] = [
   {

@@ -1,4 +1,4 @@
-import { Hero, Quality } from '@/features/hero/types/Hero';
+import { Hero, Quality } from '@/shared/types/hero';
 import { allHeroes } from '@/features/hero/data/heroes';
 import { newTroopHeroes } from '@/features/hero/data/newHeroes';
 

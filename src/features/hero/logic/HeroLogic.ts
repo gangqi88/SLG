@@ -1,4 +1,4 @@
-import { Hero, HeroStats } from '@/features/hero/types/Hero';
+import { Hero, HeroStats } from '@/shared/types/hero';
 import InventoryManager from '@/features/resource/logic/InventoryManager';
 
 export class HeroLogic {

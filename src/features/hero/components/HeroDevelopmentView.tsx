@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
-import { Hero } from '@/features/hero/types/Hero';
+import { Hero } from '@/shared/types/hero';
 import { HeroLogic } from '@/features/hero/logic/HeroLogic';
 import InventoryManager from '@/features/resource/logic/InventoryManager';
 import { InventoryItem } from '@/features/gacha/types/LootBox';

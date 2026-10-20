@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GachaManager, GachaResult } from '@/features/gacha/logic/GachaManager';
-import { Quality } from '@/features/hero/types/Hero';
+import { Quality } from '@/shared/types/hero';
 import { useModal } from '@/shared/components/ModalContext';
 import { PlayerResources } from '@/shared/logic/PlayerResources';
 import { useNavigate } from 'react-router-dom';

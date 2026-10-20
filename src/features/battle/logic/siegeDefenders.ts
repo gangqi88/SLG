@@ -1,5 +1,5 @@
-import type { Hero } from '@/features/hero/types/Hero';
-import { Quality } from '@/features/hero/types/Hero';
+import type { Hero } from '@/shared/types/hero';
+import { Quality } from '@/shared/types/hero';
 import { WALL_HERO, STREET_FIGHT_DEFENDERS } from '@/features/hero/data/siegeHeroes';
 import type { WorldCity } from '@/features/alliance/logic/WorldMap';
 

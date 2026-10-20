@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { BattleSystem } from '../logic/BattleSystem';
 import { BattleUnit, BattleEvent } from '@/features/battle/types/BattleTypes';
-import { Hero } from '@/features/hero/types/Hero';
+import { Hero } from '@/shared/types/hero';
 import { VisualUnit } from '@/shared/visuals/VisualUnit';
 import { EffectManager } from '@/shared/visuals/EffectManager';
 import { PerformanceMonitor } from '@/shared/visuals/PerformanceMonitor';

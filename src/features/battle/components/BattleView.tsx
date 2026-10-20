@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Phaser from 'phaser';
 import { PreloadScene } from '@/shared/scenes/PreloadScene';
 import { BattleScene } from '@/features/battle/scenes/BattleScene';
-import { Hero } from '@/features/hero/types/Hero';
+import { Hero } from '@/shared/types/hero';
 import { getBattleSceneAssetFeatures } from '@/shared/config/assets/sceneAssetFeatures';
 import { BattleMode } from '@/features/battle/types/battleMode';
 import { SceneHUD } from '@/shared/components/SceneHUD';

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { GachaManager } from '@/features/gacha/logic/GachaManager';
-import { Quality } from '@/features/hero/types/Hero';
+import { Quality } from '@/shared/types/hero';
 
 describe('GachaManager', () => {
   let gachaManager: GachaManager;

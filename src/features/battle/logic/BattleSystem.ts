@@ -1,4 +1,4 @@
-import { Hero, Skill, TroopType } from '@/features/hero/types/Hero';
+import { Hero, Skill, TroopType } from '@/shared/types/hero';
 import { calculateNormalDamage, calculateSkillDamage, calculateHealing } from './CombatFormulas';
 import { BondManager } from '@/features/hero/logic/BondManager';
 import { HeroLogic } from '@/features/hero/logic/HeroLogic';

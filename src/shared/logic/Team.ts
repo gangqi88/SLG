@@ -1,5 +1,5 @@
 import { allHeroes } from '@/features/hero/data/heroes';
-import type { Hero } from '@/features/hero/types/Hero';
+import type { Hero } from '@/shared/types/hero';
 
 type TeamSnapshot = {
   heroIds: string[];
