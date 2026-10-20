@@ -17,10 +17,16 @@
 - `npm run test`：watch 模式
 - `npx vitest run`：一次性执行，更适合 CI 或手动校验
 
-当前已存在测试示例包括：
+当前已存在测试（10 个文件 / 31 个用例）：
 
-- `src/features/alliance/tests/allianceSlice.test.ts`
+- `src/shared/config/assets/assets.test.ts`
+- `src/shared/tests/commitConventions.test.ts`
+- `src/features/alliance/tests/npcAlliances.test.ts`
+- `src/features/alliance/tests/allianceStringPolicy.test.ts`
+- `src/features/alliance/tests/WorldMap.api.test.ts`
+- `src/features/alliance/tests/WorldMap.migration.test.ts`
 - `src/features/battle/tests/BattleSystem.test.ts`
+- `src/features/battle/tests/battleMode.test.ts`
 - `src/features/gacha/tests/GachaManager.test.ts`
 - `src/features/task/tests/TaskManager.test.ts`
 
@@ -33,10 +39,15 @@
 运行方式：
 
 ```bash
-npm run test:e2e
+npx cypress install   # 首次需要，下载约 100MB 二进制
+npm run test:e2e      # 启动开发服务器 → 轮询端口 → 执行 cypress run
 ```
 
-该命令会启动开发服务器并执行 Cypress。
+该命令会启动开发服务器并执行 Cypress，结束后关闭服务器。
+
+> **当前状态（2026-10-20）**：`cypress install` 成功（缓存 `15.11.0`），但 `npm run test:e2e` **未能跑通**。失败原因是本机安全策略把 `reg.exe` 列入程序黑名单，Cypress 启动需要读取注册表，二进制初始化被拦截（`Cypress.exe: bad option: --smoke-test`）。这属于**环境限制，不是代码或断言问题**。
+>
+> 用例断言已静态核对：`GameMain.tsx` 的 `aria-label="主界面入口"` 与 `button[title="主城"]` 均存在。待允许 `reg.exe` 或改用其他执行环境后可直接复跑。
 
 ## 3. Hardhat 测试子项目
 

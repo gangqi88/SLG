@@ -76,11 +76,16 @@ skill 是任务方法，不是规则真源。
 
 ## 推荐验证命令
 
+- `npm run verify`（一键：lint → stylelint → 格式 → 类型 → 单测 → 构建）
+
+分项命令（需要定位具体问题时使用）：
+
 - `npm run lint`
-- `npx tsc --noEmit`
+- `npm run lint:style`
+- `npm run format:check`
+- `npm run typecheck`
 - `npx vitest run`
 - `npm run build`
-- `npm run lint:style`
 
 > 注意：是否“通过”必须以实际执行结果为准，不要沿用旧文档中的静态状态描述。
 

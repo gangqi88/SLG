@@ -72,8 +72,11 @@ npm run build
 ### 5. 运行 E2E 测试
 
 ```bash
+npx cypress install   # 首次需要，下载约 100MB 二进制
 npm run test:e2e
 ```
+
+> 当前本机受安全策略限制（`reg.exe` 被列入程序黑名单），Cypress 无法初始化，该命令尚未跑通；详见 [测试说明](docs/development/testing.md)。
 
 ## 常用命令
 
@@ -88,28 +91,20 @@ npm run test:e2e
 | `npm run cy:run` | 仅执行 Cypress（不启动开发服务器） |
 | `npm run lint` | 运行 ESLint |
 | `npm run lint:style` | 运行 Stylelint |
+| `npm run format` | 用 Prettier 格式化全仓（受 `.prettierignore` 约束） |
+| `npm run format:check` | 校验格式，不改文件 |
+| `npm run typecheck` | 类型检查（`src` + config/cypress 两个项目） |
+| `npm run verify` | 一键质量门：lint → stylelint → 格式 → 类型 → 单测 → 构建 |
 | `npm run assets:check` | 校验游戏素材清单 |
 | `npm run assets:check:strict` | 严格模式校验素材清单 |
 | `npm run hooks:install` | 安装本地 git hooks |
 | `npm run commit:template` | 生成提交信息模板 |
-| `npx tsc --noEmit` | 运行 TypeScript 类型检查（无 `typecheck` 脚本） |
 
 ## 工程状态说明
 
-以下状态基于 **2026-10-19** 的实际执行结果：
+当前质量门已全部通过（0 error / 0 warning）。实测数字、命令与覆盖边界统一记录在 [质量门说明](docs/development/quality-gates.md)，本文档不再复制第二份数字——避免代码一变就要改多处。
 
-| 命令 | 结果 |
-| --- | --- |
-| `npm run build` | 通过 |
-| `npx vitest run` | 通过 |
-| `npm run lint` | 未通过（238 问题：231 error / 7 warning，其中 231 条为 `prettier/prettier` 格式问题） |
-| `npx tsc --noEmit` | 未通过（13 个类型错误） |
-| `npm run lint:style` | 未通过（13 个样式规范错误，11 条可 `--fix`） |
-
-这意味着当前仓库属于「**可运行、可构建、已有测试，但质量门尚未关闭**」的状态。
-
-- 逐项归类与修复路径见 [质量门说明](docs/development/quality-gates.md)。
-- 本表数字会随代码变化而漂移，变更主流程后请重新实测并同步此表。
+日常提交前建议执行 `npm run verify`；`npm run test:e2e` 需要先 `npx cypress install` 且会占用 8080 端口，未纳入 `verify`。
 
 ## 目录概览
 

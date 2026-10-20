@@ -38,7 +38,7 @@
 - `eqeqeq: error`
 - `curly: error`
 
-**作用域说明**：以上规则通过 `eslint.config.mjs` 的 `files: ['**/*.{ts,tsx}']` 生效，因此只覆盖 `.ts / .tsx`（含 `cypress/`）。`scripts/*.mjs` 与 `test/*.js` 不在规则作用域内，即使出现风格问题（例如未被 Prettier 格式化）也不会被 `npm run lint` 拦截。CSS 由 Stylelint 负责，见 `.stylelintrc.json`。
+**作用域说明**：以上规则通过 `eslint.config.mjs` 的 `files: ['**/*.{ts,tsx}']` 生效，因此只覆盖 `.ts / .tsx`（含 `cypress/`）。`scripts/*.mjs` 与 `test/*.js` 不在 ESLint 规则作用域内，不会被 `npm run lint` 拦截；其中 `scripts/` 由 `npm run format:check` 覆盖格式检查。CSS 由 Stylelint 负责，见 `.stylelintrc.json`。
 
 ## 目录与导入建议
 
