@@ -583,17 +583,21 @@ describe('AC-08 路由挂载 smoke', () => {
 
       rows.push(
         `${routePath.padEnd(14)} ${r.status.padEnd(13)} anchor=${anchor.padEnd(22)} ` +
-          `first=${JSON.stringify(r.firstFrame.slice(0, 18))} ` +
-          `err=${r.errorCount} excluded_act=${r.excludedAct} excluded_suspend=${r.excludedSuspend}` +
-          `${r.suggestsSync ? ' 诊断:首帧=稳定态(无加载态)' : ''}` +
-          `${r.reasons.length ? `\n                 └ ${r.reasons.join(' | ')}` : ''}`,
+          `hasLoading=${String(r.firstFrame === FALLBACK_TEXT).padEnd(5)} ` +
+          `stable=${JSON.stringify(r.stableText.slice(0, 60))} ` +
+          `err=${r.errorCount} excluded_act=${r.excludedAct} excluded_suspend=${r.excludedSuspend}`,
       );
 
       if (r.status === 'FAIL') failures.push(`${routePath}: ${r.reasons.join(' | ')}`);
       if (r.status === 'UNDETERMINED') undetermined.push(`${routePath}: ${r.reasons.join(' | ')}`);
     }
 
-    process.stdout.write(`\n[AC-08] 挂载判定（${targets.length} 条 plain）\n${rows.join('\n')}\n`);
+    const noAnchorPaths = targets.filter((p) => ANCHORS[p] === 'NO_ANCHOR');
+    process.stdout.write(
+      `\n[AC-08] 挂载判定（${targets.length} 条 plain）\n${rows.join('\n')}\n` +
+        // 只打印不断言：例外表若变长必须可见（只增不减的例外表 = 判据在慢慢失效）
+        `[AC-08] no_anchor: ${noAnchorPaths.length} [${noAnchorPaths.join(', ')}]\n`,
+    );
 
     // UNDETERMINED 必须让 verify 非 0 —— 不阻塞的第三态等于第二态
     expect(undetermined, `无法判定（确定性观测失败）：\n${undetermined.join('\n')}`).toEqual([]);
@@ -629,6 +633,8 @@ describe('AC-08 路由挂载 smoke', () => {
     }
 
     const hostText = host.textContent ?? '';
+    const childCount = host.childElementCount;
+    const errorCount = errSpy.mock.calls.length;
     errSpy.mockRestore();
     try {
       await act(async () => {
@@ -639,9 +645,22 @@ describe('AC-08 路由挂载 smoke', () => {
     }
     host.remove();
 
+    process.stdout.write(
+      `\n[AC-08] 阴性对照：childCount=${childCount} errorCount=${errorCount} hasErrorPage=${hostText.includes('Unexpected Application Error!')}\n`,
+    );
+
+    // 三条通道同时校验：任一条失效，说明「探测能力」已经坏了，而不是路由干净
     expect(hostText, '阴性对照失效：抛错组件没有渲染出 Router 错误页').toContain(
       'Unexpected Application Error!',
     );
+    expect(
+      childCount,
+      '阴性对照失效：错误页没有任何 DOM 节点 —— 「容器非空」这条判据的测量对象变了',
+    ).toBeGreaterThan(0);
+    expect(
+      errorCount,
+      '阴性对照失效：抛错没有进 console.error —— ④ 唯一可用的错误通道失效了',
+    ).toBeGreaterThan(0);
   });
 
   it('store 级守卫仍然存在（mount test 的 B-half 依赖它们）', () => {
