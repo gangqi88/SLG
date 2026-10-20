@@ -1,4 +1,4 @@
-import InventoryManager from '@/features/resource/logic/InventoryManager';
+import InventoryManager from '@/shared/logic/resource/InventoryManager';
 import { PlayerResources } from '@/shared/logic/PlayerResources';
 
 export type RewardLine = { label: string; amount: number };

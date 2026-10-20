@@ -1,4 +1,4 @@
-import { ResourceManager, ResourceType } from '@/features/resource/logic/ResourceManager';
+import { ResourceManager, ResourceType } from '@/shared/logic/resource/ResourceManager';
 import { BuildingManager } from './BuildingManager';
 import { Hero } from '@/shared/types/hero';
 

@@ -1,4 +1,4 @@
-import { ResourceType } from '@/features/resource/logic/ResourceManager';
+import { ResourceType } from '@/shared/logic/resource/ResourceManager';
 
 export enum BuildingType {
   CASTLE = 'Castle',

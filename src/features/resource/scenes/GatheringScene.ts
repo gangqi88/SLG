@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import InventoryManager from '@/features/resource/logic/InventoryManager';
+import InventoryManager from '@/shared/logic/resource/InventoryManager';
 
 export class GatheringScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite;

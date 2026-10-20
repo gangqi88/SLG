@@ -1,4 +1,4 @@
-import InventoryManager from '@/features/resource/logic/InventoryManager';
+import InventoryManager from '@/shared/logic/resource/InventoryManager';
 import { TaskState } from '@/shared/logic/task/TaskManager';
 import { getTaskManager } from '@/shared/logic/task/taskSingleton';
 

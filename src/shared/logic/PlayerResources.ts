@@ -23,7 +23,7 @@ class PlayerResourcesStore {
   }
 
   private syncFromInventory() {
-    import('@/features/resource/logic/InventoryManager').then(({ default: inventory }) => {
+    import('@/shared/logic/resource/InventoryManager').then(({ default: inventory }) => {
       inventory.subscribe(() => {
         const items = inventory.getItems();
         const bun = items.find((i) => i.item.id === 'item_hero_exp')?.quantity ?? 0;

@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import InventoryManager from '@/features/resource/logic/InventoryManager';
+import InventoryManager from '@/shared/logic/resource/InventoryManager';
 import { InventoryItem } from '@/features/gacha/types/LootBox';
 import { useModal } from '@/shared/components/ModalContext';
 

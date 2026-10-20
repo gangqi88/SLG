@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { Hero } from '@/shared/types/hero';
 import { HeroLogic } from '@/features/hero/logic/HeroLogic';
-import InventoryManager from '@/features/resource/logic/InventoryManager';
+import InventoryManager from '@/shared/logic/resource/InventoryManager';
 import { InventoryItem } from '@/features/gacha/types/LootBox';
 import { useModal } from '@/shared/components/ModalContext';
 import { openResourceWays } from '@/shared/logic/openResourceWays';
