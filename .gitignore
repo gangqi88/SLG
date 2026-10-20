@@ -26,8 +26,14 @@ test/cache
 *.njsproj
 *.sln
 *.sw?
-package-lock.json
 .env
+
+# 测试与覆盖率产物
+coverage/
+.eslintcache
+
+# Hardhat 子项目自带 lockfile，不并入主仓（其依赖由 test/ 自行管理）
+test/package-lock.json
 
 # AI 代理本地记忆与工作区
 .workbuddy/

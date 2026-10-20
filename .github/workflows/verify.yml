@@ -1,0 +1,32 @@
+name: verify
+
+# PR 必过：这个 workflow 是合并门槛，任何一步非 0 退出即阻断。
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 固定 Node 22：覆盖率阈值是用 v8 provider 在本版本上实测的，
+      # 换大版本会因语句/分支计数差异导致假红或假绿。
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # 使用 lockfile 的确定性安装；lockfile 已入库，缺失即失败。
+      - name: Install dependencies
+        run: npm ci
+
+      # verify 内部按顺序执行：
+      # lint → lint:style → format:check → typecheck → assets:check:strict
+      # → test:coverage（含阈值）→ build
+      - name: Verify
+        run: npm run verify

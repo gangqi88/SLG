@@ -1,6 +1,6 @@
 {
   "extends": ["stylelint-config-standard"],
-  "ignoreFiles": ["dist/**/*.css"],
+  "ignoreFiles": ["dist/**/*.css", "coverage/**/*.css"],
   "overrides": [
     {
       "files": ["**/*.module.css"],

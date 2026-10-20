@@ -7,7 +7,9 @@ import prettierPlugin from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
 
 export default tseslint.config(
-  { ignores: ['dist'] },
+  // coverage / .eslintcache 是测试产物：不忽略会让 `eslint .` 去扫报告里的
+  // 生成文件（日志污染，且 warning 一旦升 error 就变成真阻断）。
+  { ignores: ['dist', 'coverage', '.eslintcache'] },
   {
     extends: [
       js.configs.recommended,
