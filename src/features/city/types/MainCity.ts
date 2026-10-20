@@ -88,49 +88,6 @@ export interface ResourcePrices {
   updatedAt: number;
 }
 
-export interface PriceHistory {
-  resource: 'wood' | 'stone' | 'food' | 'gold';
-  price: number;
-  timestamp: number;
-}
-
-export interface PurchaseRecord {
-  id: string;
-  itemId: string;
-  quantity: number;
-  totalPaid: number;
-  timestamp: number;
-}
-
-export interface AuctionItemInput {
-  sellerId: string;
-  sellerName: string;
-  itemType: 'hero' | 'material' | 'skin';
-  itemId: string;
-  itemName: string;
-  itemImage: string;
-  startPrice: number;
-  buyoutPrice: number;
-  duration: number;
-}
-
-export const BUILDING_NAMES: Record<BuildingType, string> = {
-  [BuildingType.CASTLE]: 'mainCity.building.castle',
-  [BuildingType.WAREHOUSE]: 'mainCity.building.warehouse',
-  [BuildingType.WALL]: 'mainCity.building.wall',
-  [BuildingType.LUMBER_MILL]: 'mainCity.building.lumber',
-  [BuildingType.QUARRY]: 'mainCity.building.quarry',
-  [BuildingType.FARM]: 'mainCity.building.farm',
-  [BuildingType.MARKET]: 'mainCity.building.market',
-  [BuildingType.BARRACKS]: 'mainCity.building.barracks',
-  [BuildingType.STABLE]: 'mainCity.building.stable',
-  [BuildingType.RANGE]: 'mainCity.building.range',
-  [BuildingType.HOSPITAL]: 'mainCity.building.hospital',
-  [BuildingType.ALLIANCE_HALL]: 'mainCity.building.allianceHall',
-  [BuildingType.HERO_HALL]: 'mainCity.building.heroHall',
-  [BuildingType.BAZAAR]: 'mainCity.building.bazaar',
-};
-
 export const BUILDING_MAX_LEVELS: Record<BuildingType, number> = {
   [BuildingType.CASTLE]: 30,
   [BuildingType.WAREHOUSE]: 25,
@@ -155,17 +112,3 @@ export const INITIAL_BUILDINGS: BuildingType[] = [
   BuildingType.FARM,
   BuildingType.HERO_HALL,
 ];
-
-export const UNLOCK_REQUIREMENTS: Partial<
-  Record<BuildingType, { castleLevel?: number; buildingLevel?: BuildingType }>
-> = {
-  [BuildingType.WAREHOUSE]: { castleLevel: 5 },
-  [BuildingType.WALL]: { castleLevel: 3 },
-  [BuildingType.MARKET]: { castleLevel: 5 },
-  [BuildingType.BARRACKS]: { castleLevel: 3 },
-  [BuildingType.STABLE]: { castleLevel: 5 },
-  [BuildingType.RANGE]: { buildingLevel: BuildingType.BARRACKS },
-  [BuildingType.HOSPITAL]: { castleLevel: 4 },
-  [BuildingType.ALLIANCE_HALL]: { castleLevel: 8 },
-  [BuildingType.BAZAAR]: { castleLevel: 6 },
-};
