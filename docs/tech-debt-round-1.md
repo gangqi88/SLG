@@ -373,7 +373,7 @@ b2cb42d  test(infra): 新增 AC-08 路由挂载 smoke
 
 | AC | 内容 | 状态 |
 |---|---|---|
-| AC-05 | 死代码检测可判定 | ✅ knip 已接入 verify，`src` 内报出已归零（`exports 39→2`、`types 23→0`、`dup 4→0`）；剩 2 项在 `scripts/`，登记为范围外 |
+| AC-05 | 死代码检测可判定 | ✅ **已建**：`knip` 在 `verify` 链中位于 **`typecheck` 之后、`assets:check:strict` 之前**（死导出在跑测试前拦下）；`src` 内 **0 项**（本轮清掉 G1a 遗留的 3 项：`effectiveSiegeScore` / `siegeScoreNorm` / `PendingSiegeScore`）。**范围**：`knip.json` 只排除 `test/**`（独立 web3 子项目，自带 `package.json`/`node_modules`/`hardhat.config.cjs`/`contracts/`，非主项目代码）与 `scripts/**`（工具脚本，非产品代码）；**未使用 `ignoreExportsUsedInFile`**（那会让"同文件内使用的多余 export"不再上报，等于关掉本项检查）。**自验**：临时加 `export const __probe = 1` → `npm run knip` exit **1** 且点名 `__probe`；删除后 exit **0** |
 | **AC-08** | 路由级崩溃可自动发现 | ✅ **已建**（覆盖 9 条非 Phaser 路由；6 条 Phaser 归浏览器层；不覆盖清单 4 条） |
 | **AC-09** | 体积预算门禁 | ✅ **已建**（runtime 实测 111,779 B；阈值 112640 冻结线 + 放宽账本；exit 0/1/2；自验 14/14） |
 | AC-11 | 交互可达性 | 待评估（jsdom 挂载能力已确认存在，成本基数下降） |
