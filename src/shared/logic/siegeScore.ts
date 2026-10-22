@@ -56,7 +56,7 @@ const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
  * 1500 分以上系数 ×0.5：
  *   1500 → 1500；2500 → 1500 + 1000×0.5 = 2000；3000 → 2250
  */
-export const effectiveSiegeScore = (score: number) => {
+const effectiveSiegeScore = (score: number) => {
   const s = Number.isFinite(score) && score > 0 ? score : 0;
   return s <= SIEGE_SCORE_LINEAR_CAP
     ? s
@@ -64,7 +64,7 @@ export const effectiveSiegeScore = (score: number) => {
 };
 
 /** 归一到 0..1（满分即 1） */
-export const siegeScoreNorm = (score: number) =>
+const siegeScoreNorm = (score: number) =>
   clamp01(effectiveSiegeScore(score) / SIEGE_SCORE_LINEAR_CAP);
 
 /** 本次结算的硬顶（城防扣减单位） */
@@ -86,7 +86,7 @@ export const computeSiegeContribution = (args: { score: number; max: number }) =
   return Math.round(siegeScoreCap(max) * siegeScoreNorm(score));
 };
 
-export type PendingSiegeScore = { cityId: string | null; score: number };
+type PendingSiegeScore = { cityId: string | null; score: number };
 
 /** 可被 useRef 满足的最小结构（只要求 current） */
 export type PendingSiegeScoreRef = { current: PendingSiegeScore | null };
